@@ -1,0 +1,44 @@
+wsaironport.ubiqube.net> version
+
+Current Version
+===============
+UDI: S170 V02 FGL161740FK
+Product: IronPort S170 Web Security Appliance
+Model: S170
+Version: 7.1.3-014
+Build Date: 2011-09-07
+Install Date: 2012-04-27 11:42:33
+Serial #: 5057A8E14597-FGL161740FK
+BIOS: 9B1C115A
+RAID: 02
+RAID Status: OPTIMAL
+RAID Type: 1
+BMC: 2.02
+IronPort DVS Engine: 1.0 (Never Updated)
+IronPort DVS Malware User Agent Rules: 0.554 (Never Updated)
+IronPort DVS Object Type Rules: 0.554 (Never Updated)
+L4 Traffic Monitor Anti-Malware Rules: 1339497362 (Tue Jun 12 11:02:33 2012)
+IronPort URL Filtering Engine: 5.2.2 (Never Updated)
+IronPort URL Categories Database: 1656 (Never Updated)
+IronPort URL Categories Database Incremental Updates: 1657 (Never Updated)
+Cisco IronPort Web Usage Controls - Web Categorization Engine: 3.0.0.029 (Wed Jun  6 10:45:58 2012)
+Cisco IronPort Web Usage Controls - Web Categorization URL Keyword Filters: 1265751908 (Wed Jun  6 10:45:57 2012)
+Cisco IronPort Web Usage Controls - Web Categorization Prefix Filters: 1339501132 (Tue Jun 12 11:48:46 2012)
+Cisco IronPort Web Usage Controls - Web Categorization Categories List: 1337979190 (Wed Jun  6 10:45:58 2012)
+Cisco IronPort Web Usage Controls - Dynamic Content Analysis Engine: 2.0.0-110 (Never Updated)
+Cisco IronPort Web Usage Controls - Dynamic Content Analysis Engine Data: 290005 (Wed Jun  6 10:34:16 2012)
+Cisco IronPort Web Usage Controls - Application Visibility and Control Engine: 1.1.0-071 (Wed Jun  6 10:33:28 2012)
+Cisco IronPort Web Usage Controls - Application Visibility and Control Data: 1334792281 (Wed Jun  6 10:33:28 2012)
+Web Reputation Engine: 3.0.0.029 (Wed Jun  6 10:45:58 2012)
+Web Reputation IP Filters: 1339501407 (Tue Jun 12 11:48:46 2012)
+Web Reputation Rules: 1339100541 (Thu Jun  7 20:28:24 2012)
+Web Reputation Prefix Filters: 1339501132 (Tue Jun 12 11:48:46 2012)
+Webroot Anti-Malware Engine: 2.1.5.8 (Never Updated)
+Webroot Engine Definition: 2.1.5.8 (Never Updated)
+Webroot Malware Categories DATs: 5098 (Tue Jun 12 10:23:55 2012)
+McAfee Anti-Malware Engine: 5400 (Never Updated)
+McAfee Engine Definition: 5200 (Never Updated)
+McAfee DATs: 6739 (Mon Jun 11 16:02:25 2012)
+Sophos Engine: 3.2.07.337_4.75 (Wed Jun  6 10:32:56 2012)
+Sophos IDE: 2012061202 (Tue Jun 12 10:23:32 2012)
+wsaironport.ubiqube.net> 
