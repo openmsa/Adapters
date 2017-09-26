@@ -1,0 +1,7 @@
+Actions to do on the managed Linux
+
+1- create a user (iptmgr for example)
+2- add rights for iptables command (/etc/sudoers) : iptmgr ALL = (ALL) NOPASSWD: /sbin/iptables
+3- Add chains into iptables : 
+      iptables -N FORWARD_RULES
+      iptables -N FORWARD_IMPLICIT_RULES
