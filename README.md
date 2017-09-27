@@ -88,8 +88,6 @@ There are 16 fields:
 
 |<ModelID> | <ManufacturerID> | <ModeleName> | <type> | <obsolete> | <starcenterEnabled> | <familyId> | <managed> | <utm> | <proxy> | <wizard> | <oec> | <category> | <detailedReportMail> | <detailedReportFirewall> | <detailedReportVpn>|
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-|101 | 1 | "IPS4200" | "H" | 1 | 0 | 1 | 1 | 1 | 0 | 1 | 0 | SR | 0 | 0 | 0|
-|102 | 1 | "AP541" | "H" | 1 | 0 | 1 | 1 | 1 | 0 | 1 | 0 | SR | 0 | 0 | 0|
 |103 | 1 | "SW300" | "H" | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | SW | 0 | 0 | 0|
 |104 | 1 | "CATALYST IOS" | "H" | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | U | 0 | 0 | 0|
 |105 | 1 | "UC540 FXO" | "H" | 0 | 1 | 0 | 1 | 1 | 0 | 0 | 1 | VR | 0 | 0 | 0|
