@@ -244,5 +244,5 @@ You can also classify your syslogs thanks to following file :
 License
 ----
 
-Freeware
+GNU GPL v3.0
 
