@@ -55,13 +55,9 @@ There are 3 fields:
 | <ManufacturerID> | <ManufacturerName> | <isSupported> |
 | ------ | ------ | ------ |
 | 1 | CISCO | $UBI_VSOC_SUPPORT_CISCO_DEVICE |
-| 4 | SAFENET | $UBI_VSOC_SUPPORT_SAFENET_CLIENT |
-| 13 | BINTEC | 1 |
 | 14 | GENERIC | $UBI_VSOC_SUPPORT_GENERIC_DEVICE |
-| 16 | NETSCREEN | 1 |
 | 17 | FORTINET | $UBI_VSOC_SUPPORT_FORTINET_DEVICE |
 | 18 | JUNIPER | $UBI_VSOC_SUPPORT_JUNIPER_DEVICE |
-| 19 | BLUE COAT | $UBI_VSOC_SUPPORT_BLUE_COAT_DEVICE |
 
 Example:
 ```sh
