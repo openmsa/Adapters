@@ -1,12 +1,12 @@
 # MSA-Device-Adaptors
 
-MSActivator is a multi-tenant, full lifecycle management framework developed for agile service
+The MSActivator(TM) is a multi-tenant, full lifecycle management framework developed for agile service
 design and assurance, making automation not only possible - but easy.
 
 
 ### Device Adaptors
 
-MSA comes with several prebuilt device adaptors providing all the necessary functionality lifecycle management from provisioning to image and asset management. Adaptors provide the necessary interface to comminicate with different devices. 
+The MSActivator comes with several prebuilt device adaptors providing all the necessary functionality lifecycle management from provisioning to image and asset management. Adaptors provide the necessary interface to comminicate with different devices. 
 
 ### Installation
 
@@ -97,11 +97,11 @@ Example:
  10010,10001,"NewMod","H",0,1,0,1,0,0,1,0,U,0,0,0
  ```
 ###### Define the model identifier
-To define the models details please ru nteh following :
+To define the model details please run the following:
 ```sh
 $cp /opt/ses/templates/server_ALL/sdExtendedInfo.properties /opt/ses/properties/specifics/server_ALL/sdExtendedInfo.properties 
 ```
-Edit as following:
+Edit as follows:
 
 ```sh
 ## Manufacturer name
@@ -120,7 +120,7 @@ sdExtendedInfo.jspType.10001-10010 = NewMod
 ```
 
 ###### Define the model features
-Copy the following and add your <modelIdentifier> for each allowed features:
+Copy the following and add your <modelIdentifier> for each allowed feature:
 ```sh
 $cp /opt/ses/templates/server_ALL/manageLinks.properties /opt/ses/properties/specifics/server_ALL/manageLinks.properties
 ```
@@ -147,13 +147,13 @@ Example:
 ```sh
 soc.device.supported.newman=1
 ```
-NOTE : manufacturer name must be in lower case.
+NOTE: Manufacturer name must be in lower case
 ###### Enable new manufacturer support on repository
-Copy and add :
+Copy and add:
 ```sh
 $cp /opt/ses/templates/server_ALL/repository.properties /opt/ses/properties/specifics/server_ALL/repository.properties 
 ```
-A new repository manufacturer :
+A new repository manufacturer:
 ```sh
 repository.manufacturer= NETASQ CISCO JUNIPER FORTINET VMWARE ONEACCESS <newMan_toUpperCase> BLUECOAT
 ```
@@ -161,8 +161,8 @@ Example:
 ```sh
 repository.manufacturer= NETASQ CISCO JUNIPER FORTINET VMWARE ONEACCESS NEWMAN BLUECOAT
 ```
-NOTE : Manufacturer name must be in upper case.
-Your new model information :
+NOTE: Manufacturer name must be in upper case
+Your new model information:
 ```sh
 repository.model.<newMan>=<ManufacturerID>-<ModelID>
 ```
@@ -170,7 +170,7 @@ Example:
 ```sh
 repository.model.newMan=10001-10010
 ```
-Your repository access :
+Your repository access:
 ```sh
 repository.access.<newMan_toLowerCase>=|<feature1>|<feature2>|<...>
 ```
@@ -191,7 +191,7 @@ the asset script called <model>_mgmt.php and the poll script called <model>_poll
 ```
 ###### Link a model to a device adaptor
 This feature is used to manage the configuration of the router by updating it accordingly to the database information.
-The managed devices are selected by two information:
+The managed devices are selected by two parameters:
 - Manufacturer ID (MANID)
 - Model ID (MODID)
 
