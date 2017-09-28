@@ -10,7 +10,7 @@ The MSActivator comes with several prebuilt device adaptors providing all the ne
 
 ### Installation
 
-To install a provided (existing) device adaptor place the relevant folder and code under on your MSA:
+To install a provided (existing) device adaptor place the relevant code in the below directory on your MSA:
 ```sh
 $ /opt/sms/bin/php/
 ```
@@ -120,7 +120,7 @@ sdExtendedInfo.jspType.10001-10010 = NewMod
 ```
 
 ###### Define the model features
-Copy the following and add your <modelIdentifier> for each allowed feature:
+Copy the following and add your < modelIdentifier > for each allowed feature:
 ```sh
 $cp /opt/ses/templates/server_ALL/manageLinks.properties /opt/ses/properties/specifics/server_ALL/manageLinks.properties
 ```
@@ -135,7 +135,7 @@ device.wizard.automatical.update.models = NewMod ciscoUC500 ciscoUC320 ciscoSW30
 ```
 
 ##### Enable new manufacturer support on GUI (Manufacturer only)
-Copy the following and add your <newMan> to support your new manufacturer:
+Copy the following and add your < newMan > to support your new manufacturer:
 
 ```sh
 $cp /opt/ses/templates/server_ALL/ses.properties /opt/ses/properties/specifics/server_ALL/ses.properties
