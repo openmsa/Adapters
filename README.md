@@ -6,11 +6,11 @@ design and assurance, making automation not only possible - but easy.
 
 ### Device Adaptors
 
-The MSActivator comes with several prebuilt device adaptors providing all the necessary functionality lifecycle management from provisioning to image and asset management. Adaptors provide the necessary interface to comminicate with different devices. 
+The MSActivator comes with several pre-built device adaptors providing all the necessary functionality lifecycle management from provisioning to image and asset management. Adaptors provide the necessary interface to communicate with different devices. 
 
 ### Installation
 
-To install a provided (existing) device adaptor place the relevant code in the below directory on your MSA:
+To install a provided (existing) device adaptor, place the relevant code in the below directory on your MSA:
 ```sh
 $ /opt/sms/bin/php/
 ```
@@ -39,6 +39,7 @@ The following device adaptors are provided as standard:
 | Linux | Generic | linux_generic |
 | Openstack | Generic | openstack_keystone_v3 |
 
+
 ### Create a new Device Adaptor
 ##### Create new Model/Manufacturer
 ###### Manufacturer
@@ -48,9 +49,9 @@ To add your new vendor, edit
 /opt/ubi-jentreprise/resources/templates/conf/device/manufacturers.properties
 ```
 There are 3 fields:
- - id : must be unique and superior to 10000
-- name : you new manufacturer name
-- supported : define if MSA support the device. 1 means yes.
+ - id: must be unique and superior to 10,000
+- name: you new manufacturer name
+- supported: define if MSA support the device. 1 means yes.
 
 | <ManufacturerID> | <ManufacturerName> | <isSupported> |
 | ------ | ------ | ------ |
@@ -58,6 +59,7 @@ There are 3 fields:
 | 14 | GENERIC | $UBI_VSOC_SUPPORT_GENERIC_DEVICE |
 | 17 | FORTINET | $UBI_VSOC_SUPPORT_FORTINET_DEVICE |
 | 18 | JUNIPER | $UBI_VSOC_SUPPORT_JUNIPER_DEVICE |
+
 
 Example:
 ```sh
@@ -147,7 +149,7 @@ Example:
 ```sh
 soc.device.supported.newman=1
 ```
-NOTE: Manufacturer name must be in lower case
+NOTE: Manufacturer name must be in lowercase
 ###### Enable new manufacturer support on repository
 Copy and add:
 ```sh
