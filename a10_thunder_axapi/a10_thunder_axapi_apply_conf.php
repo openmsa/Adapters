@@ -5,7 +5,6 @@
  *
  * Apply conf
  * 
- * @copyright 2016 NEC Corporation
  */
 
 require_once 'smsd/sms_common.php';
