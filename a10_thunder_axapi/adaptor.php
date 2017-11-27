@@ -5,7 +5,6 @@
  *
  * Device adaptor
  *
- * @copyright 2016 NEC Corporation
  */
 
 require_once 'smserror/sms_error.php';
