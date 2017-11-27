@@ -2,8 +2,6 @@
 
 /**
  * REST interface common routine
- *
- * @copyright 2016 NEC Corporation
  */
 
 require_once 'smsd/generic_connection.php';
@@ -31,7 +29,7 @@ class RestConnection extends GenericConnection
   protected $timeout = 0;
   protected $http_header = null;
   protected $userpwd = null;
-  protected $ssl_version = 1; // CURL_SSLVERSION_TLSv1 (1)
+  protected $ssl_version = CURL_SSLVERSION_TLSv1_0; // support only 'TLS 1.0'
 
   public function setTimeout($conn_timeout = null, $timeout = null)
   {
