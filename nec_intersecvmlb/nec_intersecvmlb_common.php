@@ -29,7 +29,7 @@ function nec_intersecvmlb_exec_remote($in_file_line, $in_ssh, $in_cmd)
     return ERR_LOCAL_SSH;
   }
 
-  nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'START nec_intersecvmlb_exec_remote:sendCmd');
+  nec_intersecvmlb_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'START nec_intersecvmlb_exec_remote:sendCmd');
   nec_intersecvmlb_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'in_file_line:' . print_r($in_file_line, true));
   nec_intersecvmlb_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'in_cmd:' . print_r($in_cmd, true));
 
