@@ -50,7 +50,7 @@ class JuniperSRXsshConnection extends SshConnection
         $this->prompt = preg_replace('/[\x03|\x1a]/', '', $this->prompt);
         $this->prompt = preg_replace('/.*\n/', '', $this->prompt);
         
-        echo "Prompt found: {$ this->prompt} for {$this->sd_ip_config}\n";
+        echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
     }
     // ------------------------------------------------------------------------------------------------
     public function juniper_srx_manage_menu($login, $passwd)
@@ -190,9 +190,12 @@ class JuniperSRX2sshConnection extends SshConnection
 function juniper_srx_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
     global $sms_sd_ctx;
+    global $model_data;
+    $data = json_decode($model_data, true);
+    $class = $data['class'];
     
-    $sms_sd_ctx = new JuniperSRXsshConnection($sd_ip_addr, $login, $passwd, $port_to_use);
-    juniper_srx_manage_menu($sms_sd_ctx->getLogin(), $sms_sd_ctx->getPassword());
+    $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
+    $sms_sd_ctx->juniper_srx_manage_menu($sms_sd_ctx->getLogin(), $sms_sd_ctx->getPassword());
     
     return SMS_OK;
 }
