@@ -1,0 +1,1 @@
+OpenMSA-1.0 Device Adaptors v1.0.0
