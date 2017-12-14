@@ -75,10 +75,10 @@ class fortinet_generic_configuration
 		// remove useless lines
 		$patterns = array ();
 		$patterns [0] = "/OK\s*/";
-		$patterns [1] = "/SMS_#\s*/";
+		$patterns [1] = "/SMS_\s*/";
 		$replacements = array ();
 		$replacements [0] = "";
-		$replacements [0] = "";
+		$replacements [1] = "";
 
 		$this->conf_to_restore = preg_replace($patterns, $replacements, $res);
 
