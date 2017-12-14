@@ -28,6 +28,10 @@ require_once "$db_objects";
 $network = get_network_profile();
 $SD = &$network->SD;
 
+if (empty($adminpasswd))
+{
+	$adminpasswd = $SD->SD_PASSWD_ENTRY;
+}
 if($SD->SD_MANAGEMENT_PORT !== 0)
 {
   $port = $SD->SD_MANAGEMENT_PORT;
