@@ -43,6 +43,11 @@
       <xsl:copy-of select="prox_acl_group_file_extensions"/>
       <xsl:copy-of select="prox_acl_group_malware_verdicts"/>
       <xsl:copy-of select="prox_acl_group_custom_user_agents"/>
+      <xsl:copy-of select="prox_acl_group_wbrs_enabled"/>
+      <xsl:copy-of select="prox_acl_group_wbrs_block_below"/>
+      <xsl:copy-of select="prox_acl_group_wbrs_allow_above"/>
+      <xsl:copy-of select="prox_acl_group_wbrs_no_score_action"/>
+      <xsl:copy-of select="prox_acl_group_adaptive_scanning_block"/>
       <xsl:copy-of select="prox_acl_group_identities"/>
     </xsl:element>
   </xsl:template>
