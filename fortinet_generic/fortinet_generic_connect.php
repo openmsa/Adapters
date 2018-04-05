@@ -7,6 +7,14 @@ require_once 'smsd/expect.php';
 require_once 'smsd/ssh_connection.php';
 require_once "$db_objects";
 
+function init_connection($conn)
+{
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #', 40000);
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #', 40000);
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+}
+
+
 class FortinetGenericsshConnection extends SshConnection
 {
   public function do_store_prompt()
@@ -14,6 +22,8 @@ class FortinetGenericsshConnection extends SshConnection
   	$network = get_network_profile();
 
   	$IS_VDOM_ENABLED=false;
+
+    init_connection($this);
 
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
     if ((strpos($buffer, 'License Status') === false) || (strpos($buffer, 'License Status: Valid') !== false) || (strpos($buffer, 'License Status: Warning') !== false))
@@ -23,9 +33,6 @@ class FortinetGenericsshConnection extends SshConnection
 	    	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config global', '(global) #', 40000);
 	    	$IS_VDOM_ENABLED=true;
     	}
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config system console', '(console) #', 40000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'set output standard', '(console) #', 40000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
       if ($IS_VDOM_ENABLED){
       	//If the device is a VDOM come out of global mode and enter vdom mode
       	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
@@ -61,6 +68,7 @@ class FortinetVDOMsshConnection extends SshConnection
     $dev_name=$SD->SD_HOSTNAME;
 
     $IS_VDOM_ENABLED=false;
+    init_connection($this);
 
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
     if ((strpos($buffer, 'License Status') === false) || (strpos($buffer, 'License Status: Valid') !== false) || (strpos($buffer, 'License Status: Warning') !== false))
@@ -70,9 +78,7 @@ class FortinetVDOMsshConnection extends SshConnection
         $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config global', '(global) #', 40000);
         $IS_VDOM_ENABLED=true;
       }
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config system console', '(console) #', 40000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'set output standard', '(console) #', 40000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
+
       if ($IS_VDOM_ENABLED){
         //If the device is a VDOM come out of global mode and enter vdom mode
         $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
@@ -105,6 +111,7 @@ class FortinetsshKeyConnection extends SshKeyConnection
     $network = get_network_profile();
 
     $IS_VDOM_ENABLED=false;
+    init_connection($this);
 
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
     if (strpos($buffer, 'License Status') == false || strpos($buffer, 'License Status: Valid') !== false || strpos($buffer, 'License Status: Warning') !== false)
@@ -114,9 +121,7 @@ class FortinetsshKeyConnection extends SshKeyConnection
         $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config global', '(global) #', 40000);
         $IS_VDOM_ENABLED=true;
       }
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config system console', '(console) #', 40000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'set output standard', '(console) #', 40000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
+
       if ($IS_VDOM_ENABLED){
         //If the device is a VDOM come out of global mode and enter vdom mode
         $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
