@@ -1,11 +1,10 @@
-<?php 
+<?php
 /*
- * Date : Jun 26, 2012
-*/
+ * Date : Oct 19, 2007
+ */
 
-function get_wsa_error($err_string)
-{
-  $error_wsa_string = htmlentities(substr($err_string, strpos($err_string, 'ERROR:'), (strlen($err_string) - strpos($err_string, '*****'))*(-1)));
-  return $error_wsa_string;
-}
+// Script description
+require_once 'smsd/sms_common.php';
+
+
 ?>
