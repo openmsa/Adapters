@@ -94,7 +94,7 @@ function catalyst_ios_apply_conf($configuration)
 	// Line by line mode configuration - Used for ZTD port console
 	// ---------------------------------------------------
 	$ret = SMS_OK;
-	if ($line_config_mode === 1 || $protocol = 'CONSOLE')
+	if ($line_config_mode === 1 || $protocol === 'CONSOLE')
 	{
 		echo "Line by line mode configuration\n";
 		$ERROR_BUFFER ='';
