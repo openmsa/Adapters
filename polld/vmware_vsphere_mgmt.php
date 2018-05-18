@@ -1,0 +1,1 @@
+../vmware_vsphere/polld/vmware_vsphere_mgmt.php
