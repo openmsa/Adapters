@@ -188,7 +188,6 @@ function scp_to_router($src, $dst)
 	$tab[0] = "(config)#";
 	$tab[1] = "[confirm]";
 	$index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, "no username $login", $tab);
-	echo "$buffer \n";
 	if ($index === 1)
 	{
 		sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "", "(config)#");
