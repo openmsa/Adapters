@@ -63,7 +63,7 @@ class FortinetVDOMsshConnection extends SshConnection
     $IS_VDOM_ENABLED=false;
 
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
-    if (strpos($buffer, 'License Status: Valid') !== false || strpos($buffer, 'License Status: Warning') !== false)
+    if ((strpos($buffer, 'License Status') === false) || (strpos($buffer, 'License Status: Valid') !== false) || (strpos($buffer, 'License Status: Warning') !== false))
     {
       if(strpos($buffer, 'Virtual domain configuration: enable') !== false){
         //If VDOM is enabled for generic commands do config global
