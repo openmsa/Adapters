@@ -15,6 +15,7 @@ Improvements
 
 - Cisco ISR and Catalyst: add error strings, fix Catalyst initial provisioning
 - Fortinet: license status check on Fortigate VDOM
+- Fortinet: handle new firmwares in fortinet generic
 
 
 OpenMSA-1.0
