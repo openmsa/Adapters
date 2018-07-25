@@ -51,20 +51,26 @@ class linux_generic_configuration
     $result = "";
     foreach ($output_array as $line)
     {
-      if (strpos($line, "SMS_OK")!==0)
+      if (strpos($line, "SMS_OK") === false)
       {
         $result .= $line;
       }
     }
     $js = json_decode($result, true);
-    // PHP 5.4.0
-    //$SMS_OUTPUT_BUF = json_encode($js->sms_result, JSON_PRETTY_PRINT);
-    ob_start();
-    print_r($js['sms_result']);
-    $SMS_OUTPUT_BUF = ob_get_contents();
-    ob_end_clean();
-    $this->running_conf = trim($SMS_OUTPUT_BUF);
-    $this->running_conf = trim($SMS_OUTPUT_BUF);
+    if (!empty($js['sms_result']))
+    {
+      // PHP 5.4.0
+      //$SMS_OUTPUT_BUF = json_encode($js->sms_result, JSON_PRETTY_PRINT);
+      ob_start();
+      print_r($js['sms_result']);
+      $SMS_OUTPUT_BUF = ob_get_contents();
+      ob_end_clean();
+      $this->running_conf = trim($SMS_OUTPUT_BUF);
+    }
+    else
+    {
+      $this->running_conf = '';
+    }
     return $this->running_conf;
   }
 
