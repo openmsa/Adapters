@@ -1,0 +1,1 @@
+<rpc message-id="101" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"><discard-changes/></rpc>
