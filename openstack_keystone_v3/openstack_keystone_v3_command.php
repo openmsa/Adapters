@@ -3,9 +3,9 @@
  * Version: $Id$
  * Created: Apr 28, 2011
  * Available global variables
- *  $sms_csp            pointer to csp context to send response to user
- * 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
- * 	$SMS_RETURN_BUF     string buffer containing the result
+ * $sms_csp            pointer to csp context to send response to user
+ * $sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
+ * $SMS_RETURN_BUF     string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
 
@@ -60,8 +60,8 @@ class openstack_keystone_v3_command extends generic_command
 
   /**
    * IMPORT configuration from router
-   * @param object $json_params			JSON parameters of the command
-   * @param domElement $element			XML DOM element of the definition of the command
+   * @param object $json_paramsJSON parameters of the command
+   * @param domElement $elementXML DOM element of the definition of the command
    */
   function eval_IMPORT()
   {
@@ -85,8 +85,11 @@ class openstack_keystone_v3_command extends generic_command
         {
           $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
           $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-          $cmd = 'GET#' . trim($op_eval) . '#' . trim($xpath_eval);
-          $parser_list[$cmd][] = $parser;
+    	  $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
+          foreach ($path_list as $xpth) {
+            $cmd = 'GET#' . trim($op_eval) . '#' . trim($xpth);
+            $parser_list[$cmd][] = $parser;
+          }
         }
 
         foreach ($parser_list as $op_eval => $sub_parsers)
@@ -135,7 +138,7 @@ class openstack_keystone_v3_command extends generic_command
   function eval_CREATE()
   {
     global $SMS_RETURN_BUF;
-
+  
     foreach ($this->create_list as $create)
     {
       $endpoint_str = trim($create->evaluate_operation());
@@ -174,19 +177,20 @@ class openstack_keystone_v3_command extends generic_command
         }
       }
     }
+    
     return SMS_OK;
   }
 
   /**
    * Apply created object to device and if OK add object to the database.
    */
-  function apply_device_CREATE(&$params)
+  function apply_device_CREATE($params)
   {
     $ret = SMS_OK;
     if (!empty($this->configuration))
     {
       debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
-      $ret = sd_apply_conf($this->configuration, true, $params);
+      $ret = sd_apply_conf($this->configuration, true);
     }
 
     return $ret;
@@ -206,7 +210,7 @@ class openstack_keystone_v3_command extends generic_command
   function eval_UPDATE()
   {
     global $SMS_RETURN_BUF;
-
+  
     foreach ($this->update_list as $update)
     {
 
@@ -259,7 +263,7 @@ class openstack_keystone_v3_command extends generic_command
     if (!empty($this->configuration))
     {
       debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
-      $ret = sd_apply_command_update($this->configuration, true, $params);
+      $ret = sd_apply_conf($this->configuration, true);
     }
     return $ret;
   }
@@ -272,7 +276,7 @@ class openstack_keystone_v3_command extends generic_command
   function eval_DELETE()
   {
     global $SMS_RETURN_BUF;
-
+    
     foreach ($this->delete_list as $delete)
     {
       $endpoint = trim($delete->evaluate_operation());
@@ -283,10 +287,10 @@ class openstack_keystone_v3_command extends generic_command
         $xpath = str_replace("\xE2\x80\x8B", "", $xpath);
         $conf .= '#' . $xpath;
         $this->configuration .= "{$conf}\n";
-        $SMS_RETURN_BUF .= "{$conf}\n";
+		$SMS_RETURN_BUF .= "{$conf}\n";
       }
     }
-
+    
     return SMS_OK;
   }
 
@@ -296,9 +300,7 @@ class openstack_keystone_v3_command extends generic_command
   function apply_device_DELETE($params)
   {
     debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
-
-    $ret = sd_apply_command_delete($this->configuration, true);
-    // $ret = sd_apply_conf($this->configuration, true);
+    $ret = sd_apply_conf($this->configuration, true);
     return $ret;
   }
 

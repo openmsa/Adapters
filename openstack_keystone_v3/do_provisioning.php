@@ -4,7 +4,7 @@
  * 	Created: May 30, 2008
  * 	Available global variables
  *  	$sms_sd_info        sd_info structure
- * 	  $sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
+ * 	  	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
  *  	$sms_csp            pointer to csp context to send response to user
  *  	$sdid
  *  	$sms_module         module name (for patterns)
@@ -34,4 +34,3 @@ if (empty($ipaddr) || empty($login) || empty($passwd))
 return require_once 'smsd/do_provisioning.php';
 
 ?>
-

@@ -3,21 +3,14 @@
 // -------------------------------------------------------------------------------------
 // CHECK SERVICE STATUS
 // -------------------------------------------------------------------------------------
+require_once load_once('openstack_keystone_v3', 'openstack_keystone_v3_connect.php');
+require_once load_once('openstack_keystone_v3', 'adaptor.php');
+
 function openstack_checkservicestatus($sms_csp, $sdid, $sms_sd_info, &$err)
 {
-  global $ipaddr;
-
-  $url = "curl --connect-timeout 15 --max-time 15 -X DELETE http://".$ipaddr;
-  $test_availibility = shell_exec($url) ;
-  if(strlen($test_availibility)>200)
-  {
-    return SMS_OK;
-  }
-  else
-  {
-    $err = $test_availibility;
-    return ERR_SD_FAILED;
-  }
+	global $sms_sd_ctx;
+	$ret = sd_connect();
+	return $ret;
 }
 
 ?>

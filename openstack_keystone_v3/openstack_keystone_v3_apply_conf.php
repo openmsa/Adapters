@@ -11,7 +11,7 @@ require_once "$db_objects";
  * @param string  $configuration	configuration to apply
  * @param boolean $copy_to_startup	copy in startup-config+reboot instead of running-config+write mem
  */
-function openstack_apply_conf($configuration, &$created_uuid)
+function openstack_apply_conf($configuration)
 {
   global $sdid;
   global $sms_sd_ctx;
@@ -19,12 +19,13 @@ function openstack_apply_conf($configuration, &$created_uuid)
   global $apply_errors;
   global $operation;
   global $SD;
+  global $SMS_RETURN_BUF;
   
   // Save the configuration applied on the router
   save_result_file($configuration, 'conf.applied');
   $SMS_OUTPUT_BUF = '';
   
-  echo ("::::::::::::::::::::::::::::::::   APPLY2 :::::::::::::::::::: \n");
+ echo (":::::::::::::::::::::::::::: APPLY2 ::::::::::::::::::::::::::::\n");
   
   $line = get_one_line($configuration);
   while ($line !== false)
@@ -34,49 +35,12 @@ function openstack_apply_conf($configuration, &$created_uuid)
     if (!empty($line))
     {
       $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '//root');
-      
-      // Si on a un UUID on récupère l'objet, sinon erreur
-      // MODIF LO : suppression du IF empty pour le DELETE qui ne renvoie rien
-      if (!empty($res))
-      {
-        $object_type = $res->children();
-        $created_uuid = $res->xpath('//id');
-      }
-      
-      // FIN MODIF
+      $SMS_RETURN_BUF = json_encode($res);
     }
     $line = get_one_line($configuration);
   }
   
   return SMS_OK;
 }
-function openstack_apply_update($configuration)
-{
-  global $sdid;
-  global $sms_sd_ctx;
-  global $sendexpect_result;
-  global $apply_errors;
-  global $operation;
-  global $SD;
-  
-  // Save the configuration applied on the router
-  save_result_file($configuration, 'conf.applied');
-  $SMS_OUTPUT_BUF = '';
-  
-  echo ("::::::::::::::::::::::::::::::::   APPLY UPDATE :::::::::::::::::::: \n");
-  
-  $line = get_one_line($configuration);
-  while ($line !== false)
-  {
-    $line = trim($line);
-    
-    if (!empty($line))
-    {
-      $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, trim($line), '//root');
-    }
-    $line = get_one_line($configuration);
-  }
-  
-  return SMS_OK;
-}
+
 ?>

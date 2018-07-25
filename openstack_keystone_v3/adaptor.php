@@ -6,8 +6,6 @@ require_once 'smsd/sms_common.php';
 
 require_once load_once('openstack_keystone_v3', 'openstack_keystone_v3_connect.php');
 require_once load_once('openstack_keystone_v3', 'openstack_keystone_v3_apply_conf.php');
-//require_once load_once('openstack', 'openstack_apply_command_delete.php');
-
 
 require_once "$db_objects";
 
@@ -20,7 +18,6 @@ require_once "$db_objects";
 function sd_connect($login = null, $passwd = null, $adminpasswd = null)
 {
   $ret = openstack_connect($login, $passwd);
-  
   return $ret;
 }
 
@@ -31,55 +28,6 @@ function sd_connect($login = null, $passwd = null, $adminpasswd = null)
 function sd_disconnect($clean_exit = false)
 {
   $ret = openstack_disconnect();
-  
-  return $ret;
-}
-
-/***
- Rajoute la clé UUID à l'objet
- */
-function addUUIDKey($haystack, $uuid)
-{
-  foreach ($haystack as $key => $value)
-  {
-    if (is_array($value))
-    {
-      $output[$key] = addUUIDKey($value, $uuid);
-    }
-    else
-    {
-      $output[$key] = $value;
-      $output['uuid'] = $uuid;
-    }
-  }
-  return $output;
-}
-
-/**
- * Apply a configuration buffer to a device
- * @param  $configuration
- * @param  $need_sd_connection
- */
-function sd_apply_conf($configuration, $need_sd_connection, &$params = null)
-{
-  if ($need_sd_connection)
-  {
-    sd_connect();
-  }
-  
-  $created_uuid = "";
-  $ret = openstack_apply_conf($configuration, $created_uuid);
-  
-  if (!is_null($params))
-  {
-    $params = addUUIDKey($params, $created_uuid[0]->__toString());
-  }
-  
-  if ($need_sd_connection)
-  {
-    sd_disconnect();
-  }
-  
   return $ret;
 }
 
@@ -88,36 +36,14 @@ function sd_apply_conf($configuration, $need_sd_connection, &$params = null)
  * @param  $configuration
  * @param  $need_sd_connection
  */
-function sd_apply_command_update($configuration, $need_sd_connection = false)
+function sd_apply_conf($configuration, $need_sd_connection)
 {
   if ($need_sd_connection)
   {
     sd_connect();
   }
   
-  $ret = openstack_apply_update($configuration);
-  
-  if ($need_sd_connection)
-  {
-    sd_disconnect();
-  }
-  
-  return $ret;
-}
-
-/**
- * Apply a configuration buffer to a device
- * @param  $configuration
- * @param  $need_sd_connection
- */
-function sd_apply_command_delete($configuration, $need_sd_connection = false)
-{
-  if ($need_sd_connection)
-  {
-    sd_connect();
-  }
-  
-  $ret = openstack_apply_update($configuration);
+  $ret = openstack_apply_conf($configuration);
   
   if ($need_sd_connection)
   {

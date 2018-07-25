@@ -4,13 +4,13 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('opendaylight', 'opendaylight_configuration.php');
+require_once load_once('openstack_keystone_v3', 'openstack_keystone_v3_configuration.php');
 
 try
 {
   $generated_configuration = '';
   
-  $conf = new opendaylight_configuration($sdid);
+  $conf = new openstack_configuration($sdid);
   
   $ret = $conf->build_conf($generated_configuration);
   if ($ret !== SMS_OK)

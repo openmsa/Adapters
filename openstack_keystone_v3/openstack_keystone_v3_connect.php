@@ -6,7 +6,7 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
-class OpenStackGenericsshConnection extends GenericConnection
+class OpenStackKeystoneV3RESTConnection extends GenericConnection
 {
   private $key;
   private $endPointsURL;
@@ -25,18 +25,14 @@ class OpenStackGenericsshConnection extends GenericConnection
 
     $network = get_network_profile();
     $sd = &$network->SD;
-    //$tenant_name = $sd->SD_CONFIGVAR_list['TENANT_NAME']->VAR_VALUE;
     $tenant_id = $sd->SD_CONFIGVAR_list['TENANT_ID']->VAR_VALUE;
     $user_domain_id = $sd->SD_CONFIGVAR_list['USER_DOMAIN_ID']->VAR_VALUE;
     $project_domain_id = $sd->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID']->VAR_VALUE;
-    #$cmd = "POST##/v2.0/tokens#{\"auth\": {\"tenantId\":\"{$tenant_id}\",\"passwordCredentials\": {\"username\": \"{$this->sd_login_entry}\",\"password\": \"{$this->sd_passwd_entry}\"}}}";
-    $cmd = "POST##/v3/auth/tokens#{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"id\":";
+    $cmd = "POST##/v3/auth/tokens#{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
     $cmd .= "\"{$user_domain_id}\"},\"name\": \"{$this->sd_login_entry}\",\"password\": \"{$this->sd_passwd_entry}\"}}}, ";
-    $cmd .= "\"scope\": {\"project\": {\"domain\": {\"id\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
+    $cmd .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
 
     $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");
-    //$token = $result->xpath('//token/id');
-    //$this->key = $token[0];
 
     $endPointsURL_table = $result->xpath('//token/catalog');
     $this->endPointsURL = $endPointsURL_table[0];
@@ -98,22 +94,14 @@ class OpenStackGenericsshConnection extends GenericConnection
       $token = "-H \"X-Auth-Token: {$this->key}\"";
     }
       
-      // TODO TEST validité champ ACTION[]
-    $delay = 50;
+    // TODO TEST validité champ ACTION[]
+    $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} {$token} -H \"Content-Type: application/json\" -k '{$action[2]}'";
     if (isset($action[3])) {
-      $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} {$token} -H \"Content-Type: application/json\" --connect-timeout {$delay} --max-time {$delay} -d '{$action[3]}' -k '{$action[2]}";
-    }
-    else {
-      $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} {$token} -H \"Content-Type: application/json\" --connect-timeout {$delay} --max-time {$delay} -k '{$action[2]}";
+      $curl_cmd .= " -d '{$action[3]}'";
     }
       
     echo "{$cmd} for endPoint {$action[1]}\n";
 
-    //if (isset($this->key))
-    // {
-    //  $curl_cmd .= "&key={$this->key}";
-    //}
-    // FIN MODIF LO
     $curl_cmd .= "' && echo";
     $ret = exec_local($origin, $curl_cmd, $output_array);
 
@@ -137,7 +125,7 @@ class OpenStackGenericsshConnection extends GenericConnection
           {
             $cmd_quote = str_replace("\"", "'", $result);
             $cmd_return = str_replace("\n", "", $cmd_quote);
-            throw new SmsException("$origin: Call to API Failed HTTP CODE = $line, $cmd_quote error", ERR_SD_CMDFAILED);
+            throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
           }
         }
       }
@@ -209,10 +197,6 @@ class OpenStackGenericsshConnection extends GenericConnection
     throw new SmsException("$origin: cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT);
   }
 
-  // ------------------------------------------------------------------------------------------------
-  public function do_store_prompt()
-  {
-  }
   public function get_raw_xml()
   {
     return $this->raw_xml;
@@ -229,7 +213,7 @@ function openstack_connect($sd_ip_addr = null, $login = null, $passwd = null, $p
 {
   global $sms_sd_ctx;
 
-  $sms_sd_ctx = new OpenStackGenericsshConnection($sd_ip_addr, $login, $passwd, $port_to_use);
+  $sms_sd_ctx = new OpenStackKeystoneV3RESTConnection($sd_ip_addr, $login, $passwd, $port_to_use);
   return SMS_OK;
 }
 
