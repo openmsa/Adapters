@@ -114,7 +114,7 @@ try
   $buffer = $sms_sd_ctx->get_raw_xml();
 
   $show_ver_asset_patterns = array(
-      'serial' => '@<serial>(?<serial>\d+)</serial>@',
+      'serial' => '@<serial>(?<serial>\S+)</serial>@',
       'model' => '@<model>(?<model>[^<]+)</model>@',
       'firmware' => '@<sw-version>(?<firmware>[^<]+)</sw-version>@',
       'license' => '@<vm-license>(?<license>[^<]+)</vm-license>@',
@@ -176,12 +176,16 @@ try
               switch ($feature)
               {
                 case "Threat Prevention":
-                  $asset['ips_expiration'] = date_conversion($node);
-                  $asset['av_expiration'] = date_conversion($node);
-                  $asset['as_expiration'] = date_conversion($node);
+		  $date = "00:00:00";
+		  if (strpos($node, "Never") === false) {
+			$date = date_conversion($node);
+		  }
+                  $asset['ips_expiration'] = $date;
+                  $asset['av_expiration'] = $date;
+                  $asset['as_expiration'] = $date;
                   break;
                 case "PAN-DB URL Filtering":
-                  $asset['url_expiration'] = date_conversion($node);
+                  $asset['url_expiration'] = $date;
                   break;
               }
             }
