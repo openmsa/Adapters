@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#set -x
+
+PROG=$(basename $0)
+
+usage() {
+	echo "usage: $PROG <install|uninstall> <device adaptor directory>"
+	echo
+	echo "install or un-install MSA device adaptors"
+}
+
+main() {
+	cmd=$1
+	shift
+	case $cmd in
+		""|-h|--help)
+			usage
+			;;
+		-i|install)
+			da_install "$1"
+			;;
+		-u|uninstall)
+			da_uninstall "$1"
+			;;
+		*)
+			fatal "unknown command: $1"
+			;;
+	esac
+}
+
+da_install() {
+	:;
+}
+
+da_uninstall() {
+	:;
+}
+
+fatal() {
+	echo $* >&2
+	exit 1
+}
+
+
+main "$@"
