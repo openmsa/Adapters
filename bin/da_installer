@@ -30,11 +30,50 @@ main() {
 }
 
 da_install() {
+	DA_DIR=$1
+	[ -d "$DA_DIR" ] || \
+		fatal "device-adaptor dir not found: $DA_DIR"
+
+	read_properties_files
+	check_sms_router_conf
 	:;
 }
 
 da_uninstall() {
 	:;
+}
+
+
+read_properties_files() {
+	device_properties="conf/device.properties"
+	[ -f "$DA_DIR/$device_properties" ] || \
+		fatal "file not found: $device_properties"
+
+	MAN_ID=$(read_property "$device_properties" "manufacturer.id")
+	MOD_ID=$(read_property "$device_properties" "model.id")
+	MOD_NAME=$(read_property "$device_properties" "model.name")
+	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
+}
+
+check_sms_router_conf() {
+	sms_router_conf="conf/sms_router.conf"
+	[ -f "$DA_DIR/$sms_router_conf" ] || \
+		fatal "file not found: $sms_router_conf"
+
+	spec=$(cat $DA_DIR/$sms_router_conf | egrep '^model' | awk '{print $2}')
+	man_id=$(cut -d : -f 1 <<< "$spec")
+	mod_id=$(cut -d : -f 2 <<< "$spec")
+
+	[ "$man_id" = "$MAN_ID" ] || \
+		fatal "inconsistent definition: man_id=$man_id MAN_ID=$MAN_ID"
+	[ "$mod_id" = "$MOD_ID" ] || \
+		fatal "inconsistent definition: mod_id=$mod_id MOD_ID=$MOD_ID"
+}
+
+read_property() {
+	file=$1
+	prop=$2
+	cat $DA_DIR/$file | egrep "^$prop" | cut -d = -f 2 | tr -d ' '
 }
 
 fatal() {
