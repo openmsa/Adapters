@@ -62,29 +62,29 @@ NOW=$(date +"%Y%m%d%H%M")
 
 update_manufacturers_properties() {
 	target_file="/opt/ubi-jentreprise/resources/templates/conf/device/manufacturers.properties"
-grep "^70000," $target_file > /dev/null
-if [ $? -ne 0 ]; then
+	grep -q "^70000," $target_file && return 0
+
   echo "  Modifying $target_file"
   /bin/cp -p $target_file $target_file.org.necNfa.$NOW
 
 	fixup_no_newline_at_eof $target_file
 
   echo '70000,"NEC",1' >> $target_file
-fi
+
 }
 
 update_models_properties() {
 
 	target_file="/opt/ubi-jentreprise/resources/templates/conf/device/models.properties"
-grep "^17111602," $target_file > /dev/null
-if [ $? -ne 0 ]; then
+	grep -q "^17111602," $target_file && return 0
+
   echo "  Modifying $target_file"
   /bin/cp -p $target_file $target_file.org.necNfa.$NOW
 
 	fixup_no_newline_at_eof $target_file
 
   echo '17111602,70000,"NEC NFA","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> $target_file
-fi
+
 }
 
 update_sdExtendedInfo_properties() {
@@ -95,8 +95,8 @@ if [ ! -f "$target_file" ]; then
   /bin/cp -p /opt/ses/templates/server_ALL/sdExtendedInfo.properties $target_file
 fi
 
-grep "necNfa" $target_file > /dev/null
-if [ $? -ne 0 ]; then
+	grep -q "necNfa" $target_file && return 0
+
   echo "  Modifying $target_file"
   /bin/cp -p $target_file $target_file.org.necNfa.$NOW
 
@@ -104,7 +104,7 @@ if [ $? -ne 0 ]; then
 
   echo 'sdExtendedInfo.router.70000-17111602 = necNfa' >> $target_file
   echo 'sdExtendedInfo.jspType.70000-17111602 = necNfa' >> $target_file
-fi
+
 }
 
 update_manageLinks_properties() {
@@ -115,8 +115,8 @@ if [ ! -f "$target_file" ]; then
   /bin/cp -p /opt/ses/templates/server_ALL/manageLinks.properties $target_file
 fi
 
-grep "necNfa" $target_file > /dev/null
-if [ $? -ne 0 ]; then
+	grep -q "necNfa" $target_file && return 0
+
   echo "  Modifying $target_file"
   /bin/cp -p $target_file $target_file.org.necNfa.$NOW
 
@@ -133,7 +133,7 @@ if [ $? -ne 0 ]; then
     > /tmp/msa.$$
   /bin/cp -p /tmp/msa.$$ $target_file
   /bin/rm -f /tmp/msa.$$
-fi
+
 }
 
 update_ses_properties() {
@@ -144,12 +144,12 @@ if [ ! -f "$target_file" ]; then
   /bin/cp -p /opt/ses/templates/server_ALL/ses.properties $target_file
 fi
 
-grep "^soc.device.supported.nec" $target_file > /dev/null
-if [ $? -ne 0 ]; then
+	grep -q "^soc.device.supported.nec" $target_file && return 0
+
   echo "  Modifying $target_file"
   /bin/cp -p $target_file $target_file.org.necNfa.$NOW
   echo 'soc.device.supported.nec=1' >> $target_file
-fi
+
 }
 
 update_repository_properties() {
