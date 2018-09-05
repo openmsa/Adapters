@@ -21,9 +21,45 @@ require_once "$db_objects";
 
 function catalyst_connect($ip = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null){
 	global $sms_sd_ctx;
+
+	$default_protocol = "ssh";
+	
 	try{
-		$sms_sd_ctx = new CatalystSshConnection($ip, $login, $passwd, $adminpasswd, $port_to_use);
-		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
+		// If port is 22, use ssh. If port is 23, use telnet. 
+		// Otherwise, depend on the default protocol.
+		$do_ssh = TRUE;
+		$port = $port_to_use;
+
+		if (empty($port)) {
+			$network = get_network_profile();
+			$SD = &$network->SD;
+			
+			if ($SD->SD_MANAGEMENT_PORT !== 0) {
+				$port = $SD->SD_MANAGEMENT_PORT;
+			} else {
+				$port = 22;
+			}
+		}
+		
+		if ($port === 22) {
+			$do_ssh = TRUE;
+		} elseif ($port === 23) {
+			$do_ssh = FALSE;
+		} else {
+			if ($default_protocol === "ssh") {
+				$do_ssh = TRUE;
+			} else {
+				$do_ssh = FALSE;
+			}
+		}
+
+		if ($do_ssh) {
+			$sms_sd_ctx = new CatalystSshConnection($ip, $login, $passwd, $adminpasswd, $port_to_use);
+			$sms_sd_ctx->setParam("PROTOCOL", "SSH");
+		} else {
+			$sms_sd_ctx = new CatalystTelnetConnection($ip, $login, $passwd, $adminpasswd, $port_to_use);
+			$sms_sd_ctx->setParam("PROTOCOL", "TELNET");
+		}
 	} catch (SmsException $e) {
 		try{
 			$sms_sd_ctx = new CatalystTelnetConnection($ip, $login, $passwd, $adminpasswd, $port_to_use);

@@ -11,8 +11,12 @@ $apply_errors = array(
   "@Error opening flash@",
   "@Invalid input detected@",
   "@Incomplete command@",
+  "@Ambiguous command@",
   "@Command rejected@",
-  "@Ambiguous command@"
+  "@Invalid@",
+  "@Error opening system@",
+  "@Speed autonegotiation subset must not contain 1Gbps when duplex is set to half@",
+  "@Error opening tftp@"
 );
 
 ?>
