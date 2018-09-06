@@ -20,11 +20,7 @@ $apply_errors = array(
     "@already in use@",
     "@errors@",
     "@unknown command@",
-    "@cannot access@",
-    "@The license cannot allocate the requested resource@",
-    "@License GLM connection error@",
-    "@License retrieval failed@",
-    "@Imported License is expired@"
+    "@cannot access@"
 );
 
 ?>
