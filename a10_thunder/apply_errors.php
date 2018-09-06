@@ -12,6 +12,7 @@ $apply_errors = array(
     "@Object specified does not exist@",
     "@This field cannot be modified at runtime@",
     "@VLAN already configured on Interface@",
+    "@Incorrect IP/Mask specified@",
     "@already configured@",
     "@not found@",
     "@Cannot delete@",
@@ -19,7 +20,11 @@ $apply_errors = array(
     "@already in use@",
     "@errors@",
     "@unknown command@",
-    "@cannot access@"
+    "@cannot access@",
+    "@The license cannot allocate the requested resource@",
+    "@License GLM connection error@",
+    "@License retrieval failed@",
+    "@Imported License is expired@"
 );
 
 ?>
