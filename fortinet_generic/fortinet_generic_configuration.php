@@ -42,13 +42,6 @@ class fortinet_generic_configuration
 	{
 		global $sms_sd_ctx;
 
-		$running_conf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'end', '#');
-		if (!strstr($running_conf, 'Unknown action'))
-		{
-		  //If VDOM is enabled, prompt is updated
-		  $sms_sd_ctx->setPrompt($running_conf);
-		}
-
 		$running_conf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'show');
 		if (!empty($running_conf))
 		{
@@ -100,15 +93,6 @@ class fortinet_generic_configuration
 		//$this->conf_to_restore
 		$filename = "{$_SERVER['TFTP_BASE']}/{$this->sdid}.cfg";
 		file_put_contents($filename, $this->conf_to_restore);
-
-		$running_conf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'end', '#');
-		if (!strstr($running_conf, 'Unknown action'))
-		{
-      			//If VDOM is enabled for generic commands do config global
-			$running_conf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'config global', '(global) #');
-			//If VDOM is enabled, prompt is updated
-			$sms_sd_ctx->setPrompt($running_conf);
-		}
 
 		if(empty($this->sd->SD_CONFIGVAR_list['MANAGEMENT_VLAN_IP']))
 		{
