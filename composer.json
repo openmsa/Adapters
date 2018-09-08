@@ -1,0 +1,8 @@
+{
+    "name": "openmsa/adaptors",
+    "type": "library",
+    "description": "Low level abstraction layer for multi-vendor, multi-domain device management",
+    "keywords": ["device","adaptors","msa","openmsa","automation"],
+    "homepage": "https://www.openmsa.co/",
+    "license": "GPL-3.0"
+}
