@@ -28,6 +28,7 @@ function parse_line(&$line) {
   global $man_id;
   global $mod_id;
   global $timezone;
+  global $timestamp;
 
   $line = trim($line);
 
@@ -48,6 +49,7 @@ function parse_line(&$line) {
     $fields['customer_id'] = $cust_id;
     $fields['man_id']   = $man_id;
     $fields['mod_id']   = $mod_id;
+    $fields['timestamp'] = $timestamp;
     $fields['orig']     = $sdid;
     $fields['hostname'] = $sdid;
     $fields['Type']     = "SNMP-TRAP";
@@ -69,6 +71,7 @@ function parse_line(&$line) {
     $fields['customer_id'] = $cust_id;
     $fields['man_id']   = $man_id;
     $fields['mod_id']   = $mod_id;
+    $fields['timestamp'] = $timestamp;
     $fields['orig']     = $sdid;
     $fields['hostname'] = $sdid;
     $fields['severity'] = $severity;
