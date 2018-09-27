@@ -25,18 +25,18 @@ from provisioning to image and asset management.
 Adaptors provide the necessary interface to communicate with different devices.
 
 Details on how to get started with device adaptors is available
-in the [wiki](https://github.com/openmsa/Device-Adaptors/wiki).
+in the [wiki](../wiki).
 
 
 Contributing to OpenMSA
 -----------------------
 
-- `CONTRIBUTING.md`
-- `doc/Manufacturer_and_Model_ID_Convention.md`
+- [CONTRIBUTING.md](../master/CONTRIBUTING.md)
+- [Manufacturer and Model ID Convention](../master/doc/Manufacturer_and_Model_ID_Convention.md)
 
 
 Licenses
 --------
 
-- `LICENSE.md`
-- third-party components may have different licenses, see e.g. `vendor/`.
+- [LICENSE.md](../master/LICENSE.md)
+- third-party components may have different licenses, see e.g. [vendor/](../../tree/master/vendor).
