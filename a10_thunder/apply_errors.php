@@ -12,6 +12,7 @@ $apply_errors = array(
     "@Object specified does not exist@",
     "@This field cannot be modified at runtime@",
     "@VLAN already configured on Interface@",
+    "@Incorrect IP/Mask specified@",
     "@already configured@",
     "@not found@",
     "@Cannot delete@",

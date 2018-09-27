@@ -13,22 +13,46 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('f5_bigip', 'f5_bigip_connect.php');
-require_once load_once('f5_bigip', 'f5_bigip_configuration.php');
+require_once load_once('f5_bigip', 'f5_bigip_backup_configuration.php');
 
-try {
+$date = date('c');
+$SMS_RETURN_BUF = "{$date}";
+
+try
+{
+  $loop = 20;
+  while ($loop > 0) {
     $ret = f5_bigip_connect();
-    if ($ret !== SMS_OK) {
-        throw new SmsException("", ERR_SD_CONNREFUSED);
+    if ($ret == SMS_OK) {
+      break;
     }
+    sleep(10); // wait for ssh to come up
+    $loop --;
+  }
 
-    // Get the conf on the router
-    $conf = new f5_bigip_configuration($sdid);
-    $SMS_RETURN_BUF = $conf->get_running_conf();
+  if ($ret != SMS_OK)
+  {
+    return $ret;
+  }
+
+  $conf = new f5_bigip_backup_configuration($sdid);
+
+  $ret = $conf->backup_conf();
+  if ($ret !== SMS_OK)
+  {
     f5_bigip_disconnect();
-} catch (Exception $e) {
-    f5_bigip_disconnect();
-    return $e->getCode();
+    return $ret;
+  }
+
+  f5_bigip_disconnect();
 }
+catch (Exception $e)
+{
+  f5_bigip_disconnect();
+  return $e->getCode();
+}
+
+$SMS_RETURN_BUF = $conf->get_return_buf();
 
 return SMS_OK;
 ?>

@@ -94,7 +94,16 @@ class fortinet_generic_configuration
 		$filename = "{$_SERVER['TFTP_BASE']}/{$this->sdid}.cfg";
 		file_put_contents($filename, $this->conf_to_restore);
 
-		sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "execute restore config tftp {$this->sdid}.cfg {$_SERVER['SMS_ADDRESS_IP']}", "(y/n)");
+		if(empty($this->sd->SD_CONFIGVAR_list['MANAGEMENT_VLAN_IP']))
+		{
+			$tftp_ip = $_SERVER['SMS_ADDRESS_IP'];
+		}
+		else
+		{
+			$tftp_ip = $this->sd->SD_CONFIGVAR_list['MANAGEMENT_VLAN_IP']->VAR_VALUE;
+		}
+
+		sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "execute restore config tftp {$this->sdid}.cfg {$tftp_ip}", "(y/n)");
 		unset($tab);
 		$tab[0] = "File check OK.";
 		$tab[1] = "Invalid config file";

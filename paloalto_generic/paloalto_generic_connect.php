@@ -87,9 +87,17 @@ class DeviceConnection extends GenericConnection
      * Special case while fetching a license from auth-code. The response is returned as a plain string.
      * Hence, conveting into an XML format to avoid the error.
      */
-    $license_success_response = "VM Device License Successfully fetched and installed. Rebooting the device due to capacity change.";
-    if (strpos($result, $license_success_response) !== false) {
-    	$result = "<response status=\"success\"><msg><line>". $license_success_response . "</line></msg></response>";
+    $license_success_response = array();
+
+    $license_success_response[0] = "VM Device License Successfully fetched and installed. Rebooting the device due to capacity change.";
+    $license_success_response[1] = "VM Device License installed. Restarting pan services.";
+
+    for ($i = 0; $i < count($license_success_response); $i++)
+    {
+      if (strpos($result, $license_success_response[$i]) !== false) {
+        $result = "<response status=\"success\"><msg><line>". $license_success_response[$i] . "</line></msg></response>";
+        break;
+      }
     }
 
     $this->xml_response = new SimpleXMLElement($result);
@@ -199,21 +207,55 @@ class DeviceConnection extends GenericConnection
     	debug_dump($result, "JOB ID:".$JOB_ID."\n");
     	$result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$JOB_ID}</id></jobs></show>"));
     	if (!empty($result->result))
-  		{
-  			do
-  			{
-  				sleep(2);
-	  			$result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$JOB_ID}</id></jobs></show>"));
-	  			if ($result->result->job->status == 'ACT')
-	  			{
-	  				debug_dump($result->result->job->progress."%", "Commit in progress\n");
-	  				//status_progress("progress {$result->result->job->progress}%", $operation);
-	  			}
-	  		} while ($result->result->job->status != 'FIN');
-  		}
-  		return SMS_OK;
+  	{
+        $net_pf = get_network_profile();
+        $sd =&$net_pf->SD;
+        $palo_retry_show_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
+        if(empty($palo_retry_show_limit)) {
+          $palo_retry_show_limit = 5; //default
+        }
+        sms_log_info("palo_retry_show_limit: " . $palo_retry_show_limit);
+        $last_result = null;
+
+        do
+        {
+          sleep(2);
+
+          try
+          {
+            $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$JOB_ID}</id></jobs></show>"));
+            if ($result->result->job->status == 'ACT')
+            {
+              debug_dump($result->result->job->progress."%", "Commit in progress\n");
+              //status_progress("progress {$result->result->job->progress}%", $operation);
+            }
+            $last_result = $result; //store the response
+          }
+          catch (Exception $e)
+          {
+            sms_log_info($e->getMessage());
+            if ($palo_retry_show_limit > 0) {
+              $palo_retry_show_limit--;
+              if(!empty($last_result)) {
+                //check the warning contents of last show response
+                $warnings = $last_result->result->job->warnings;
+                if(!empty($warnings)) {
+                  $line = $warnings->line;
+                  $expected_warning = "Web server will be restarted";
+                  if (strpos($line, $expected_warning)  !== false ) {
+                    $result = $last_result; //set the last show response as result
+                    continue;
+                  }
+                }
+              }
+            }
+            throw $e;
+          }
+        } while ($result->result->job->status != 'FIN');
+      }
+      return SMS_OK;
     }
-  	return SMS_OK;
+    return SMS_OK;
   }
   
   // ------------------------------------------------------------------------------------------------

@@ -79,6 +79,8 @@ class hp5900_restore_configuration {
     sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "y", $sms_sd_ctx->getPrompt());
     sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "startup saved-configuration startup.cfg main", $sms_sd_ctx->getPrompt());
 
+    $this->reboot();
+
     return SMS_OK;
   }
 

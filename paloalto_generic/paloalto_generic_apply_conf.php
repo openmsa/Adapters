@@ -24,6 +24,8 @@ function paloalto_generic_apply_conf($configuration)
   save_result_file($configuration, 'conf.applied');
   $SMS_OUTPUT_BUF = '';
 
+  $apikey_msg = "API Key is successfully set";
+  $deactivate_msg = 'Successfully deactivated old keys';
   $line = get_one_line($configuration);
   while ($line !== false)
   {
@@ -31,7 +33,8 @@ function paloalto_generic_apply_conf($configuration)
     if (!empty($line))
     {
       $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '/response');
-      if (trim($res['status']) !== 'success' || (trim($res['code']) !== '19' && trim($res['code']) !== '20'))
+      if (trim($res['status']) !== 'success' && (trim($res['code']) !== '19' && trim($res['code']) !== '20')
+           && !strstr($res, $apikey_msg) && !strstr($res, $deactivate_msg) )
       {
         $line = urldecode($line);
         if (!empty($res->msg->line->line))
@@ -65,14 +68,42 @@ function paloalto_generic_apply_conf($configuration)
   if (!empty($result->result) && !empty($result->result->job))
   {
     $job = $result->result->job;
-
+    $net_pf = get_network_profile();
+    $sd =&$net_pf->SD;
+    $palo_retry_show_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
+    if(empty($palo_retry_show_limit)) {
+      $palo_retry_show_limit = 5; //default
+    }
+    sms_log_info("palo_retry_show_limit: " . $palo_retry_show_limit);
+    $last_result = null;
     do
     {
       sleep(2);
-      $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$job}</id></jobs></show>"));
-      if (!empty($operation) && $result->result->job->status == 'ACT')
-      {
-        status_progress("progress {$result->result->job->progress}%", $operation);
+      try {
+        $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$job}</id></jobs></show>"));
+        if (!empty($operation) && $result->result->job->status == 'ACT')
+        {
+          status_progress("progress {$result->result->job->progress}%", $operation);
+        }
+        $last_result = $result; //store the response
+      } catch (Exception $e) {
+        sms_log_info($e->getMessage());
+        if ($palo_retry_show_limit > 0) {
+          $palo_retry_show_limit--;
+          if(!empty($last_result)) {
+            //check the warning contents of last show response
+            $warnings = $last_result->result->job->warnings;
+            if(!empty($warnings)) {
+              $line = $warnings->line;
+              $expected_warning = "Web server will be restarted";
+              if (strpos($line, $expected_warning)  !== false ) {
+                $result = $last_result; //set the last show response as result
+                continue;
+              }
+            }
+          }
+        }
+        throw $e;
       }
     } while ($result->result->job->status != 'FIN');
     if (!empty($SMS_OUTPUT_BUF))
