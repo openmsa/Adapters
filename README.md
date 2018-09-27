@@ -15,6 +15,13 @@ OpenMSA comes as 3 separate components:
 This repository contains Device Adaptors.
 
 
+Recent Changes
+--------------
+
+- [CHANGELOG](../master/CHANGELOG.md)
+- [commits](../../commits/master)
+
+
 Device Adaptors
 ---------------
 
