@@ -96,8 +96,6 @@ function paloalto_generic_apply_conf($configuration)
         $last_result = $result; //store the response
       } catch (Exception $e) {
         sms_log_info($e->getMessage());
-       // if ($palo_retry_show_limit > 0) {
-       //   $palo_retry_show_limit--;
           if(!empty($last_result)) {
             //check the warning contents of last show response
             $warnings = $last_result->result->job->warnings;
@@ -110,7 +108,6 @@ function paloalto_generic_apply_conf($configuration)
               }
             }
           }
-       // }
         throw $e;
       }
     } while ($result->result->job->status != 'FIN');
