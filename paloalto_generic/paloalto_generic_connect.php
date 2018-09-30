@@ -210,7 +210,6 @@ class DeviceConnection extends GenericConnection
   	{
         $net_pf = get_network_profile();
         $sd =&$net_pf->SD;
-       // $palo_retry_show_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
         $palo_retry_configured_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
         $palo_retry_show_limit = $palo_retry_configured_limit;
         if(empty($palo_retry_show_limit)) {
