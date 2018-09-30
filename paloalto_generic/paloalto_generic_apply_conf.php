@@ -79,17 +79,17 @@ function paloalto_generic_apply_conf($configuration)
     $last_result = null;
     do
     {
-	if ($palo_retry_show_limit <= 0) 
-	{
-		sms_log_error(__FILE__ . ':' . __LINE__ . ' : Giving up after . '$palo_retry_configured_limit . 'times (no status FIN received)');
-		break;
-	}	
-        $palo_retry_show_limit--;
-	    
-      	sleep(2);
-      	try {
-        	$result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$job}</id></jobs></show>"));
-        	if (!empty($operation) && $result->result->job->status == 'ACT')
+      if ($palo_retry_show_limit <= 0)
+      {
+        sms_log_error(__FILE__ . ':' . __LINE__ . ' : Giving up after .'$palo_retry_configured_limit . 'times (no status FIN received)');
+        break;
+      }
+      $palo_retry_show_limit--;
+
+      sleep(2);
+      try {
+        $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$job}</id></jobs></show>"));
+        if (!empty($operation) && $result->result->job->status == 'ACT')
         {
           status_progress("progress {$result->result->job->progress}%", $operation);
         }
