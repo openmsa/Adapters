@@ -222,7 +222,7 @@ class DeviceConnection extends GenericConnection
         {
           if ($palo_retry_show_limit <= 0)
           {
-            sms_log_error(__FILE__ . ':' . __LINE__ . ' : Giving up after . '$palo_retry_configured_limit . 'times (no status FIN received)');
+            sms_log_error(__FILE__ . ':' . __LINE__ . ' : Giving up after ' . $palo_retry_configured_limit . ' times (no status FIN received)');
             break;
           }
           $palo_retry_show_limit--;
