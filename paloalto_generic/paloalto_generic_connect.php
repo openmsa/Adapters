@@ -243,8 +243,6 @@ class DeviceConnection extends GenericConnection
           catch (Exception $e)
           {
             sms_log_info($e->getMessage());
-            if ($palo_retry_show_limit > 0) {
-              $palo_retry_show_limit--;
               if(!empty($last_result)) {
                 //check the warning contents of last show response
                 $warnings = $last_result->result->job->warnings;
@@ -257,7 +255,6 @@ class DeviceConnection extends GenericConnection
                   }
                 }
               }
-            }
             throw $e;
           }
         } while ($result->result->job->status != 'FIN');
