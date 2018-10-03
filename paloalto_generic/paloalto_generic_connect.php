@@ -210,7 +210,8 @@ class DeviceConnection extends GenericConnection
   	{
         $net_pf = get_network_profile();
         $sd =&$net_pf->SD;
-        $palo_retry_show_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
+        $palo_retry_configured_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
+        $palo_retry_show_limit = $palo_retry_configured_limit;
         if(empty($palo_retry_show_limit)) {
           $palo_retry_show_limit = 5; //default
         }
@@ -219,6 +220,14 @@ class DeviceConnection extends GenericConnection
 
         do
         {
+          if ($palo_retry_show_limit <= 0)
+          {
+            sms_log_error(__FILE__ . ':' . __LINE__ . ' : Giving up after ' . $palo_retry_configured_limit . ' times (no status FIN received)');
+            break;
+          }
+          $palo_retry_show_limit--;
+
+
           sleep(2);
 
           try
@@ -234,8 +243,6 @@ class DeviceConnection extends GenericConnection
           catch (Exception $e)
           {
             sms_log_info($e->getMessage());
-            if ($palo_retry_show_limit > 0) {
-              $palo_retry_show_limit--;
               if(!empty($last_result)) {
                 //check the warning contents of last show response
                 $warnings = $last_result->result->job->warnings;
@@ -248,7 +255,6 @@ class DeviceConnection extends GenericConnection
                   }
                 }
               }
-            }
             throw $e;
           }
         } while ($result->result->job->status != 'FIN');
