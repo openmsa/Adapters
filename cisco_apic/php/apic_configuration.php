@@ -7,9 +7,9 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 require_once 'smsd/expect.php';
 
-require_once load_once('apic', 'common.php');
-require_once load_once('apic', 'adaptor.php');
-require_once load_once('apic', 'apic_apply_conf.php');
+require_once load_once('cisco_apic', 'common.php');
+require_once load_once('cisco_apic', 'adaptor.php');
+require_once load_once('cisco_apic', 'apic_apply_conf.php');
 require_once "$db_objects";
 
 

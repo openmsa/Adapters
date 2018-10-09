@@ -9,7 +9,7 @@
 
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
-require_once load_once('apic', 'common.php');
+require_once load_once('cisco_apic', 'common.php');
 require_once "$db_objects";
 
 
