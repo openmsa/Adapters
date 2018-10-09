@@ -15,9 +15,9 @@
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
-require_once load_once('apic', 'apic_connection.php');
-require_once load_once('apic', 'apic_configuration.php');
-require_once load_once('apic', 'common.php');
+require_once load_once('cisco_apic', 'apic_connection.php');
+require_once load_once('cisco_apic', 'apic_configuration.php');
+require_once load_once('cisco_apic', 'common.php');
 
 try
 {
