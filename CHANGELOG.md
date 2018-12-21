@@ -12,6 +12,8 @@ New Device Adaptors
 - `hp5900` for HPE Switch OS H3C Type
 - `nec_pflow_pfcscapi` for controlling ProgrammableFlow Controller using REST API
 - `nec_nfa` for Network Flow Analyzer (Log Management Function only)
+- `nec_ix` for NEC IX devices (NEC IX2000/IX3000 series)
+- `fortinet_json` for Fortinet devices (FortiManager, FortiAnalyzer)
 
 
 Improvements
