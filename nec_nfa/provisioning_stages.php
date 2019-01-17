@@ -16,9 +16,9 @@
 
 
 $provisioning_stages = array(
-0 => array('name' => "Icmp testing"),
-1 => array('name' => "Snmp testing"),
-2 => array('name' => "DNS update"),
+0 => array('name' => 'Icmp testing', 'prog' => 'prov_icmp_testing'),
+1 => array('name' => 'Snmp testing', 'prog' => 'prov_snmp_testing'),
+2 => array('name' => 'DNS Update', 'prog' => 'prov_dns_update')
 );
 
 ?>
