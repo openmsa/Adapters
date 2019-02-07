@@ -239,6 +239,14 @@ read_property() {
 	cat $DA_DIR/$file | egrep "^$prop" | cut -d = -f 2 | tr -d ' '
 }
 
+tolower() {
+	echo $1 | tr '[A-Z]' '[a-z]'
+}
+
+toupper() {
+	echo $1 | tr '[a-z]' '[A-Z]'
+}
+
 fatal() {
 	echo $* >&2
 	exit 1
