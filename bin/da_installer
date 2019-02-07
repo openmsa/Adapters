@@ -47,7 +47,6 @@ update_files() {
 
 # ----- COURTESY OF NEC
 
-DEBUG=$1
 NOW=$(date +"%Y%m%d%H%M")
 
 	update_manufacturers_properties
@@ -56,7 +55,6 @@ NOW=$(date +"%Y%m%d%H%M")
 	update_manageLinks_properties
 	update_ses_properties
 	update_repository_properties
-	do_debug
 }
 
 
@@ -185,20 +183,7 @@ if [ $? -ne 0 ]; then
 fi
 }
 
-do_debug() {
-## for debug
-if [ "$DEBUG" == "debug" ]; then
-  echo
-  diff -u /opt/ubi-jentreprise/resources/templates/conf/device/manufacturers.properties.org.necNfa.$NOW /opt/ubi-jentreprise/resources/templates/conf/device/manufacturers.properties
-  diff -u /opt/ubi-jentreprise/resources/templates/conf/device/models.properties.org.necNfa.$NOW /opt/ubi-jentreprise/resources/templates/conf/device/models.properties
-  diff -u /opt/ses/properties/specifics/server_ALL/sdExtendedInfo.properties.org.necNfa.$NOW /opt/ses/properties/specifics/server_ALL/sdExtendedInfo.properties
-  diff -u /opt/ses/properties/specifics/server_ALL/manageLinks.properties.org.necNfa.$NOW /opt/ses/properties/specifics/server_ALL/manageLinks.properties
-  diff -u /opt/ses/properties/specifics/server_ALL/ses.properties.org.necNfa.$NOW /opt/ses/properties/specifics/server_ALL/ses.properties
-  diff -u /opt/ses/properties/specifics/server_ALL/repository.properties.org.necNfa.$NOW /opt/ses/properties/specifics/server_ALL/repository.properties
-fi
 
-# ----- END COURTESY OF NEC
-}
 
 fixup_no_newline_at_eof() {
   ## ファイル末尾に改行がない場合の対処
