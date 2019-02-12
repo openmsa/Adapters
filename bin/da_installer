@@ -36,7 +36,9 @@ da_install() {
 
 	read_properties_files
 	check_sms_router_conf
-	:;
+
+	check_create_files
+	update_files
 }
 
 da_uninstall() {
@@ -44,11 +46,6 @@ da_uninstall() {
 }
 
 update_files() {
-
-# ----- COURTESY OF NEC
-
-NOW=$(date +"%Y%m%d%H%M")
-
 	update_manufacturers_properties
 	update_models_properties
 	update_sdExtendedInfo_properties
@@ -58,129 +55,113 @@ NOW=$(date +"%Y%m%d%H%M")
 }
 
 
-update_manufacturers_properties() {
-	target_file="/opt/ubi-jentreprise/resources/templates/conf/device/manufacturers.properties"
-	grep -q "^70000," $target_file && return 0
+JENTREPRISE_CONF="/opt/ubi-jentreprise/resources/templates/conf/device"
+SES_TEMPLATE="/opt/ses/templates/server_ALL"
+SES_CONF="/opt/ses/properties/specifics/server_ALL"
 
-  echo "  Modifying $target_file"
-  /bin/cp -p $target_file $target_file.org.necNfa.$NOW
+
+check_create_files() {
+
+	for prop_file in ses repository sdExtendedInfo manageLinks; do
+		target_file="$SES_CONF/$prop_file.properties"
+
+		[ -f "$target_file" ] && continue
+
+		echo "  Copying $target_file"
+		/bin/cp -p $SES_TEMPLATE/$prop_file.properties $target_file
+	done
+}
+
+
+update_manufacturers_properties() {
+
+	target_file="$JENTREPRISE_CONF/manufacturers.properties"
+	grep -q "^$MAN_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
 
-  echo '70000,"NEC",1' >> $target_file
+	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
 
 }
 
 update_models_properties() {
 
-	target_file="/opt/ubi-jentreprise/resources/templates/conf/device/models.properties"
-	grep -q "^17111602," $target_file && return 0
-
-  echo "  Modifying $target_file"
-  /bin/cp -p $target_file $target_file.org.necNfa.$NOW
+	target_file="$JENTREPRISE_CONF/models.properties"
+	grep -q "^$MOD_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
 
-  echo '17111602,70000,"NEC NFA","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> $target_file
+	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> $target_file
 
 }
 
 update_sdExtendedInfo_properties() {
 
-	target_file="/opt/ses/properties/specifics/server_ALL/sdExtendedInfo.properties"
-if [ ! -f "$target_file" ]; then
-  echo "  Copying $target_file"
-  /bin/cp -p /opt/ses/templates/server_ALL/sdExtendedInfo.properties $target_file
-fi
+	target_file="$SES_CONF/sdExtendedInfo.properties"
 
-	grep -q "necNfa" $target_file && return 0
+	keyname="${MAN_NAME}${MOD_NAME}"
+	deviceid="${MAN_ID}-${MOD_ID}"
 
-  echo "  Modifying $target_file"
-  /bin/cp -p $target_file $target_file.org.necNfa.$NOW
+	grep -q "$keyname" $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
 
-  echo 'sdExtendedInfo.router.70000-17111602 = necNfa' >> $target_file
-  echo 'sdExtendedInfo.jspType.70000-17111602 = necNfa' >> $target_file
+	echo "sdExtendedInfo.modelKey.$keyname = $keyname" >> $target_file
+	echo "sdExtendedInfo.router.$deviceid = $keyname" >> $target_file
+	echo "sdExtendedInfo.jspType.$deviceid = $keyname" >> $target_file
 
 }
 
 update_manageLinks_properties() {
 
-	target_file="/opt/ses/properties/specifics/server_ALL/manageLinks.properties"
-if [ ! -f "$target_file" ]; then
-  echo "  Copying $target_file"
-  /bin/cp -p /opt/ses/templates/server_ALL/manageLinks.properties $target_file
-fi
+	target_file="$SES_CONF/manageLinks.properties"
 
-	grep -q "necNfa" $target_file && return 0
+	keyname="${MAN_NAME}${MOD_NAME}"
 
-  echo "  Modifying $target_file"
-  /bin/cp -p $target_file $target_file.org.necNfa.$NOW
+	grep -q "$keyname" $target_file && return 0
 
-  /bin/cat $target_file \
-    | sed 's/^\(siteLink.initialProv.models.*\)/\1 necNfa/' \
-    | sed 's/^\(siteLink.detailedReports.models.*\)/\1 necNfa/' \
-    | sed 's/^\(siteLink.displayLogs.models.*\)/\1 necNfa/' \
-    | sed 's/^\(device.wizard.authentication.window.models.*\)/\1 necNfa/' \
-    | sed 's/^\(device.cisco.license.manager.models.*\)/\1 necNfa/' \
-    | sed 's/^\(device.wizard.managecertificate.models.*\)/\1 necNfa/' \
-    | sed 's/^\(device.wizard.specific.rules.and.commands.models.*\)/\1 necNfa/' \
-    | sed 's/^\(device.wizard.check.non.empty.credentials.models.*\)/\1 necNfa/' \
-    | sed 's/^\(configobjectconsole.supported.models.*\)/\1 necNfa/' \
-    > /tmp/msa.$$
-  /bin/cp -p /tmp/msa.$$ $target_file
-  /bin/rm -f /tmp/msa.$$
+	dafile="$DA_DIR/conf/features.properties"
+	cat $dafile | grep -e "= *yes" | while read line; do
+		prop=$(sed 's: *=.*::g' <<< "$line")
+		grep -q "$prop" $target_file || \
+			echo "$prop.models = " >> $target_file
+		sed -i "s:^\($prop.models.*\):\1 $keyname:"  $target_file
+	done
 
 }
 
 update_ses_properties() {
 
-	target_file="/opt/ses/properties/specifics/server_ALL/ses.properties"
-if [ ! -f "$target_file" ]; then
-  echo "  Copying $target_file"
-  /bin/cp -p /opt/ses/templates/server_ALL/ses.properties $target_file
-fi
+	target_file="$SES_CONF/ses.properties"
 
-	grep -q "^soc.device.supported.nec" $target_file && return 0
+	keyname=$(tolower $MAN_NAME)
 
-  echo "  Modifying $target_file"
-  /bin/cp -p $target_file $target_file.org.necNfa.$NOW
-  echo 'soc.device.supported.nec=1' >> $target_file
+	grep -q "^soc.device.supported.$keyname" $target_file && return 0
+
+	echo "soc.device.supported.$keyname=1" >> $target_file
 
 }
 
 update_repository_properties() {
 
-	target_file="/opt/ses/properties/specifics/server_ALL/repository.properties"
-if [ ! -f "$target_file" ]; then
-  echo "  Copying $target_file"
-  /bin/cp -p /opt/ses/templates/server_ALL/repository.properties $target_file
-fi
+	target_file="$SES_CONF/repository.properties"
 
-CP_DONE=0
-grep "^repository.manufacturer.* NEC.*" $target_file > /dev/null
-if [ $? -ne 0 ]; then
-  echo "  Modifying(1) $target_file"
-  /bin/cp -p $target_file $target_file.org.necNfa.$NOW
-  CP_DONE=1
-  /bin/cat $target_file \
-    | sed 's/^\(repository.manufacturer.*\)/\1 NEC/' \
-    > /tmp/msa.$$
-  /bin/cp -p /tmp/msa.$$ $target_file
-  /bin/rm -f /tmp/msa.$$
-fi
+	keyname=$(toupper $MAN_NAME)
 
-grep "^repository.access.nec=" $target_file > /dev/null
-if [ $? -ne 0 ]; then
-  echo "  Modifying(2) $target_file"
-  if [ $CP_DONE -eq 0 ]; then
-    /bin/cp -p $target_file $target_file.org.necNfa.$NOW
-    CP_DONE=1
-  fi
-  echo 'repository.model.nec=70000-17072801 70000-17111601 70000-17111602' >> $target_file
-  echo 'repository.access.nec=|Configuration|Firmware|CommandDefinition|Datafiles|Reports|License|Orchestration|Process|' >> $target_file
-fi
+	grep -q "^repository.manufacturer *= *.* $keyname" $target_file || \
+		sed -i 's/^\(repository.manufacturer.*\)/\1'" $keyname/"  $target_file
+
+	keyname=$(tolower $MAN_NAME)
+	deviceid="${MAN_ID}-${MOD_ID}"
+
+	grep -q "^repository.model.$keyname" $target_file || \
+		echo "repository.model.$keyname=$deviceid" >> $target_file
+
+	dafile="$DA_DIR/conf/repository.properties"
+	props="|$(cat $dafile | grep yes | awk '{printf $1 "|"}')"
+
+	grep -q "^repository.access.$keyname" $target_file || \
+		echo "repository.access.$keyname=|$props" >> $target_file
 }
 
 
