@@ -109,7 +109,7 @@ class cisco_nexus9000_command extends generic_command
         $this->parsed_objects = $objects;
 
         debug_object_conf($objects);
-        $SMS_RETURN_BUF .= json_encode($objects);
+        $SMS_RETURN_BUF .= json_encode($objects, JSON_FORCE_OBJECT);
       }
 
       sd_disconnect();
