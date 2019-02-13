@@ -89,7 +89,7 @@ class f5_bigip_command extends generic_command {
                 $this->parsed_objects = $objects;
 
                 debug_object_conf ( $objects );
-                $SMS_RETURN_BUF .= json_encode ($objects, JSON_FORCE_OBJECT);
+                $SMS_RETURN_BUF .= object_to_json ( $objects );
             }
 
             sd_disconnect ();
@@ -146,7 +146,7 @@ class f5_bigip_command extends generic_command {
             $this->parsed_objects = $objects;
 
             debug_object_conf ( $objects );
-            $SMS_RETURN_BUF .= json_encode ($objects, JSON_FORCE_OBJECT);
+            $SMS_RETURN_BUF .= object_to_json ( $objects );
         }
 
         return SMS_OK;

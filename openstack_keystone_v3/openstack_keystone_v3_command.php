@@ -111,7 +111,7 @@ class openstack_keystone_v3_command extends generic_command
         }
 
         $this->parsed_objects = $objects;
-        $SMS_RETURN_BUF .= json_encode($objects, JSON_FORCE_OBJECT);
+        $SMS_RETURN_BUF .= object_to_json($objects);
       }
 
       sd_disconnect();

@@ -35,7 +35,7 @@ function aws_apply_conf($configuration)
     if (!empty($line))
     {
       $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '//root');
-      $SMS_RETURN_BUF = json_encode($res, JSON_FORCE_OBJECT);
+      $SMS_RETURN_BUF = object_to_json($res);
     }
     $line = get_one_line($configuration);
   }
