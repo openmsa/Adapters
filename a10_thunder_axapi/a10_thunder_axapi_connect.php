@@ -94,7 +94,7 @@ class DeviceConnection extends RestConnection
         $jres['message'] = $ret->res_body;
         $jresult['response'] = $jres;
 
-        $SMS_RETURN_BUF = json_encode($jresult);
+        $SMS_RETURN_BUF = object_to_json($jresult);
 
         return $ret->res_body;
       }

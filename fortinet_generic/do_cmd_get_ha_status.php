@@ -139,7 +139,7 @@ if(count($match_ha) > 0)
 	}
 }
 
-$result =  json_encode($result_array);
+$result = object_to_json($result_array);
 
 sms_send_user_ok($sms_csp, $sdid, $result);
 
