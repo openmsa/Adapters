@@ -32,7 +32,7 @@ from provisioning to image and asset management.
 Adaptors provide the necessary interface to communicate with different devices.
 
 Details on how to get started with device adaptors is available
-in the [wiki](../wiki).
+in the [wiki](../../wiki).
 
 
 Contributing to OpenMSA
