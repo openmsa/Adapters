@@ -80,9 +80,6 @@ class fortinet_generic_configuration
 		if (!empty($running_conf))
 		{
 		  $running_conf = remove_line_starting_with($running_conf, '#conf_file_ver=');
-		  $running_conf = remove_line_starting_with($running_conf, '#config-version=');
-          $running_conf = remove_line_starting_with($running_conf, '#buildno=');
-          $running_conf = remove_line_starting_with($running_conf, '#global_vdom=');
 		  $running_conf = trim($running_conf);
 		}
 
@@ -130,6 +127,17 @@ class fortinet_generic_configuration
 		//$this->conf_to_restore
 		$filename = "{$_SERVER['TFTP_BASE']}/{$this->sdid}.cfg";
 		file_put_contents($filename, $this->conf_to_restore);
+
+		$IS_VDOM_ENABLED = false;
+		$temp_buffer=sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'get system status');
+		if(strpos($temp_buffer, 'Virtual domain configuration: enable') !== false){
+
+			//If VDOM is enabled get out of vdom and go into config global to take config backup
+			$temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', '#');
+			$temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', '(global) #', 40000);
+			$IS_VDOM_ENABLED=true;
+		}
+
 
 		if(empty($this->sd->SD_CONFIGVAR_list['MANAGEMENT_VLAN_IP']))
 		{
