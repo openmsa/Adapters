@@ -50,6 +50,20 @@ function paloalto_generic_apply_conf($configuration)
     $line = get_one_line($configuration);
   }
 
+  commit();
+
+  save_result_file($SMS_OUTPUT_BUF, "conf.error");
+  if (!empty($SMS_OUTPUT_BUF))
+  {
+    sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
+    return ERR_SD_CMDFAILED;
+  }
+
+  return SMS_OK;
+}
+
+function commit()
+{
   // commit
   if ($SD->MOD_ID === 136)
   {
@@ -110,13 +124,6 @@ function paloalto_generic_apply_conf($configuration)
                     $SMS_OUTPUT_BUF .= $result->result->job->asXml();
                 }
             }
-    save_result_file($SMS_OUTPUT_BUF, "conf.error");
-    if (!empty($SMS_OUTPUT_BUF)) {
-        sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
-        return ERR_SD_CMDFAILED;
-    }
-
-    return SMS_OK;
 }
 
 function send_configuration_file($configuration)
