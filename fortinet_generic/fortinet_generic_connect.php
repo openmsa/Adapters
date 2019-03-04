@@ -9,6 +9,15 @@ require_once "$db_objects";
 
 function init_connection($conn)
 {
+    $IS_VDOM_ENABLED=false;
+
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'get system status', '#');
+    if(strpos($buffer, 'Virtual domain configuration: enable') !== false){
+                            //If VDOM is enabled for generic commands do config global
+                    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global) #', 40000);
+                    $IS_VDOM_ENABLED=true;
+    }
+
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', ' #', 2000);
     if (strpos($buffer, "parse error") !== false) {
         return;
@@ -17,6 +26,11 @@ function init_connection($conn)
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #', 40000);
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #', 40000);
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+
+    if ($IS_VDOM_ENABLED){
+            $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+    }
+
 }
 
 
