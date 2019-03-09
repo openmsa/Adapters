@@ -64,6 +64,9 @@ function paloalto_generic_apply_conf($configuration)
 
 function commit()
 {
+  global $SD;
+  global $sms_sd_ctx;
+
   // commit
   if ($SD->MOD_ID === 136)
   {
