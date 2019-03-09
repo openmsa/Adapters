@@ -50,7 +50,12 @@ function paloalto_generic_apply_conf($configuration)
     $line = get_one_line($configuration);
   }
 
-  commit();
+  $ret = commit();
+
+    if (!empty($SMS_OUTPUT_BUF))
+    {
+      $SMS_OUTPUT_BUF .= $ret;
+    }
 
   save_result_file($SMS_OUTPUT_BUF, "conf.error");
   if (!empty($SMS_OUTPUT_BUF))
@@ -121,12 +126,10 @@ function commit()
           }
         throw $e;
       }
-                } while ($result->result->job->status != 'FIN');
-    if (!empty($SMS_OUTPUT_BUF))
-    {
-                    $SMS_OUTPUT_BUF .= $result->result->job->asXml();
-                }
-            }
+    } while ($result->result->job->status != 'FIN');
+  }
+
+  return $result->result->job->asXml();
 }
 
 function send_configuration_file($configuration)
