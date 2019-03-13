@@ -57,11 +57,11 @@ class DeviceConnection extends GenericConnection
     if ($this->sd_management_port===22)
     {
       //it seems that the user didn't change the port in the UI, we need to connect using API, so use default port instead of 22
-      $curl_cmd = "curl -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}/api/?{$cmd}";
+      $curl_cmd = "curl -H 'Expect:' -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}/api/?{$cmd}";
     }
     else
     {
-      $curl_cmd = "curl -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?{$cmd}";
+      $curl_cmd = "curl -H 'Expect:' -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?{$cmd}";
     }
     if (isset($this->key))
     {
@@ -117,11 +117,11 @@ class DeviceConnection extends GenericConnection
   	if ($this->sd_management_port===22)
   	{
   		//it seems that the user didn't change the port in the UI, we need to connect using API, so use default port instead of 22
-  		$curl_cmd = "curl -XPOST --connect-timeout {$delay} --max-time {$delay} -F 'file=@{$file}' -k 'https://{$this->sd_ip_config}/api/?type=import&category=configuration";
+  		$curl_cmd = "curl -H 'Expect:' -XPOST --connect-timeout {$delay} --max-time {$delay} -F 'file=@{$file}' -k 'https://{$this->sd_ip_config}/api/?type=import&category=configuration";
   	}
   	else
   	{
-  		$curl_cmd = "curl -XPOST --connect-timeout {$delay} --max-time {$delay} -F 'file=@{$file}' -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?type=import&category=configuration";
+  		$curl_cmd = "curl -H 'Expect:' -XPOST --connect-timeout {$delay} --max-time {$delay} -F 'file=@{$file}' -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?type=import&category=configuration";
   	}
   	if (isset($this->key))
   	{
@@ -137,11 +137,11 @@ class DeviceConnection extends GenericConnection
   	if ($this->sd_management_port===22)
   	{
   		//it seems that the user didn't change the port in the UI, we need to connect using API, so use default port instead of 22
-  		$curl_cmd = "curl -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}/api/?type=op&cmd=<load><config><from>{$device_file}</from></config></load>";
+  		$curl_cmd = "curl -H 'Expect:' -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}/api/?type=op&cmd=<load><config><from>{$device_file}</from></config></load>";
   	}
   	else
   	{
-  		$curl_cmd = "curl -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?type=op&cmd=<load><config><from>{$device_file}</from></config></load>";
+  		$curl_cmd = "curl -H 'Expect:' -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?type=op&cmd=<load><config><from>{$device_file}</from></config></load>";
   	}
   	if (isset($this->key))
   	{
@@ -170,11 +170,11 @@ class DeviceConnection extends GenericConnection
   	if ($this->sd_management_port===22)
   	{
   		//it seems that the user didn't change the port in the UI, we need to connect using API, so use default port instead of 22
-  		$curl_cmd = "curl -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}/api/?type=commit&cmd=".$cmd;
+  		$curl_cmd = "curl -H 'Expect:' -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}/api/?type=commit&cmd=".$cmd;
   	}
   	else
   	{
-  		$curl_cmd = "curl -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?type=commit&cmd=".$cmd;
+  		$curl_cmd = "curl -H 'Expect:' -d -XPOST --connect-timeout {$delay} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/api/?type=commit&cmd=".$cmd;
   	}
   	if (isset($this->key))
   	{
