@@ -50,12 +50,15 @@ function paloalto_generic_apply_conf($configuration)
     $line = get_one_line($configuration);
   }
 
-  $ret = commit();
+  if (! $SD->SD_CONFIGVAR_list['CONFIGURATION_MANUAL_COMMIT'])
+  {
+    $ret = commit();
 
     if (!empty($SMS_OUTPUT_BUF))
     {
       $SMS_OUTPUT_BUF .= $ret;
     }
+  }
 
   save_result_file($SMS_OUTPUT_BUF, "conf.error");
   if (!empty($SMS_OUTPUT_BUF))
