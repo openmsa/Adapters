@@ -39,6 +39,8 @@ function paloalto_generic_apply_conf($configuration)
                     $msg = (String)$res->msg->line->line;
                 } elseif (!empty($res->msg->line)) {
                     $msg = (String)$res->msg->line;
+                } elseif (!empty($res->msg)) {
+                    $msg = (String)$res->msg;
                 } elseif (!empty($res->result->msg)) {
                     $msg = (String)$res->result->msg;
                 }
