@@ -32,207 +32,191 @@ class paloalto_generic_command extends generic_command
   var $import_file_list;
 
   function __construct()
-  {
-    parent::__construct();
-    $this->parser_list = array();
-    $this->create_list = array();
-    $this->delete_list = array();
-    $this->list_list = array();
-    $this->read_list = array();
-    $this->update_list = array();
-    $this->import_file_list = array();
-  }
+    {
+        parent::__construct();
+        $this->parser_list = array();
+        $this->create_list = array();
+        $this->delete_list = array();
+        $this->list_list = array();
+        $this->read_list = array();
+        $this->update_list = array();
+        $this->import_file_list = array();
+    }
 
-  /*
-   * #####################################################################################
-  * IMPORT
-  * #####################################################################################
-  */
+    /*
+     * #####################################################################################
+    * IMPORT
+    * #####################################################################################
+    */
 
-  /*
-   * #####################################################################################
-  * IMPORT
-  * #####################################################################################
-  */
+    /*
+     * #####################################################################################
+    * IMPORT
+    * #####################################################################################
+    */
 
   function decode_IMPORT($object, $json_params, $element)
-  {
-    $parser = new cmd_import($object, $element, $json_params);
-    $this->parser_list[] = &$parser;
-  }
+    {
+        $parser = new cmd_import($object, $element, $json_params);
+        $this->parser_list[] = &$parser;
+    }
 
-  /**
-   * IMPORT configuration from router
-   * @param object $json_params			JSON parameters of the command
-   * @param domElement $element			XML DOM element of the definition of the command
-   */
+    /**
+     * IMPORT configuration from router
+     * @param object $json_params                 JSON parameters of the command
+     * @param domElement $element                 XML DOM element of the definition of the command
+     */
   function eval_IMPORT()
-  {
-    global $sms_sd_ctx;
-    global $SMS_RETURN_BUF;
-
-    try
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+        global $sms_sd_ctx;
+        global $SMS_RETURN_BUF;
 
-      if (!empty($this->parser_list))
-      {
-        $objects = array();
-        $parser_list = array();
-
-        foreach ($this->parser_list as $parser)
-        {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-          $cmd = trim($op_eval) . '&xpath=' . urlencode(trim($xpath_eval));
-          // Group parsers into evaluated operations
-          $parser_list[$cmd][] = $parser;
-        }
-
-        foreach ($parser_list as $op_eval => $sub_parsers)
-        {
-          // Run evaluated operation
-          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-          foreach ($op_list as $op)
-          {
-            $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-            //debug_dump($sms_sd_ctx->get_raw_xml());
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
+        try {
+            $ret = sd_connect();
+            if ($ret != SMS_OK) {
+                return $ret;
             }
-          }
+
+            if (!empty($this->parser_list)) {
+                $objects = array();
+                $parser_list = array();
+
+                foreach ($this->parser_list as $parser) {
+                    $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+                    $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+                    $cmd = trim($op_eval) . '&xpath=' . urlencode(trim($xpath_eval));
+                    // Group parsers into evaluated operations
+                    $parser_list[$cmd][] = $parser;
+                }
+
+                foreach ($parser_list as $op_eval => $sub_parsers) {
+                    // Run evaluated operation
+                    $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+                    foreach ($op_list as $op) {
+                        $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+                        //debug_dump($sms_sd_ctx->get_raw_xml());
+                        // Apply concerned parsers
+                        foreach ($sub_parsers as $parser) {
+                            $parser->parse($running_conf, $objects);
+                        }
+                    }
+                }
+
+                $this->parsed_objects = $objects;
+
+                debug_object_conf($objects);
+        $SMS_RETURN_BUF .= object_to_json($objects);
+            }
+
+            sd_disconnect();
+        } catch (Exception $e) {
+            return $e->getCode();
         }
 
-        $this->parsed_objects = $objects;
-
-        debug_object_conf($objects);
-        $SMS_RETURN_BUF .= object_to_json($objects);
-      }
-
-      sd_disconnect();
-    }
-    catch (Exception $e)
-    {
-      return $e->getCode();
+        return SMS_OK;
     }
 
-    return SMS_OK;
-  }
-
-  /*
-   * #####################################################################################
-  * CREATE
-  * #####################################################################################
-  */
+    /*
+     * #####################################################################################
+    * CREATE
+    * #####################################################################################
+    */
   function eval_CREATE()
-  {
-    global $SMS_RETURN_BUF;
-
-    foreach ($this->create_list as $create)
     {
-      $conf = trim($create->evaluate_operation());
+        global $SMS_RETURN_BUF;
+
+        foreach ($this->create_list as $create) {
+            $conf = trim($create->evaluate_operation());
       if (!empty($conf))
       {
         $xpath = trim($create->evaluate_xpath());
         $conf .= '&xpath=' . urlencode(trim($xpath));
-        $conf .= '&element=';
-        $xml_conf = trim($create->evaluate_xml());
-        $conf_lines = preg_split("/\n/", $xml_conf);
-        foreach ($conf_lines as $conf_line)
-        {
-          $conf .= urlencode(trim($conf_line));
+                    $conf .= '&element=';
+                    $xml_conf = trim($create->evaluate_xml());
+                    $conf_lines = preg_split("/\n/", $xml_conf);
+                    foreach ($conf_lines as $conf_line) {
+                        $conf .= urlencode(trim($conf_line));
+                    }
+                $this->configuration .= "{$conf}\n";
+                $SMS_RETURN_BUF .= "{$conf}\n";
+            }
         }
-        $this->configuration .= "{$conf}\n";
-        $SMS_RETURN_BUF .= "{$conf}\n";
-      }
+        return SMS_OK;
     }
-    return SMS_OK;
-  }
 
-  /**
-   * Apply created object to device and if OK add object to the database.
-   */
+    /**
+     * Apply created object to device and if OK add object to the database.
+     */
   function apply_device_CREATE($params)
-  {
-    $ret = SMS_OK;
-    if (!empty($this->configuration))
     {
-      debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
-      $ret = sd_apply_conf($this->configuration, true);
+        $ret = SMS_OK;
+        if (!empty($this->configuration)) {
+            debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
+            $ret = sd_apply_conf($this->configuration, true);
+        }
+
+        return $ret;
     }
 
-    return $ret;
-  }
-
-  /*
-   * #####################################################################################
-  * UPDATE
-  * #####################################################################################
-  */
+    /*
+     * #####################################################################################
+    * UPDATE
+    * #####################################################################################
+    */
   function eval_UPDATE()
-  {
-    global $SMS_RETURN_BUF;
-
-    foreach ($this->update_list as $update)
     {
-      $conf = trim($update->evaluate_operation());
+        global $SMS_RETURN_BUF;
+
+        foreach ($this->update_list as $update) {
+            $conf = trim($update->evaluate_operation());
       if (!empty($conf))
       {
         $xpath = trim($update->evaluate_xpath());
         $conf .= '&xpath=' . urlencode(trim($xpath));
-        $conf .= '&element=';
-        $xml_conf = trim($update->evaluate_xml());
-        $conf_lines = preg_split("/\n/", $xml_conf);
-        foreach ($conf_lines as $conf_line)
-        {
-          $conf .= urlencode(trim($conf_line));
+                    $conf .= '&element=';
+                    $xml_conf = trim($update->evaluate_xml());
+                    $conf_lines = preg_split("/\n/", $xml_conf);
+                    foreach ($conf_lines as $conf_line) {
+                        $conf .= urlencode(trim($conf_line));
+                    }
+                $this->configuration .= "{$conf}\n";
+                $SMS_RETURN_BUF .= "{$conf}\n";
+            }
         }
-        $this->configuration .= "{$conf}\n";
-        $SMS_RETURN_BUF .= "{$conf}\n";
-      }
+        return SMS_OK;
     }
-    return SMS_OK;
-  }
 
-  /**
-   * Apply updated object to device and if OK add object to the database.
-   */
+    /**
+     * Apply updated object to device and if OK add object to the database.
+     */
   function apply_device_UPDATE($params)
-  {
-    $ret = SMS_OK;
-    if (!empty($this->configuration))
     {
-      debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
-      $ret = sd_apply_conf($this->configuration, true);
+        $ret = SMS_OK;
+        if (!empty($this->configuration)) {
+            debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
+            $ret = sd_apply_conf($this->configuration, true);
+        }
+        return $ret;
     }
-    return $ret;
-  }
 
-  /*
-   * #####################################################################################
-  * DELETE
-  * #####################################################################################
-  */
+    /*
+     * #####################################################################################
+    * DELETE
+    * #####################################################################################
+    */
   function eval_DELETE()
-  {
-    global $SMS_RETURN_BUF;
-
-    foreach ($this->delete_list as $delete)
     {
-      $conf = trim($delete->evaluate_operation());
-      $xpath = trim($delete->evaluate_xpath());
-      $conf .= '&xpath=' . urlencode(trim($xpath));
-      $this->configuration .= "{$conf}\n";
-      $SMS_RETURN_BUF .= "{$conf}\n";
+        global $SMS_RETURN_BUF;
+
+        foreach ($this->delete_list as $delete) {
+            $conf = trim($delete->evaluate_operation());
+            $xpath = trim($delete->evaluate_xpath());
+            $conf .= '&xpath=' . urlencode(trim($xpath));
+            $this->configuration .= "{$conf}\n";
+            $SMS_RETURN_BUF .= "{$conf}\n";
+        }
+        return SMS_OK;
     }
-    return SMS_OK;
-  }
 
     /**
      * Apply deleted object to device and if OK add object to the database.
