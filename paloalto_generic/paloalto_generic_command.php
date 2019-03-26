@@ -127,16 +127,20 @@ class paloalto_generic_command extends generic_command
 
         foreach ($this->create_list as $create) {
             $conf = trim($create->evaluate_operation());
-      if (!empty($conf))
-      {
-        $xpath = trim($create->evaluate_xpath());
-        $conf .= '&xpath=' . urlencode(trim($xpath));
+            if (!empty($conf)) {
+                $xpath = explode('&', trim($create->evaluate_xpath()), 2);
+                $conf .= '&xpath=' . urlencode(trim($xpath[0]));
+                if(!empty(trim($xpath[1]))) {
+                    $conf .= '&' . trim($xpath[1]);
+                }
+                if (!empty(trim($create->evaluate_xml()))) {
                     $conf .= '&element=';
                     $xml_conf = trim($create->evaluate_xml());
                     $conf_lines = preg_split("/\n/", $xml_conf);
                     foreach ($conf_lines as $conf_line) {
                         $conf .= urlencode(trim($conf_line));
                     }
+                }
                 $this->configuration .= "{$conf}\n";
                 $SMS_RETURN_BUF .= "{$conf}\n";
             }
@@ -169,16 +173,20 @@ class paloalto_generic_command extends generic_command
 
         foreach ($this->update_list as $update) {
             $conf = trim($update->evaluate_operation());
-      if (!empty($conf))
-      {
-        $xpath = trim($update->evaluate_xpath());
-        $conf .= '&xpath=' . urlencode(trim($xpath));
+            if (!empty($conf)) {
+                $xpath = explode('&', trim($update->evaluate_xpath()), 2);
+                $conf .= '&xpath=' . urlencode(trim($xpath[0]));
+                 if(!empty(trim($xpath[1]))) {
+                    $conf .= '&' . trim($xpath[1]);
+                }
+                if (!empty(trim($update->evaluate_xml()))) {
                     $conf .= '&element=';
                     $xml_conf = trim($update->evaluate_xml());
                     $conf_lines = preg_split("/\n/", $xml_conf);
                     foreach ($conf_lines as $conf_line) {
                         $conf .= urlencode(trim($conf_line));
                     }
+                }
                 $this->configuration .= "{$conf}\n";
                 $SMS_RETURN_BUF .= "{$conf}\n";
             }
