@@ -21,17 +21,17 @@ require_once load_once('smsd', 'cmd_list.php');
 require_once load_once('paloalto_generic', 'adaptor.php');
 class paloalto_generic_command extends generic_command
 {
-  var $parser_list;
-  var $parsed_objects;
-  var $create_list;
-  var $delete_list;
-  var $list_list;
-  var $read_list;
-  var $update_list;
-  var $configuration;
-  var $import_file_list;
+    public $parser_list;
+    public $parsed_objects;
+    public $create_list;
+    public $delete_list;
+    public $list_list;
+    public $read_list;
+    public $update_list;
+    public $configuration;
+    public $import_file_list;
 
-  function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->parser_list = array();
@@ -55,7 +55,7 @@ class paloalto_generic_command extends generic_command
     * #####################################################################################
     */
 
-  function decode_IMPORT($object, $json_params, $element)
+    public function decode_IMPORT($object, $json_params, $element)
     {
         $parser = new cmd_import($object, $element, $json_params);
         $this->parser_list[] = &$parser;
@@ -66,7 +66,7 @@ class paloalto_generic_command extends generic_command
      * @param object $json_params                 JSON parameters of the command
      * @param domElement $element                 XML DOM element of the definition of the command
      */
-  function eval_IMPORT()
+    public function eval_IMPORT()
     {
         global $sms_sd_ctx;
         global $SMS_RETURN_BUF;
@@ -121,7 +121,7 @@ class paloalto_generic_command extends generic_command
     * CREATE
     * #####################################################################################
     */
-  function eval_CREATE()
+    public function eval_CREATE()
     {
         global $SMS_RETURN_BUF;
 
@@ -147,7 +147,7 @@ class paloalto_generic_command extends generic_command
     /**
      * Apply created object to device and if OK add object to the database.
      */
-  function apply_device_CREATE($params)
+    public function apply_device_CREATE($params)
     {
         $ret = SMS_OK;
         if (!empty($this->configuration)) {
@@ -163,7 +163,7 @@ class paloalto_generic_command extends generic_command
     * UPDATE
     * #####################################################################################
     */
-  function eval_UPDATE()
+    public function eval_UPDATE()
     {
         global $SMS_RETURN_BUF;
 
@@ -189,7 +189,7 @@ class paloalto_generic_command extends generic_command
     /**
      * Apply updated object to device and if OK add object to the database.
      */
-  function apply_device_UPDATE($params)
+    public function apply_device_UPDATE($params)
     {
         $ret = SMS_OK;
         if (!empty($this->configuration)) {
@@ -204,7 +204,7 @@ class paloalto_generic_command extends generic_command
     * DELETE
     * #####################################################################################
     */
-  function eval_DELETE()
+    public function eval_DELETE()
     {
         global $SMS_RETURN_BUF;
 
@@ -221,7 +221,7 @@ class paloalto_generic_command extends generic_command
     /**
      * Apply deleted object to device and if OK add object to the database.
      */
-    function apply_device_DELETE($params)
+    public function apply_device_DELETE($params)
     {
         debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
 
