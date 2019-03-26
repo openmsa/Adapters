@@ -4,8 +4,8 @@
 * Created: Apr 28, 2011
 * Available global variables
 *  $sms_csp            pointer to csp context to send response to user
-* 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
-* 	$SMS_RETURN_BUF     string buffer containing the result
+*       $sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
+*       $SMS_RETURN_BUF     string buffer containing the result
 */
 require_once 'smsd/sms_common.php';
 
@@ -234,17 +234,17 @@ class paloalto_generic_command extends generic_command
     return SMS_OK;
   }
 
-  /**
-   * Apply deleted object to device and if OK add object to the database.
-   */
-  function apply_device_DELETE($params)
-  {
-    debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
+    /**
+     * Apply deleted object to device and if OK add object to the database.
+     */
+    function apply_device_DELETE($params)
+    {
+        debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
 
-    $ret = sd_apply_conf($this->configuration, true);
+        $ret = sd_apply_conf($this->configuration, true);
 
-    return $ret;
-  }
+        return $ret;
+    }
 }
 
 ?>

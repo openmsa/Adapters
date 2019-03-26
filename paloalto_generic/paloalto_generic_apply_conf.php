@@ -8,21 +8,21 @@ require_once "$db_objects";
 
 /**
  * Apply the configuration using tftp (failover line by line)
- * @param string  $configuration	configuration to apply
- * @param boolean $copy_to_startup	copy in startup-config+reboot instead of running-config+write mem
+ * @param string  $configuration        configuration to apply
+ * @param boolean $copy_to_startup      copy in startup-config+reboot instead of running-config+write mem
  */
 function paloalto_generic_apply_conf($configuration)
 {
-  global $sdid;
-  global $sms_sd_ctx;
-  global $sendexpect_result;
-  global $apply_errors;
-  global $operation;
-  global $SD;
+    global $sdid;
+    global $sms_sd_ctx;
+    global $sendexpect_result;
+    global $apply_errors;
+    global $operation;
+    global $SD;
 
-  // Save the configuration applied on the router
-  save_result_file($configuration, 'conf.applied');
-  $SMS_OUTPUT_BUF = '';
+    // Save the configuration applied on the router
+    save_result_file($configuration, 'conf.applied');
+    $SMS_OUTPUT_BUF = '';
 
   $apikey_msg = "API Key is successfully set";
   $deactivate_msg = 'Successfully deactivated old keys';
@@ -123,19 +123,19 @@ function paloalto_generic_apply_conf($configuration)
     return ERR_SD_CMDFAILED;
   }
 
-  return SMS_OK;
+    return SMS_OK;
 }
 
 function send_configuration_file($configuration) {
 
-	global $sdid;
-	global $sms_sd_ctx;
+    global $sdid;
+    global $sms_sd_ctx;
 
-	save_result_file($configuration, 'conf.applied');
-	save_result_file($configuration, 'conf.xml');
+    save_result_file($configuration, 'conf.applied');
+    save_result_file($configuration, 'conf.xml');
 
-	$filepath = "{$_SERVER['GENERATED_CONF_BASE']}/$sdid/conf.xml";
-	return $sms_sd_ctx->send_file(__FILE__ . ':' . __LINE__, $filepath);
+    $filepath = "{$_SERVER['GENERATED_CONF_BASE']}/$sdid/conf.xml";
+    return $sms_sd_ctx->send_file(__FILE__ . ':' . __LINE__, $filepath);
 }
 
 
