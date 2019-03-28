@@ -8,49 +8,44 @@ require_once "$db_objects";
 
 /**
  * Apply the configuration using tftp (failover line by line)
- * @param string  $configuration	configuration to apply
- * @param boolean $copy_to_startup	copy in startup-config+reboot instead of running-config+write mem
+ * @param string  $configuration        configuration to apply
+ * @param boolean $copy_to_startup      copy in startup-config+reboot instead of running-config+write mem
  */
 function paloalto_generic_apply_conf($configuration)
 {
-  global $sdid;
-  global $sms_sd_ctx;
-  global $sendexpect_result;
-  global $apply_errors;
-  global $operation;
-  global $SD;
+    global $sdid;
+    global $sms_sd_ctx;
+    global $sendexpect_result;
+    global $apply_errors;
+    global $operation;
+    global $SD;
 
-  // Save the configuration applied on the router
-  save_result_file($configuration, 'conf.applied');
-  $SMS_OUTPUT_BUF = '';
+    // Save the configuration applied on the router
+    save_result_file($configuration, 'conf.applied');
+    $SMS_OUTPUT_BUF = '';
 
   $apikey_msg = "API Key is successfully set";
   $deactivate_msg = 'Successfully deactivated old keys';
-  $line = get_one_line($configuration);
-  while ($line !== false)
-  {
-    $line = trim($line);
-    if (!empty($line))
-    {
-      $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '/response');
-      if (trim($res['status']) !== 'success' && (trim($res['code']) !== '19' && trim($res['code']) !== '20')
-           && !strstr($res, $apikey_msg) && !strstr($res, $deactivate_msg) )
-      {
-        $line = urldecode($line);
-        if (!empty($res->msg->line->line))
-        {
-          $msg = (String)$res->msg->line->line;
-        }
-        else if (!empty($res->msg->line))
-        {
-          $msg = (String)$res->msg->line;
-        }
-        else if (!empty($res->result->msg))
-        {
-          $msg = (String)$res->result->msg;
-        }
-        $SMS_OUTPUT_BUF .= "{$line}\n\n{$msg}\n";
-      }
+    $line = get_one_line($configuration);
+    while ($line !== false) {
+        $line = trim($line);
+        if (!empty($line)) {
+            $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '/response');
+            if (trim($res['status']) !== 'success' && (trim($res['code']) !== '19' && trim($res['code']) !== '20')
+                && !strstr($res, $apikey_msg) && !strstr($res, $deactivate_msg) )
+            {
+                $line = urldecode($line);
+                if (!empty($res->msg->line->line)) {
+                    $msg = (String)$res->msg->line->line;
+                } elseif (!empty($res->msg->line)) {
+                    $msg = (String)$res->msg->line;
+                } elseif (!empty($res->msg)) {
+                    $msg = (String)$res->msg;
+                } elseif (!empty($res->result->msg)) {
+                    $msg = (String)$res->result->msg;
+                }
+                $SMS_OUTPUT_BUF .= "{$line}\n\n{$msg}\n";
+            }
     }
     $line = get_one_line($configuration);
   }
@@ -86,13 +81,12 @@ function paloalto_generic_apply_conf($configuration)
       }
       $palo_retry_show_limit--;
 
-      sleep(2);
+                    sleep(2);
       try {
-        $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$job}</id></jobs></show>"));
-        if (!empty($operation) && $result->result->job->status == 'ACT')
-        {
-          status_progress("progress {$result->result->job->progress}%", $operation);
-        }
+                    $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'type=op&cmd='.urlencode("<show><jobs><id>{$job}</id></jobs></show>"));
+                    if (!empty($operation) && $result->result->job->status == 'ACT') {
+                        status_progress("progress {$result->result->job->progress}%", $operation);
+                    }
         $last_result = $result; //store the response
       } catch (Exception $e) {
         sms_log_info($e->getMessage());
@@ -110,32 +104,31 @@ function paloalto_generic_apply_conf($configuration)
           }
         throw $e;
       }
-    } while ($result->result->job->status != 'FIN');
+                } while ($result->result->job->status != 'FIN');
     if (!empty($SMS_OUTPUT_BUF))
     {
-      $SMS_OUTPUT_BUF .= $result->result->job->asXml();
+                    $SMS_OUTPUT_BUF .= $result->result->job->asXml();
+                }
+            }
+    save_result_file($SMS_OUTPUT_BUF, "conf.error");
+    if (!empty($SMS_OUTPUT_BUF)) {
+        sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
+        return ERR_SD_CMDFAILED;
     }
-  }
-  save_result_file($SMS_OUTPUT_BUF, "conf.error");
-  if (!empty($SMS_OUTPUT_BUF))
-  {
-    sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
-    return ERR_SD_CMDFAILED;
-  }
 
-  return SMS_OK;
+    return SMS_OK;
 }
 
-function send_configuration_file($configuration) {
+function send_configuration_file($configuration)
+{
+    global $sdid;
+    global $sms_sd_ctx;
 
-	global $sdid;
-	global $sms_sd_ctx;
+    save_result_file($configuration, 'conf.applied');
+    save_result_file($configuration, 'conf.xml');
 
-	save_result_file($configuration, 'conf.applied');
-	save_result_file($configuration, 'conf.xml');
-
-	$filepath = "{$_SERVER['GENERATED_CONF_BASE']}/$sdid/conf.xml";
-	return $sms_sd_ctx->send_file(__FILE__ . ':' . __LINE__, $filepath);
+    $filepath = "{$_SERVER['GENERATED_CONF_BASE']}/$sdid/conf.xml";
+    return $sms_sd_ctx->send_file(__FILE__ . ':' . __LINE__, $filepath);
 }
 
 
