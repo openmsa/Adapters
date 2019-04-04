@@ -202,7 +202,8 @@ check_sms_router_conf() {
 read_property() {
 	file=$1
 	prop=$2
-	cat $DA_DIR/$file | egrep "^$prop" | cut -d = -f 2 | tr -d ' '
+	cat $DA_DIR/$file | sed 's:\r$::g' \
+			  | egrep "^$prop" | cut -d = -f 2 | tr -d ' '
 }
 
 tolower() {
