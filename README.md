@@ -22,6 +22,12 @@ Recent Changes
 - [commits](../../commits/master)
 
 
+Transitional patch
+------------------
+
+- [OpenMSA-1.2](../master/doc/Transitional_patch.md)
+
+
 Device Adaptors
 ---------------
 
