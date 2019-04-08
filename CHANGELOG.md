@@ -16,6 +16,12 @@ New Device Adaptors
 - `fortinet_json` for Fortinet devices (FortiManager, FortiAnalyzer)
 
 
+Device Adaptors installer
+
+- `bin/da_installer`
+- `doc/Adaptor_installer.md`
+
+
 Improvements
 ------------
 
