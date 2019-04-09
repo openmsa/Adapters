@@ -50,7 +50,7 @@ function paloalto_generic_apply_conf($configuration)
     $line = get_one_line($configuration);
   }
 
-  if (! $SD->SD_CONFIGVAR_list['CONFIGURATION_MANUAL_COMMIT'])
+  if (! is_manual_commit())
   {
     $ret = commit();
 
