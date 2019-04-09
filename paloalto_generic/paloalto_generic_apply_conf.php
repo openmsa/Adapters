@@ -50,7 +50,7 @@ function paloalto_generic_apply_conf($configuration)
     $line = get_one_line($configuration);
   }
 
-  if (! $SD->SD_CONFIGVAR_list['CONFIGURATION_MANUAL_COMMIT'])
+  if (! is_manual_commit())
   {
     $ret = commit();
 
@@ -68,6 +68,17 @@ function paloalto_generic_apply_conf($configuration)
   }
 
   return SMS_OK;
+}
+
+function is_manual_commit()
+{
+  $net_profile = get_network_profile();
+  $sd = &$net_profile->SD;
+
+  return filter_var(
+    $sd->SD_CONFIGVAR_list['CONFIGURATION_MANUAL_COMMIT']->VAR_VALUE,
+    FILTER_VALIDATE_BOOLEAN
+  );
 }
 
 function commit()
