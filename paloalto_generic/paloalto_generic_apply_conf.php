@@ -141,9 +141,9 @@ function commit()
         throw $e;
       }
     } while ($result->result->job->status != 'FIN');
-  }
 
-  return $result->result->job->asXml();
+    return $result->result->job->asXml();
+  }
 }
 
 function send_configuration_file($configuration)
