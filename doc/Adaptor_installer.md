@@ -67,8 +67,14 @@ The installer script expects to find the following files:
 under sub-directory `conf/` in the adaptor's directory.
 
 Refer to the Adaptors wiki page (see above) for details on the meaning
-and acceptable values for each property.  Check the vsphere adaptor
-for an example set of properties files: `../vmware_vsphere/conf`.
+and acceptable values for each property.
+
+Check existing adaptor properties files e.g. the `f5_bigip` or
+the `vmware_vsphere` adaptors `conf/` sub-directories.  These are
+example sets of properties files:
+
+- [`vmware_vsphere`](../vmware_vsphere/conf)
+- [`f5_bigip`](../f5_bigip/conf)
 
 
 Un-installing
