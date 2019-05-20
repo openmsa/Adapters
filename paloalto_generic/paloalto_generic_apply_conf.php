@@ -35,15 +35,7 @@ function paloalto_generic_apply_conf($configuration)
                 && !strstr($res, $apikey_msg) && !strstr($res, $deactivate_msg) )
             {
                 $line = urldecode($line);
-                if (!empty($res->msg->line->line)) {
-                    $msg = (String)$res->msg->line->line;
-                } elseif (!empty($res->msg->line)) {
-                    $msg = (String)$res->msg->line;
-                } elseif (!empty($res->msg)) {
-                    $msg = (String)$res->msg;
-                } elseif (!empty($res->result->msg)) {
-                    $msg = (String)$res->result->msg;
-                }
+                $msg = res_get_msg($res);
                 $SMS_OUTPUT_BUF .= "{$line}\n\n{$msg}\n";
             }
     }
@@ -68,6 +60,21 @@ function paloalto_generic_apply_conf($configuration)
   }
 
   return SMS_OK;
+}
+
+function res_get_msg($res)
+{
+  $msg = "";
+  if (!empty($res->msg->line->line)) {
+      $msg = (String)$res->msg->line->line;
+  } elseif (!empty($res->msg->line)) {
+      $msg = (String)$res->msg->line;
+  } elseif (!empty($res->msg)) {
+      $msg = (String)$res->msg;
+  } elseif (!empty($res->result->msg)) {
+      $msg = (String)$res->result->msg;
+  }
+  return $msg;
 }
 
 function is_manual_commit()
