@@ -23,6 +23,7 @@ function paloalto_generic_apply_conf($configuration)
     // Save the configuration applied on the router
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
+    $api_return_value = "";
 
   $apikey_msg = "API Key is successfully set";
   $deactivate_msg = 'Successfully deactivated old keys';
@@ -38,6 +39,11 @@ function paloalto_generic_apply_conf($configuration)
                 $msg = res_get_msg($res);
                 $SMS_OUTPUT_BUF .= "{$line}\n\n{$msg}\n";
             }
+            else
+            {
+                $msg = res_get_msg($res);
+            }
+            $api_return_value = $msg;
     }
     $line = get_one_line($configuration);
   }
@@ -45,6 +51,7 @@ function paloalto_generic_apply_conf($configuration)
   if (! is_manual_commit())
   {
     $ret = commit();
+    $api_return_value = $ret;
 
     if (!empty($SMS_OUTPUT_BUF))
     {
@@ -58,6 +65,9 @@ function paloalto_generic_apply_conf($configuration)
     sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
     return ERR_SD_CMDFAILED;
   }
+
+  // set API return value (json.message) for success cases
+  $SMS_RETURN_BUF = $api_return_value;
 
   return SMS_OK;
 }
