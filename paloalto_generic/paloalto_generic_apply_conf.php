@@ -60,8 +60,10 @@ function paloalto_generic_apply_conf($configuration)
   }
 
   save_result_file($SMS_OUTPUT_BUF, "conf.error");
-  if (!empty($SMS_OUTPUT_BUF))
+  if (!empty($SMS_OUTPUT_BUF)) // we have detected an error cf above
   {
+    // returning an error code causes the framework to use $SMS_OUTPUT_BUF
+    // for the API return value (json.message) and $SMS_RETURN_BUF is ignored
     sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
     return ERR_SD_CMDFAILED;
   }
