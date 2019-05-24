@@ -23,6 +23,7 @@ function paloalto_generic_apply_conf($configuration)
     // Save the configuration applied on the router
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
+    $api_return_value = "";
 
   $apikey_msg = "API Key is successfully set";
   $deactivate_msg = 'Successfully deactivated old keys';
@@ -35,17 +36,14 @@ function paloalto_generic_apply_conf($configuration)
                 && !strstr($res, $apikey_msg) && !strstr($res, $deactivate_msg) )
             {
                 $line = urldecode($line);
-                if (!empty($res->msg->line->line)) {
-                    $msg = (String)$res->msg->line->line;
-                } elseif (!empty($res->msg->line)) {
-                    $msg = (String)$res->msg->line;
-                } elseif (!empty($res->msg)) {
-                    $msg = (String)$res->msg;
-                } elseif (!empty($res->result->msg)) {
-                    $msg = (String)$res->result->msg;
-                }
+                $msg = res_get_msg($res);
                 $SMS_OUTPUT_BUF .= "{$line}\n\n{$msg}\n";
             }
+            else
+            {
+                $msg = res_get_msg($res);
+            }
+            $api_return_value = $msg;
     }
     $line = get_one_line($configuration);
   }
@@ -53,6 +51,7 @@ function paloalto_generic_apply_conf($configuration)
   if (! is_manual_commit())
   {
     $ret = commit();
+    $api_return_value = $ret;
 
     if (!empty($SMS_OUTPUT_BUF))
     {
@@ -61,13 +60,33 @@ function paloalto_generic_apply_conf($configuration)
   }
 
   save_result_file($SMS_OUTPUT_BUF, "conf.error");
-  if (!empty($SMS_OUTPUT_BUF))
+  if (!empty($SMS_OUTPUT_BUF)) // we have detected an error cf above
   {
+    // returning an error code causes the framework to use $SMS_OUTPUT_BUF
+    // for the API return value (json.message) and $SMS_RETURN_BUF is ignored
     sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
     return ERR_SD_CMDFAILED;
   }
 
+  // set API return value (json.message) for success cases
+  $SMS_RETURN_BUF = $api_return_value;
+
   return SMS_OK;
+}
+
+function res_get_msg($res)
+{
+  $msg = "";
+  if (!empty($res->msg->line->line)) {
+      $msg = (String)$res->msg->line->line;
+  } elseif (!empty($res->msg->line)) {
+      $msg = (String)$res->msg->line;
+  } elseif (!empty($res->msg)) {
+      $msg = (String)$res->msg;
+  } elseif (!empty($res->result->msg)) {
+      $msg = (String)$res->result->msg;
+  }
+  return $msg;
 }
 
 function is_manual_commit()
