@@ -324,7 +324,7 @@ class DeviceConnection extends GenericConnection
       $index++;
     }
 
-    throw new SmsException("cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin);
+    throw new SmsException("$this->raw_xml", ERR_SD_CMDFAILED, $origin);
   }
 
   // ------------------------------------------------------------------------------------------------
