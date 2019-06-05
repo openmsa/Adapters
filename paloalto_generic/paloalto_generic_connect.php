@@ -324,7 +324,8 @@ class DeviceConnection extends GenericConnection
       $index++;
     }
 
-    throw new SmsException("$this->raw_xml", ERR_SD_CMDFAILED, $origin);
+    $msg = $this->xml_response->xpath("/response/result/msg")[0];
+    throw new SmsException((string)$msg, ERR_SD_CMDFAILED, $origin);
   }
 
   // ------------------------------------------------------------------------------------------------
