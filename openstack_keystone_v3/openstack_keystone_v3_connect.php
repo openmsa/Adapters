@@ -68,6 +68,19 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     unset($this->xml_response);
     unset($this->raw_xml);
 
+    $network = get_network_profile();
+    $sd = &$network->SD;
+    $http_protocol = $sd->SD_CONFIGVAR_list['HTTP_PROTOCOL']->VAR_VALUE;
+    $endpoints_interface = $sd->SD_CONFIGVAR_list['ENDPOINTS_INTERFACE']->VAR_VALUE;
+
+    if (empty($http_protocol)) {
+       $http_protocol = "http";
+    }
+
+    if (empty($endpoints_interface)) {
+       $endpoints_interface = "public";
+    }
+
     $delay = EXPECT_DELAY / 1000;
     // MODIF LO
 
@@ -78,13 +91,13 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     // SI pas de endpoints, on prend keystone par défaut.
     if ($action[1] == "")
     {
-      $action[2] = 'http://' . $this->sd_ip_config . ':35357' . $action[2];
+      $action[2] = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
     }
     else
     {
       // récupérer le endpoint en fonction du composant OpenStack à appeler (nova, keystone, glance...)
       #$url_endpoint = $this->endPointsURL->xpath("./row[name='" . $action[1] . "']/endpoints/row/adminURL");
-      $url_endpoint = $this->endPointsURL->xpath("./row[name='" . $action[1] . "']/endpoints/row[interface='admin']/url");
+      $url_endpoint = $this->endPointsURL->xpath("./row[name='" . $action[1] . "']/endpoints/row[interface='" . $endpoints_interface . "']/url");
       // Bricole pour ne conserver que l'URL du endPoint en enlevant l'UUID du tenant si jamais il est présent.
       $action[2] = preg_replace("/\/(AUTH_)?[a-f0-9]+$/", "/", $url_endpoint[0]) . $action[2];
     }
@@ -102,7 +115,7 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
       
     echo "{$cmd} for endPoint {$action[1]}\n";
 
-    $curl_cmd .= "' && echo";
+    $curl_cmd .= " && echo";
     $ret = exec_local($origin, $curl_cmd, $output_array);
 
     if ($ret !== SMS_OK)
