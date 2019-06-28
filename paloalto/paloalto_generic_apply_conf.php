@@ -52,6 +52,9 @@ function paloalto_generic_apply_conf($configuration)
                 if (!empty($SMS_OUTPUT_BUF) || $result->result->job->result == 'FAIL') {
                     $SMS_OUTPUT_BUF .= $result->result->job->asXml();
                 }
+                else {
+                    $api_return_value = $result->result->job->asXml();
+                }
             }
         }
         $line = get_one_line($configuration);
