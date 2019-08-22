@@ -27,7 +27,7 @@ class AWSSDKConnection extends GenericConnection
     $sd = &$network->SD;
     $this->key = $this->sd_login_entry;
     $this->secret = $this->sd_passwd_entry;
-    $this->region = $sd->SD_EXTERNAL_REFERENCE;
+    $this->region = $sd->SD_HOSTNAME;
     
     $cmd = "Aws\Iam\IamClient#listAccessKeys#";
     $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");    
@@ -86,24 +86,24 @@ class AWSSDKConnection extends GenericConnection
    			'region' => $this->region
    		));
 
-    	$awsAction = $action[1];
+    		$awsAction = $action[1];
    		if (isset($action[2])) {
    			$awsActionParams = json_decode($action[2], true);
    			$result = $client->$awsAction($awsActionParams);
-
-#			echo "AWS action params : $action[2]\n";
-#			echo "AWS awsActionParam jsondecode : $awsActionParams\n";
-#	                echo "AWS Action result: $result\n";
    		}
    		else {
    			$result = $client->$awsAction();
    		}
+                echo "AWS action params : $action[2]\n";
+                echo "AWS awsActionParam jsondecode : $awsActionParams\n";
+                echo "AWS Action result: $result\n";
+
    		//if (!is_array($result)) {
    		//	throw new SmsException("Call to SDK command failed : $result", ERR_SD_CMDFAILED);
    		//}
    		$array = $result->toArray();
     }
-    catch (Exception $e) {
+    catch (Exception | Error $e) {
     	throw new SmsException("Call to SDK command failed : $e", ERR_SD_CMDFAILED);
     }
     
