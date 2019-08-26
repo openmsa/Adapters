@@ -116,7 +116,7 @@ class aws_generic_command extends generic_command
 
       sd_disconnect();
     }
-    catch (Exception | Error $e)
+    catch (Exception $e)
     {
       return $e->getCode();
     }
