@@ -66,18 +66,6 @@ if ($ret !== SMS_OK)
   return $ret;
 }
 
-function on_error()
-{
-  global $sms_csp;
-  global $sms_sd_info;
-  global $sdid;
-
-  sd_disconnect();
-  sms_set_update_status($sms_csp, $sdid, ERR_SD_CMDTMOUT, 'SENDDATAFILES', 'FAILED', '');
-  sms_sd_unlock($sms_csp, $sms_sd_info);
-  exit (ERR_SD_CMDTMOUT);
-}
-
 echo "do_send_data_files.php $sdid \n";
 
 $ret = sms_sd_lock($sms_csp, $sms_sd_info);
@@ -95,82 +83,80 @@ sms_close_user_socket($sms_csp);
 
 // Asynchronous mode, the user socket is now closed, the results are written in database
 
-if (!empty($map_repo))
+try
 {
-  $network = get_network_profile();
-  $SD = &$network->SD;
-
-  // connect to the router
-  if (substr_count(implode($map_repo), 'flash') > 0)
+  if (!empty($map_repo))
   {
-    $ret = sd_connect();
-    if ($ret !== SMS_OK)
-    {
-      sms_log_error(__FILE__.':'.__LINE__.": sd_connect() failed\n");
-      sms_set_update_status($sms_csp, $sdid, ERR_LOCAL_PHP, 'SENDDATAFILES', 'FAILED', 'Device connection failure');
-      sms_sd_unlock($sms_csp, $sms_sd_info);
-      return $ret;
-    }
-    $on_error_fct = 'on_error';
+    $network = get_network_profile();
+    $SD = &$network->SD;
 
-    foreach ($map_repo as $file)
+    // connect to the router
+    if (substr_count(implode($map_repo), 'flash') > 0)
     {
-      if (!empty($file))
+      $ret = sd_connect();
+      if ($ret !== SMS_OK)
       {
-        if ($is_local_file_server)
+        sms_log_error(__FILE__.':'.__LINE__.": sd_connect() failed\n");
+        sms_set_update_status($sms_csp, $sdid, ERR_LOCAL_PHP, 'SENDDATAFILES', 'FAILED', 'Device connection failure');
+        sms_sd_unlock($sms_csp, $sms_sd_info);
+        return SMS_OK;
+      }
+
+      foreach ($map_repo as $file)
+      {
+        if (!empty($file))
         {
-          $src = $file;
-        }
-        else
-        {
-          $src = "{$fmc_repo}/{$file}";
-        }
-        if (strpos($file, '/flash/') !== false)
-        {
-          $dst = substr($file, strpos($file, '/flash/') + strlen('/flash/'));
-          $ret = send_file_to_router($src, $dst);
-          if ($ret !== SMS_OK)
+          if ($is_local_file_server)
           {
-            break;
+            $src = $file;
+          }
+          else
+          {
+            $src = "{$fmc_repo}/{$file}";
+          }
+          if (!is_file($src))
+          {
+            throw new SmsException("File not found : $src", ERR_LOCAL_FILE);
+          }
+          if (strpos($file, '/flash/') !== false)
+          {
+            $dst = substr($file, strpos($file, '/flash/') + strlen('/flash/'));
+            send_file_to_router($src, $dst);
+          }
+          else
+          {
+            echo "Problem to transfer file [$file]\n";
+            continue;
           }
         }
-        else
-        {
-          echo "Problem to transfer file [$file]\n";
-          continue;
-        }
-
       }
+
+      sd_disconnect();
+    }
+    else
+    {
+      sms_set_update_status($sms_csp, $sdid, ERR_CONFIG_EMPTY, 'SENDDATAFILES', 'ENDED', 'No flash files associated to device');
+      sms_sd_unlock($sms_csp, $sms_sd_info);
+      return SMS_OK;
     }
 
-    unset($on_error_fct);
-    sd_disconnect();
   }
   else
   {
-    sms_set_update_status($sms_csp, $sdid, ERR_CONFIG_EMPTY, 'SENDDATAFILES', 'ENDED', 'No flash files associated to device');
+    sms_set_update_status($sms_csp, $sdid, ERR_CONFIG_EMPTY, 'SENDDATAFILES', 'ENDED', 'No files associated to device');
     sms_sd_unlock($sms_csp, $sms_sd_info);
-    return ERR_CONFIG_EMPTY;
+    return SMS_OK;
   }
-
 }
-else
+catch (Exception | Error $e)
 {
-  sms_set_update_status($sms_csp, $sdid, ERR_CONFIG_EMPTY, 'SENDDATAFILES', 'ENDED', 'No files associated to device');
+  sms_set_update_status($sms_csp, $sdid, $e->getCode(), 'SENDDATAFILES', 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  return ERR_CONFIG_EMPTY;
+  return SMS_OK;
 }
 
-if ($ret === SMS_OK)
-{
-  sms_set_update_status($sms_csp, $sdid, $ret, 'SENDDATAFILES', 'ENDED', '');
-}
-else
-{
-  sms_set_update_status($sms_csp, $sdid, $ret, 'SENDDATAFILES', 'FAILED', '');
-}
-
+sms_set_update_status($sms_csp, $sdid, $ret, 'SENDDATAFILES', 'ENDED', '');
 sms_sd_unlock($sms_csp, $sms_sd_info);
-return $ret;
+return SMS_OK;
 
 ?>

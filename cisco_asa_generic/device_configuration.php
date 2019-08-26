@@ -54,11 +54,14 @@ class device_configuration
     // GEstion multi context
     $net_profile = get_network_profile();
     $SD = &$net_profile->SD;
-    $context = $SD->SD_CONFIGVAR_list['ASA_CONTEXT']->VAR_VALUE;
-    echo "\n Context:" . $context . "\n";
-    if ($SD->SD_CONFIGVAR_list['ASA_CONTEXT']->VAR_VALUE !== '')
+    if (!empty($SD->SD_CONFIGVAR_list['ASA_CONTEXT']))
     {
-      sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "changeto context " . $context);
+      $context = $SD->SD_CONFIGVAR_list['ASA_CONTEXT']->VAR_VALUE;
+      echo "\n Context:" . $context . "\n";
+      if ($SD->SD_CONFIGVAR_list['ASA_CONTEXT']->VAR_VALUE !== '')
+      {
+        sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "changeto context " . $context);
+      }
     }
 
     $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "show run | exc Last configuration change");
