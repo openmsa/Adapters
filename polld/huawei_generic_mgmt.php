@@ -74,7 +74,7 @@ try
 
   device_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   device_disconnect();
   sms_log_error("Exception occur: " . $e->getMessage() . "\n");

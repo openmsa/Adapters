@@ -91,7 +91,7 @@ try
 
         device_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
         device_disconnect();
         return $e->getCode();

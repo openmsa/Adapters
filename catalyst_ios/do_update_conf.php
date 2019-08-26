@@ -60,7 +60,7 @@ try
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'ENDED', '');
 	sms_sd_unlock($sms_csp, $sms_sd_info);
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, ERR_SD_CMDTMOUT, $status_type, 'FAILED', '');
 	sms_sd_unlock($sms_csp, $sms_sd_info);

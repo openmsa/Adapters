@@ -111,7 +111,7 @@ class oneaccess_lbb_command extends generic_command
 
       sd_disconnect();
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       return $e->getCode();
     }

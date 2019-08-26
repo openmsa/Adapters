@@ -185,7 +185,7 @@ try {
 
   sms_sd_unlock($sms_csp, $sms_sd_info);
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   sd_disconnect();
   sms_set_update_status($sms_csp, $sdid, $ret, 'SENDDATAFILES', 'FAILED', $e->getMessage());

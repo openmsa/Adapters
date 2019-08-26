@@ -39,7 +39,7 @@ try
 		throw new Exception("Connection failed to the device",$ret);
 	}
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
 	$msg = $e->getMessage();
 	$code = $e->getCode();

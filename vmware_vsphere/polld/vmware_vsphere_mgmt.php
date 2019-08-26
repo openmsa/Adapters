@@ -59,7 +59,7 @@ try
   vmware_vsphere_disconnect();
 }
 
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   vmware_vsphere_disconnect();
   debug_dump($asset, "Asset failed:\n");

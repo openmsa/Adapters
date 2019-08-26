@@ -31,7 +31,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   cisco_nexus_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   cisco_nexus_disconnect();
   return $e->getCode();

@@ -168,7 +168,7 @@ try
 
   catalyst_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   catalyst_disconnect();
   sms_log_error("Exception occur: " . $e->getMessage() . "\n");

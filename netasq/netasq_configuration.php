@@ -1043,7 +1043,7 @@ class netasq_configuration
     {
       $buffer = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, $cmd, 'SRPClient>', 5000);
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       if ($e->getCode() === ERR_SD_CONN_CLOSED_BY_PEER || $e->getCode() === ERR_SD_CMDTMOUT)
       {
@@ -1270,7 +1270,7 @@ class netasq_configuration
         netasq_connect($this->sd->SD_IP_CONFIG);
         break;
       }
-      catch (Exception $e)
+      catch (Exception | Error $e)
       {
         $done--;
       }

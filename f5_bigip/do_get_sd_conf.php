@@ -46,7 +46,7 @@ try
 
   f5_bigip_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   f5_bigip_disconnect();
   return $e->getCode();

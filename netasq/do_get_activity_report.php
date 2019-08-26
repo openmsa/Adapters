@@ -67,7 +67,7 @@ try
 
   netasq_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   netasq_disconnect();
   sms_send_user_error($sms_csp, $sdid, "", $e->getCode());

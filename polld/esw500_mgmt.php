@@ -197,7 +197,7 @@ esw500_disconnect();
 
 }
 
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   esw500_disconnect();
   sms_log_error("Exception occur: " . $e->getMessage() . "\n");

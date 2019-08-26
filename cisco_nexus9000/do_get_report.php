@@ -88,7 +88,7 @@ try
 
 	cisco_nexus_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
 	cisco_nexus_disconnect();
 	return $e->getCode();

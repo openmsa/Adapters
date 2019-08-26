@@ -143,7 +143,7 @@ try
 
 }
 
-catch (Exception $e)
+catch (Exception | Error $e)
 {
 	esa_disconnect();
   sms_log_error("Exception occur: " . $e->getMessage() . "\n");

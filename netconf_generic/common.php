@@ -357,7 +357,7 @@ function send_file_to_router($src, $dst, $is_ztd = false) {
 		// try SCP
 		try {
 			scp_to_router ( $src, $dst );
-		} catch ( Exception $e ) {
+		} catch ( Exception | Error $e ) {
 			if (strpos ( $e->getMessage (), 'connection failed' ) !== false) {
 				return ERR_SD_CONNREFUSED;
 			}

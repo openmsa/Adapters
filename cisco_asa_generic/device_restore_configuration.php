@@ -149,7 +149,7 @@ class device_restore_configuration
 	      return $ret;
 	    }
     }
-    catch(Exception $e)
+    catch(Exception | Error $e)
     {
     	if(strpos($e->getMessage(),'connection failed') !== false)
     	{

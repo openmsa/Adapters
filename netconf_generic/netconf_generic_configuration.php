@@ -115,7 +115,7 @@ class netconf_generic_configuration {
 
 		try {
 			$ret_scp = exec_local ( __FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -v 2 -s $src -d $dst -l $login -a $ipaddr -p $SD->SD_PASSWD_ENTRY", $output );
-		} catch ( Exception $e ) {
+		} catch ( Exception | Error $e ) {
 			return $e->getMessage ();
 		}
 
@@ -359,7 +359,7 @@ class netconf_generic_configuration {
 
 		try {
 			$ret_scp = exec_local ( __FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -v 2 -s $src -d $dst -l $login -a $ipaddr -p $passwd", $output );
-		} catch ( Exception $e ) {
+		} catch ( Exception | Error $e ) {
 			return $e->getMessage ();
 		}
 

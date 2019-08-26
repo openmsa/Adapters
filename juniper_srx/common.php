@@ -410,7 +410,7 @@ function send_file_to_router($src, $dst, $is_ztd = false)
     {
       scp_to_router($src, $dst);
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       if (strpos($e->getMessage(), 'connection failed') !== false)
       {

@@ -143,7 +143,7 @@ function commit()
                         status_progress("progress {$result->result->job->progress}%", $operation);
                     }
         $last_result = $result; //store the response
-      } catch (Exception $e) {
+      } catch (Exception | Error $e) {
         sms_log_info($e->getMessage());
           if(!empty($last_result)) {
             //check the warning contents of last show response

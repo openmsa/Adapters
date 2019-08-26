@@ -16,7 +16,7 @@ try {
 	$user_message = sms_user_message_add ( "", SMS_UMN_STATUS, SMS_UMV_OK );
 	$user_message = sms_user_message_add_json ( $user_message, SMS_UMN_RESULT, $result );
 	sms_send_user_message ( $sms_csp, $sdid, $user_message );
-} catch ( Exception $e ) {
+} catch ( Exception | Error $e ) {
 	sms_send_user_error ( $sms_csp, $sdid, $e->getMessage (), $e->getCode () );
 }
 

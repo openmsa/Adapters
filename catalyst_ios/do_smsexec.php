@@ -59,7 +59,7 @@ try {
 	sms_send_user_ok($sms_csp, $sdid, $result);
 	
 	return SMS_OK;
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
 	sd_disconnect();
 	sms_send_user_error($sms_csp, $sdid, "", $e->getCode());
 	return $e->getCode();

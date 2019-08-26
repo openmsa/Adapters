@@ -88,7 +88,7 @@ class NetconfGenericsshConnection extends GenericConnection
       {
         $this->sendCmd(__FILE__.':'.__LINE__, "yes", $prompt);
       }
-      catch (Exception $e)
+      catch (Exception | Error $e)
       {
         throw new SmsException("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
       }

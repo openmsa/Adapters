@@ -240,7 +240,7 @@ class DeviceConnection extends GenericConnection
             }
             $last_result = $result; //store the response
           }
-          catch (Exception $e)
+          catch (Exception | Error $e)
           {
             sms_log_info($e->getMessage());
               if(!empty($last_result)) {

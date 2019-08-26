@@ -26,7 +26,7 @@ try
 	$running_conf = $conf->get_running_conf();
 	oneaccess_lbb_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   oneaccess_lbb_disconnect();
 	sms_send_user_error($sms_csp, $sdid, $e->getMessage(), $e->getCode());

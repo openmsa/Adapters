@@ -59,7 +59,7 @@ try {
 
     cisco_nexus_disconnect(true);
 
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $status_message . $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
     cisco_nexus_disconnect();

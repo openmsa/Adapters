@@ -174,7 +174,7 @@ try
 
   adtran_generic_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   adtran_generic_disconnect();
   sms_log_error("Exception occur: " . $e->getMessage() . "\n");

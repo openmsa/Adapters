@@ -34,7 +34,7 @@ try
   $ret = $conf->update_license();
   juniper_srx_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   juniper_srx_disconnect();
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', '');

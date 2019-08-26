@@ -43,7 +43,7 @@ try
   $ret = $conf->update_license();
   esa_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   esa_disconnect();
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', '');

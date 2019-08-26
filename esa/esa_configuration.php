@@ -121,7 +121,7 @@ class esa_configuration
     {
       exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd -r", $output);
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       return $e->getMessage();
     }
@@ -589,7 +589,7 @@ class esa_configuration
     {
       $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d /$dst -l $login -a $ipaddr -p $passwd", $output);
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       return $e->getMessage();
     }

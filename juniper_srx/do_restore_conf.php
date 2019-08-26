@@ -46,7 +46,7 @@ try
 
   return SMS_OK;
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   juniper_srx_disconnect();
   sms_set_update_status($sms_csp, $sdid, ERR_SD_CMDTMOUT, 'RESTORE', 'FAILED', "Failed restoring revision $revision_id: " . $e->getMessage());

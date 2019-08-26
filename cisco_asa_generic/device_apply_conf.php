@@ -165,7 +165,7 @@ function device_apply_conf($configuration, $push_to_startup = false)
         return $ret;
       }
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       if (strpos($e->getMessage(), 'connection failed') !== false)
       {

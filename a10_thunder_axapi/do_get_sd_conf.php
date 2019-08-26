@@ -25,7 +25,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   a10_thunder_axapi_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   a10_thunder_axapi_disconnect();
   return $e->getCode();
