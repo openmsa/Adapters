@@ -214,9 +214,11 @@ class aws_generic_command extends generic_command
     {
 
       $endpoint_str = trim($update->evaluate_operation());
+      echo("ENDOINTS: ".$endpoint_str);
       $endpoints = explode("##", $endpoint_str);
       $xpath_str = trim($update->evaluate_xpath());
       $xpath_str = str_replace("\xE2\x80\x8B", "", $xpath_str);
+      echo("XPATH: ".$xpath_str);
       $xpaths = explode("##", $xpath_str);
 
       $xml_conf_str = trim($update->evaluate_xml());
@@ -275,26 +277,49 @@ class aws_generic_command extends generic_command
   function eval_DELETE()
   {
     global $SMS_RETURN_BUF;
-
+    
     foreach ($this->delete_list as $delete)
     {
-      $xml_conf_str = trim($delete->evaluate_xml());
-      $xml_conf = str_replace("\n", '', $xml_conf_str);
+      $endpoint_str = trim($delete->evaluate_operation());
+      echo("ENDOINTS: ".$endpoint_str."\n");
+      $endpoints = explode("##", $endpoint_str);
+      $xpath_str = trim($delete->evaluate_xpath());
+      $xpath_str = str_replace("\xE2\x80\x8B", "", $xpath_str);
+      echo("XPATH: ".$xpath_str."\n");
+      $xpaths = explode("##", $xpath_str);
 
-      $endpoint = trim($delete->evaluate_operation());
-      if (!empty($endpoint))
+      $xml_conf_str = trim($delete->evaluate_xml());
+      $xml_conf_str = str_replace("\n", '', $xml_conf_str);
+
+      $xml_configs = explode("##", $xml_conf_str);
+      if (!empty($endpoint_str))
       {
-	 $conf = $endpoint;
-         $xpath = trim($delete->evaluate_xpath());
-         $xpath = str_replace("\xE2\x80\x8B", "", $xpath);
-         $conf .= '#' . $xpath;
-	 // separate data with '#'
-         $conf .= '#' . $xml_conf;
-         $this->configuration .= "{$conf}\n";
-         $SMS_RETURN_BUF .= "{$conf}\n";
+
+        if (count($xpaths) != count($endpoints))
+        {
+          throw new SmsException("End points are not as many as Xpaths");
+        }
+        else
+        {
+          $i = 0;
+          foreach ($xml_configs as $xml_conf)
+          {
+            if (!empty($xml_conf))
+            {
+              $conf = $endpoints[$i];
+              $conf .= '#' . $xpaths[$i];
+              // separate data with '#'
+              echo("XML_CONF: ".$xml_conf."\n");
+              $conf .= '#' . $xml_conf;
+
+              $this->configuration .= "{$conf}\n";
+              $SMS_RETURN_BUF .= "{$conf}\n";
+            }
+            $i += 1;
+          }
+        }
       }
     }
-
     return SMS_OK;
   }
 
