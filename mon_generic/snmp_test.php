@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: snmp_test.php 119043 2016-12-20 17:22:56Z ydu $
+ * Version: $Id$
  * Created: May 30, 2008
  * Available global variables
  *  $sms_csp         pointer use for user message

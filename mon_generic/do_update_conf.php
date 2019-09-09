@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: do_update_conf.php 39436 2011-02-10 10:57:34Z oda $
+ * Version: $Id$
  * Created: Jun 18, 2008
  * Available global variables
  * 	$sms_sd_ctx        pointer to sd_ctx context to retreive usefull field(s)

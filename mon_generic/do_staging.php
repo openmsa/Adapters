@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: do_staging.php 53274 2012-01-17 14:56:28Z ees $
+ * Version: $Id$
  * Created: Jun 2, 2008
  * Available global variables
  *  $sms_sd_info        sd_info structure
