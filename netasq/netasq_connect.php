@@ -23,7 +23,14 @@ class netasqConnection extends GenericConnection {
 
   public function do_connect() {
 
-    parent::connect("cd /opt/sms/bin/netasq && ./nsrpc '{$this->sd_login_entry}:{$this->sd_passwd_entry}@{$this->sd_ip_config}'");
+    if (isset($this->sd_conf_isipv6) && $this->sd_conf_isipv6 ){
+      //IPv6 we should add '-6' and add '[' and ']' arround the IPv6
+      parent::connect("cd /opt/sms/bin/netasq && ./nsrpc -6 '{$this->sd_login_entry}:{$this->sd_passwd_entry}@[".$this->sd_ip_config."]'");
+
+    }else{
+      //IPv4
+      parent::connect("cd /opt/sms/bin/netasq && ./nsrpc '{$this->sd_login_entry}:{$this->sd_passwd_entry}@{$this->sd_ip_config}'");
+    }
 
     unset($tab);
     $tab[0] = 'SRPClient>';

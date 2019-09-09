@@ -216,7 +216,7 @@ class netasq_configuration
     if (!file_exists("$folder/usr"))
     {
       // empty config, nothing to do
-      return ERR_CONFIG_EMPTY;
+      return SMS_OK;
     }
 
     $tgz = "$na_archive.tgz";
@@ -831,7 +831,7 @@ class netasq_configuration
     $ret = SMS_OK;
     while ($line !== false)
     {
-      $buffer = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, $line, 'SRPClient>');
+      $buffer = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, $line, 'SRPClient>', 180000);
       $return_buf .= "\n$buffer";
       if (is_error($buffer, $line) === true)
       {

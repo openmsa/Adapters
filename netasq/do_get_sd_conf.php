@@ -35,7 +35,10 @@ $SMS_RETURN_BUF = "{$date}";
 $ret = $conf->get_running_conf($archive_conf_path);
 if ($ret !== SMS_OK)
 {
+  if (file_exists($archive_conf_path))
+  {
   unlink($archive_conf_path);
+  }
   return $ret;
 }
 
