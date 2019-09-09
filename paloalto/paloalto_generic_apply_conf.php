@@ -23,25 +23,22 @@ function paloalto_generic_apply_conf($configuration)
     // Save the configuration applied on the router
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
+    $api_return_value = "";
 
     $line = get_one_line($configuration);
     while ($line !== false) {
         $line = trim($line);
         if (!empty($line)) {
             $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '/response');
+            $msg = res_get_msg($res);
             if (trim($res['status']) !== 'success') {
                 $line = urldecode($line);
-                if (!empty($res->msg->line->line)) {
-                    $msg = (String)$res->msg->line->line;
-                } elseif (!empty($res->msg->line)) {
-                    $msg = (String)$res->msg->line;
-                } elseif (!empty($res->msg)) {
-                    $msg = (String)$res->msg;
-                } elseif (!empty($res->result->msg)) {
-                    $msg = (String)$res->result->msg;
-                }
                 $SMS_OUTPUT_BUF .= "{$line}\n\n{$msg}\n";
             }
+            else {
+                $api_return_value = $msg;
+            }
+
             if (!empty($res->result) && !empty($res->result->job)) {
                 $job = $res->result->job;
 
@@ -55,6 +52,9 @@ function paloalto_generic_apply_conf($configuration)
                 if (!empty($SMS_OUTPUT_BUF) || $result->result->job->result == 'FAIL') {
                     $SMS_OUTPUT_BUF .= $result->result->job->asXml();
                 }
+                else {
+                    $api_return_value = $result->result->job->asXml();
+                }
             }
         }
         $line = get_one_line($configuration);
@@ -66,7 +66,25 @@ function paloalto_generic_apply_conf($configuration)
         return ERR_SD_CMDFAILED;
     }
 
+    // set API return value (json.message) for success cases
+    $SMS_RETURN_BUF = $api_return_value;
+
     return SMS_OK;
+}
+
+function res_get_msg($res)
+{
+  $msg = "";
+  if (!empty($res->msg->line->line)) {
+      $msg = (String)$res->msg->line->line;
+  } elseif (!empty($res->msg->line)) {
+      $msg = (String)$res->msg->line;
+  } elseif (!empty($res->msg)) {
+      $msg = (String)$res->msg;
+  } elseif (!empty($res->result->msg)) {
+      $msg = (String)$res->result->msg;
+  }
+  return $msg;
 }
 
 function send_configuration_file($configuration)
