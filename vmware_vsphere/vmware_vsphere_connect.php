@@ -98,7 +98,7 @@ class VMWareVsphereRESTConnection extends GenericConnection
     $ret = exec_local($origin, $curl_cmd, $output_array);
     echo("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
     echo $ret;
-    echo("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+	echo("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
     if ($ret !== SMS_OK)
     {
       throw new SmsException("Call to API Failed", $ret);
