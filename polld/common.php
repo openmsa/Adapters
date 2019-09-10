@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: common.php 39436 2011-02-10 10:57:34Z oda $
+ * Version: $Id$
  * Created: Dec 8, 2008
  */
 
