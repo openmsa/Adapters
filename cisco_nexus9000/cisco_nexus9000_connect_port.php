@@ -25,7 +25,7 @@ function cisco_nexus9000_connect_port($ts_ip, $ts_port, $adminpasswd = null)
   global $sms_sd_ctx;
 
   try{
-  $sms_sd_ctx = new CiscoIsrPortConsoleConnection($ts_ip, null, null, $adminpasswd, $ts_port);
+  $sms_sd_ctx = new CiscoNexus9000PortConsoleConnection($ts_ip, null, null, $adminpasswd, $ts_port);
   	  $sms_sd_ctx->setParam("PROTOCOL", "CONSOLE");
   } catch (SmsException $e) {
   		return ERR_SD_CONNREFUSED;
@@ -42,7 +42,7 @@ function cisco_nexus9000_disconnect_port()
   return SMS_OK;
 }
 
-class CiscoIsrPortConsoleConnection extends PortConsoleConnection
+class CiscoNexus9000PortConsoleConnection extends PortConsoleConnection
 {
 	public function do_connect()
 	{

@@ -34,7 +34,7 @@ function cisco_nexus9000_connect($sd_ip_addr = null, $login = null, $passwd = nu
 		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
 	} catch (SmsException $e) {
 		try{
-			$sms_sd_ctx = new CiscoIsrTelnetConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+			$sms_sd_ctx = new CiscoNexusTelnetConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
 			$sms_sd_ctx->setParam("PROTOCOL", "TELNET");
 		}catch (SmsException $e) {
 			return ERR_SD_CONNREFUSED;
@@ -99,7 +99,7 @@ class CiscoIsrsshConnection extends SshConnection
 	}
 }
 
-class CiscoIsrTelnetConnection extends TelnetConnection
+class CiscoNexusTelnetConnection extends TelnetConnection
 {
 
 	public function do_store_prompt() {
