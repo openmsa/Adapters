@@ -236,8 +236,9 @@ function activate_scp($login, $passwd = "")
   }
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "feature scp-server", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "username $login password $passwd role network-admin", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "aaa authorization exec default local", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "ip scp server enable", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "username $login privilege 15 password $passwd", "(config)#");
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", "#");
   return $passwd;
 }
@@ -247,8 +248,7 @@ function deactivate_scp($login)
   global $sms_sd_ctx;
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no feature scp-server", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no snmp-server user $login", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no ip scp server enable", "(config)#");
   unset($tab);
   $tab[0] = '(config)#';
   $tab[1] = '[confirm]';
@@ -323,7 +323,7 @@ function scp_to_router($src, $dst)
 {
   global $sms_sd_ctx;
   global $disk_names;
-  $dst_disk = "bootflash";
+  $dst_disk = "flash";
 
   foreach ($disk_names as $disk_name)
   {
@@ -411,7 +411,7 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = true, 
   $filename = basename($local_file);
   $orig_size = filesize($local_file);
   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "dir $dst_disk:$remote_file");
-  if (preg_match("@^\s+(?<size>\d+)\s+.*\s+{$filename}\s*$@m", $buffer, $matches) > 0)
+  if (preg_match("@^\s+\S+\s+\S+\s+(?<size>\d+)\s+.*\s+{$filename}\s*$@m", $buffer, $matches) > 0)
   {
     $size = $matches['size'];
     if ($size != $orig_size)
@@ -423,7 +423,6 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = true, 
         $tab[0] = '#';
         $tab[1] = ']?';
         $tab[2] = '[confirm]';
-        $tab[3] = '[y]';
         $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete $dst_disk:$remote_file", $tab);
         while ($index > 0)
         {
