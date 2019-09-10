@@ -17,8 +17,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_restore_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_restore_configuration.php');
 
 $ret = sms_sd_lock($sms_csp, $sms_sd_info);
 if ($ret !== 0)
@@ -37,7 +37,7 @@ sms_close_user_socket($sms_csp);
 
 try
 {
-  $ret = cisco_nexus_connect();
+  $ret = cisco_nexus9000_connect();
   if ($ret != SMS_OK)
   {
     sms_set_update_status($sms_csp, $sdid, $ret, 'RESTORE', 'FAILED', "Router connection failed (restore revision: $revision_id)");
@@ -45,14 +45,14 @@ try
     return SMS_OK;
   }
 
-  $conf = new cisco_nexus_restore_configuration($sdid);
+  $conf = new cisco_nexus9000_restore_configuration($sdid);
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'WORKING', "Retrieving old configuration to restore (restore revision: $revision_id)");
   $ret = $conf->generate_from_old_revision($revision_id);
   if ($ret !== SMS_OK)
   {
     sms_set_update_status($sms_csp, $sdid, $ret, 'RESTORE', 'FAILED', "Retrieving previous configuration failed (restore revision: $revision_id)");
-    cisco_nexus_disconnect();
+    cisco_nexus9000_disconnect();
     sms_sd_unlock($sms_csp, $sms_sd_info);
     return SMS_OK;
   }
@@ -62,13 +62,13 @@ try
   if ($ret !== SMS_OK)
   {
     sms_set_update_status($sms_csp, $sdid, $ret, 'RESTORE', 'FAILED', "Restore failed (restore revision: $revision_id)");
-    cisco_nexus_disconnect();
+    cisco_nexus9000_disconnect();
     sms_sd_unlock($sms_csp, $sms_sd_info);
     return SMS_OK;
   }
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'WORKING', "Rebooting router (restore revision: $revision_id)");
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
   $ret = $conf->wait_until_device_is_up();
   if ($ret !== SMS_OK)
   {
@@ -88,7 +88,7 @@ try
 catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), 'RESTORE', 'FAILED', "Restore failure (restore revision: $revision_id)");
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
   sms_sd_unlock($sms_csp, $sms_sd_info);
   return SMS_OK;
 }

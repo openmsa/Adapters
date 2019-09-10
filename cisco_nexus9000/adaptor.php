@@ -7,10 +7,10 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once ( 'cisco_nexus9000', 'cisco_nexus_connect_port.php' );
-require_once load_once ( 'cisco_nexus9000', 'cisco_nexus_connect.php' );
-require_once load_once ( 'cisco_nexus9000', 'cisco_nexus_apply_conf.php' );
-require_once load_once ( 'cisco_nexus9000', 'cisco_nexus_configuration.php' );
+require_once load_once ( 'cisco_nexus9000', 'cisco_nexus9000_connect_port.php' );
+require_once load_once ( 'cisco_nexus9000', 'cisco_nexus9000_connect.php' );
+require_once load_once ( 'cisco_nexus9000', 'cisco_nexus9000_apply_conf.php' );
+require_once load_once ( 'cisco_nexus9000', 'cisco_nexus9000_configuration.php' );
 
 require_once "$db_objects";
 
@@ -26,9 +26,9 @@ require_once "$db_objects";
  */
 function sd_connect($login = null, $passwd = null, $adminpasswd = null, $ts_ip = null, $ts_port = null) {
 	if (empty ( $ts_ip ) || empty ( $ts_port )) {
-		$ret = cisco_nexus_connect ();
+		$ret = cisco_nexus9000_connect ();
 	} else {
-		$ret = cisco_nexus_connect_port ( $ts_ip, $ts_port, $adminpasswd );
+		$ret = cisco_nexus9000_connect_port ( $ts_ip, $ts_port, $adminpasswd );
 	}
 
 	return $ret;
@@ -42,9 +42,9 @@ function sd_connect($login = null, $passwd = null, $adminpasswd = null, $ts_ip =
  */
 function sd_disconnect($clean_exit = false, $ts_ip = null) {
 	if (empty ( $ts_ip )) {
-		$ret = cisco_nexus_disconnect ( $clean_exit );
+		$ret = cisco_nexus9000_disconnect ( $clean_exit );
 	} else {
-		$ret = cisco_nexus_disconnect_port ( $clean_exit );
+		$ret = cisco_nexus9000_disconnect_port ( $clean_exit );
 	}
 
 	return $ret;
@@ -66,7 +66,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false, $push_to_sta
 		throw new SmsException ( "", ERR_SD_CMDTMOUT );
 	}
 
-	$ret = cisco_nexus_apply_conf ( $configuration, $push_to_startup );
+	$ret = cisco_nexus9000_apply_conf ( $configuration, $push_to_startup );
 
 	if (! empty ( $ts_ip )) {
 		sd_save_conf ();
@@ -83,7 +83,7 @@ function sd_save_conf() {
 	global $sms_sd_ctx;
 	$running_conf = "";
 	// get and save running conf
-	$conf = new cisco_nexus_configuration ( $sdid );
+	$conf = new cisco_nexus9000_configuration ( $sdid );
 
 	$running_conf = $conf->get_running_conf ();
 

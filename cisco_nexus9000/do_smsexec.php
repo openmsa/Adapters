@@ -15,7 +15,7 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
 require_once load_once('cisco_nexus9000', 'common.php');
 require_once "$db_objects";
 
@@ -44,10 +44,10 @@ if (empty($smsexec_list))
 $network = get_network_profile();
 $SD = &$network->SD;
 
-$ret = cisco_nexus_connect();
+$ret = cisco_nexus9000_connect();
 if ($ret !== SMS_OK)
 {
-  sms_log_error(__FILE__.':'.__LINE__.": cisco_nexus_connect() failed\n");
+  sms_log_error(__FILE__.':'.__LINE__.": cisco_nexus9000_connect() failed\n");
   sms_send_user_error($sms_csp, $sdid, "", $ret);
   return $ret;
 }
@@ -71,7 +71,7 @@ foreach ($cmds as $cmd)
 }
 
 unset($on_error_fct);
-cisco_nexus_disconnect();
+cisco_nexus9000_disconnect();
 
 sms_send_user_ok($sms_csp, $sdid, $result);
 

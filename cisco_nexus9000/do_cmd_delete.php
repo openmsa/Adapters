@@ -14,8 +14,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 require_once load_once('cisco_nexus9000', 'apply_errors.php');
 require_once "$db_objects";
 
@@ -41,7 +41,7 @@ sms_close_user_socket($sms_csp);
 
 $on_error_fct = 'cisco_exit';
 
-$conf = new cisco_nexus_configuration($sdid);
+$conf = new cisco_nexus9000_configuration($sdid);
 
 
 $status_message = "";

@@ -11,7 +11,7 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
   global $adminpasswd;
   global $port;
 
-  return cisco_nexus_connect($ipaddr, $login, $passwd, $adminpasswd, $port);
+  return cisco_nexus9000_connect($ipaddr, $login, $passwd, $adminpasswd, $port);
 }
 
 ?>

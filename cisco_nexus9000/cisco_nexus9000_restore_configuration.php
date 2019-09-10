@@ -6,11 +6,11 @@ require_once 'smsd/sms_common.php';
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_user_message.php';
 require_once load_once ( 'cisco_nexus9000', 'common.php' );
-require_once load_once ( 'cisco_nexus9000', 'cisco_nexus_connect.php' );
+require_once load_once ( 'cisco_nexus9000', 'cisco_nexus9000_connect.php' );
 require_once load_once ( 'cisco_nexus9000', 'apply_errors.php' );
 
 require_once "$db_objects";
-class cisco_nexus_restore_configuration {
+class cisco_nexus9000_restore_configuration {
 	var $conf_path; // Path for previous stored configuration files
 	var $sdid; // ID of the SD to update
 	var $sd; // Current SD

@@ -14,12 +14,12 @@
 require_once 'smsd/sms_common.php';
 require_once load_once('cisco_nexus9000', 'common.php');
 require_once load_once('cisco_nexus9000', 'apply_errors.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 
 require_once "$db_objects";
 
 define('DELAY', 200000);
-function cisco_nexus_apply_conf($configuration, $push_to_startup = false)
+function cisco_nexus9000_apply_conf($configuration, $push_to_startup = false)
 {
   global $sdid;
   global $sms_sd_ctx;

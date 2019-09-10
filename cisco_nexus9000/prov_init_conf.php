@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------------------
 function prov_init_conf($sms_csp, $sdid, $sms_sd_info, &$err)
 {
-  $conf = new cisco_nexus_configuration($sdid, true);
+  $conf = new cisco_nexus9000_configuration($sdid, true);
 
   $ret = $conf->provisioning();
   if ($ret !== SMS_OK)
@@ -13,7 +13,7 @@ function prov_init_conf($sms_csp, $sdid, $sms_sd_info, &$err)
     return $ret;
   }
 
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
   return SMS_OK;
 }
 
