@@ -40,6 +40,8 @@ try {
 	
 	$result = '';
 	$cmds = explode(',', $smsexec_list);
+	$insideConft = false;
+	$prompt = "lire dans sdctx";
 	foreach ($cmds as $cmd)
 	{
 	  if (!empty($specific_cmds[$cmd]))
@@ -49,8 +51,18 @@ try {
 	  }
 	  else
 	  {
+	      if ($cmd == "conf t" || $insideConft )
+	      {
+	          $prompt = ")#";
+	          $insideConft = true;
+	      }
+	      if ($cmd == "exit" )
+	      {
+	          $prompt = "lire dans sdctx";
+	          $insideConft = false;
+	      }
 	    // send command
-	    $result .= sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, $cmd, 'lire dans sdctx', 36000000);
+	    $result .= sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, $cmd, $prompt, 36000);
 	  }
 	}
 	
