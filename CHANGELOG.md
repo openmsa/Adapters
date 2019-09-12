@@ -6,7 +6,7 @@ Release date:
 Features
 --------
 
-New Device Adaptors
+New Adaptors
 
 - `hp2530` for HPE Switch OS Aruba Type
 - `hp5900` for HPE Switch OS H3C Type
@@ -14,9 +14,10 @@ New Device Adaptors
 - `nec_nfa` for Network Flow Analyzer (Log Management Function only)
 - `nec_ix` for NEC IX devices (NEC IX2000/IX3000 series)
 - `fortinet_json` for Fortinet devices (FortiManager, FortiAnalyzer)
+- `Veex_RTU`
 
 
-Device Adaptors installer
+Preview Adaptor Installer
 
 - `bin/da_installer`
 - `doc/Adaptor_installer.md`
@@ -25,11 +26,15 @@ Device Adaptors installer
 Improvements
 ------------
 
-Device Adaptor Customizations
-
 - `catalyst_ios`
   - improvement on telnet connection function
   - added handling for new error messages
+
+- most of the code has been updated to use `PHP 7.2`
+  making it no longer compatible with pre 17.1 MSA
+
+- 13 adaptors have been updated to the last version
+  available for the 17.1 MSA
 
 
 OpenMSA-1.1
