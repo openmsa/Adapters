@@ -1,18 +1,18 @@
-MSA-Device-Adaptors
-===================
+OpenMSA Adaptors
+================
 
 
-[OpenMSA](https://openmsa.co) is the community incarnation of MSActivator(TM),
+[OpenMSA](https://openmsa.co) is the community incarnation of MSActivator&trade;,
 a multi-tenant, full lifecycle management framework for agile service design
 and assurance.
 
 OpenMSA comes as 3 separate components:
-- OpenMSA .ova              (downloadable)
-- Device Adaptors           (repository)
-- Workflows & Microservices (repository)
 
-
-This repository contains Device Adaptors.
+- Runtime platform -
+  [docker image](https://hub.docker.com/r/openmsa/openmsa/tags)
+  or  [VM image](https://www.openmsa.co/downloads)
+- Adaptors source code (this repository)
+- Workflows & Microservices [samples](../../../Workflows-Microservices)
 
 
 Recent Changes
@@ -22,34 +22,28 @@ Recent Changes
 - [commits](../../commits/master)
 
 
-Transitional patch
-------------------
+Adaptors
+--------
 
-- [OpenMSA-1.2](../master/doc/Transitional_patch.md)
-
-
-Device Adaptors
----------------
-
-MSActivator comes with several pre-built device adaptors,
-providing all the necessary functionality for lifecycle management,
+The adaptors in this repository ship with MSActivator&trade;
+implementing support for devices lifecycle management,
 from provisioning to image and asset management.
 
-Adaptors provide the necessary interface to communicate with different devices.
+Adaptors provide the glue code to interface with managed devices.
 
-Details on how to get started with device adaptors is available
-in the [wiki](../../wiki).
+Details on how to get started with Adaptors are available
+in the [doc](../master/doc/Getting_started_with_Adaptors.md).
 
 
 Contributing to OpenMSA
 -----------------------
 
-- [CONTRIBUTING.md](../master/CONTRIBUTING.md)
-- [Manufacturer and Model ID Convention](../master/doc/Manufacturer_and_Model_ID_Convention.md)
+- [CONTRIBUTING](../master/CONTRIBUTING.md)
+- [New Adaptors](../master/doc/Manufacturer_and_Model_ID_Convention.md)
 
 
 Licenses
 --------
 
-- [LICENSE.md](../master/LICENSE.md)
+- [LICENSE](../master/LICENSE.md)
 - third-party components may have different licenses, see e.g. [vendor/](../../tree/master/vendor).
