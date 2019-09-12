@@ -3,8 +3,8 @@
 E_ALL=32767
 E_DEPRECATED=8192
 
-check_level=$(( E_ALL & ~E_DEPRECATED ))
-#check_level=$E_ALL
+#check_level=$(( E_ALL & ~E_DEPRECATED ))
+check_level=$E_ALL
 
 # note: E_STRICT is included in E_ALL since PHP 5.4.0
 
