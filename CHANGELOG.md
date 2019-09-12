@@ -1,7 +1,7 @@
 OpenMSA-1.2
 ===========
 
-Release date:
+Release date: 2019-07-11
 
 Features
 --------
