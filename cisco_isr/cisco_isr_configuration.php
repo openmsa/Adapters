@@ -242,7 +242,7 @@ class cisco_isr_configuration
     // Configure new firmware
     sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
     sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no boot system", "(config)#");
-    sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "boot system {$dst_disk}:$dst", "(config)#");
+    sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "boot system flash {$dst_disk}:$dst", "(config)#");
     sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", "#");
 
     $ret = func_write();

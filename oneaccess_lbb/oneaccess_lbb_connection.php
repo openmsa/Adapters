@@ -44,8 +44,10 @@ function oneaccess_lbb_disconnect()
 		$tab[1] = $sms_sd_ctx->getPrompt();
 		 
 		$index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, '', $tab);
-		while($index == 0)
+		$i = 0;
+		while($index == 0 && $i < 10)
 		{
+		    $i++;
 			sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, 'end', $tab);
 		}
 		$sms_sd_ctx->sendCmd(__FILE__.':'.__LINE__, 'exit');

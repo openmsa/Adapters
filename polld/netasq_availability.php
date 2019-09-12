@@ -22,7 +22,7 @@ try
 
   netasq_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   netasq_disconnect();
   return $e->getCode();

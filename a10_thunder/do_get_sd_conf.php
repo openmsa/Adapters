@@ -25,7 +25,7 @@ try {
     $conf = new a10_thunder_configuration($sdid);
     $SMS_RETURN_BUF = $conf->get_running_conf();
     a10_thunder_disconnect();
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
     a10_thunder_disconnect();
     return $e->getCode();
 }

@@ -48,9 +48,9 @@ class NetconfGenericsshConnection extends GenericConnection
     {
       $this->expect(__FILE__.':'.__LINE__, $tab, $cnx_timeout * 1000);
     }
-    catch (SmsException $e)
+    catch (SmsExcpetion $e)
     {
-      throw new SmsException("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
+      throw new SmsExpection("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
     }
 
     $this->do_store_prompt();
@@ -88,7 +88,7 @@ class NetconfGenericsshConnection extends GenericConnection
       {
         $this->sendCmd(__FILE__.':'.__LINE__, "yes", $prompt);
       }
-      catch (Exception $e)
+      catch (Exception | Error $e)
       {
         throw new SmsException("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
       }

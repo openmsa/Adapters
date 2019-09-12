@@ -30,7 +30,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   juniper_srx_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   juniper_srx_disconnect();
   return $e->getCode();

@@ -47,7 +47,7 @@ try {
     $conf = new cisco_isr_configuration($sdid);
     $ret = $conf->reboot($status_type, $optional_params);
     cisco_isr_disconnect(true);
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
     cisco_isr_disconnect();

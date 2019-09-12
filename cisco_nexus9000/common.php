@@ -7,7 +7,7 @@
 require_once 'smsd/net_common.php';
 require_once 'smsd/sms_common.php';
 require_once load_once('smsbd', 'common.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
 
 $is_echo_present = false;
 
@@ -59,7 +59,7 @@ function enter_config_mode()
     switch ($index)
     {
       case -1: // Error
-        cisco_nexus_disconnect();
+        cisco_nexus9000_disconnect();
         return ERR_SD_TIMEOUTCONNECT;
 
       case 99: // wait for router
@@ -113,11 +113,11 @@ function copy_to_running($cmd)
       $index = sendexpect_ex(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, $tab, 300000, true, true, true);
       $result .= $sendexpect_result;
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       sms_log_info(__FILE__ . ':' . __LINE__ . ": Connection with router was lost, try to reconnect\n");
-      cisco_nexus_disconnect();
-      $ret = cisco_nexus_connect();
+      cisco_nexus9000_disconnect();
+      $ret = cisco_nexus9000_connect();
       if ($ret != SMS_OK)
       {
         throw new SmsException("", ERR_SD_CONNREFUSED);
@@ -236,8 +236,9 @@ function activate_scp($login, $passwd = "")
   }
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "feature scp-server", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "username $login password $passwd role network-admin", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "aaa authorization exec default local", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "ip scp server enable", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "username $login privilege 15 password $passwd", "(config)#");
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", "#");
   return $passwd;
 }
@@ -247,8 +248,7 @@ function deactivate_scp($login)
   global $sms_sd_ctx;
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no feature scp-server", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no snmp-server user $login", "(config)#");
+  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no ip scp server enable", "(config)#");
   unset($tab);
   $tab[0] = '(config)#';
   $tab[1] = '[confirm]';
@@ -277,7 +277,7 @@ function scp_from_router($src, $dst)
   	$passwd = activate_scp($login);
   }
 
-  cisco_nexus_disconnect(true);
+  cisco_nexus9000_disconnect(true);
 
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
@@ -285,7 +285,7 @@ function scp_from_router($src, $dst)
 
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd", $output);
 
-  $ret = cisco_nexus_connect();
+  $ret = cisco_nexus9000_connect();
   if ($ret !== SMS_OK)
   {
     if ($ret_scp !== SMS_OK)
@@ -323,7 +323,7 @@ function scp_to_router($src, $dst)
 {
   global $sms_sd_ctx;
   global $disk_names;
-  $dst_disk = "bootflash";
+  $dst_disk = "flash";
 
   foreach ($disk_names as $disk_name)
   {
@@ -356,7 +356,7 @@ function scp_to_router($src, $dst)
   	$passwd = activate_scp($login);
   }
 
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
 
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
@@ -364,7 +364,7 @@ function scp_to_router($src, $dst)
 
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd", $output);
 
-  $ret = cisco_nexus_connect();
+  $ret = cisco_nexus9000_connect();
 
   if ($ret !== SMS_OK)
   {
@@ -411,7 +411,7 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = true, 
   $filename = basename($local_file);
   $orig_size = filesize($local_file);
   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "dir $dst_disk:$remote_file");
-  if (preg_match("@^\s+(?<size>\d+)\s+.*\s+{$filename}\s*$@m", $buffer, $matches) > 0)
+  if (preg_match("@^\s+\S+\s+\S+\s+(?<size>\d+)\s+.*\s+{$filename}\s*$@m", $buffer, $matches) > 0)
   {
     $size = $matches['size'];
     if ($size != $orig_size)
@@ -423,7 +423,6 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = true, 
         $tab[0] = '#';
         $tab[1] = ']?';
         $tab[2] = '[confirm]';
-        $tab[3] = '[y]';
         $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete $dst_disk:$remote_file", $tab);
         while ($index > 0)
         {

@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: do_checkprovisioning.php 53274 2012-01-17 14:56:28Z ees $
+ * Version: $Id$
  * Created: Jun 27, 2008
  * Available global variables
  * 	$sms_sd_ctx        pointer to sd_ctx context to retreive usefull field(s)

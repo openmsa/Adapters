@@ -14,11 +14,11 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 
 try {
-  $ret = cisco_nexus_connect();
+  $ret = cisco_nexus9000_connect();
   if ($ret !== SMS_OK)
   {
     sms_send_user_error($sms_csp, $sdid, "", ERR_SD_CONNREFUSED);
@@ -26,9 +26,9 @@ try {
   }
 
   // Get the conf on the router
-  $conf = new cisco_nexus_configuration($sdid);
+  $conf = new cisco_nexus9000_configuration($sdid);
   $running_conf = $conf->get_running_conf();
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
 
   if (!empty($running_conf))
   {
@@ -39,7 +39,7 @@ try {
     sms_send_user_error($sms_csp, $sdid, "", ERR_SD_FAILED);
   }
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   sms_send_user_error($sms_csp, $sdid, $e->getMessage(), $e->getCode());
 }

@@ -16,7 +16,7 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
 
 if ($fullReport)
 {
@@ -54,7 +54,7 @@ EOF;
 
 try
 {
-	cisco_nexus_connect();
+	cisco_nexus9000_connect();
 
 	$result_string = '';
 	foreach ($report_stages as $report_stage)
@@ -86,11 +86,11 @@ try
 		$result_string = '';
 	}
 
-	cisco_nexus_disconnect();
+	cisco_nexus9000_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
-	cisco_nexus_disconnect();
+	cisco_nexus9000_disconnect();
 	return $e->getCode();
 }
 

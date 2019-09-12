@@ -54,7 +54,7 @@ try
   sms_sd_unlock($sms_csp, $sms_sd_info);
   paloalto_generic_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);

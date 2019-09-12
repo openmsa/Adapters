@@ -45,7 +45,7 @@ try {
     $ret = $conf->reboot($status_type);
     a10_thunder_disconnect();
     // sms_send_user_ok($sms_csp, $sdid, "Reboot success");
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', '', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
     a10_thunder_disconnect();

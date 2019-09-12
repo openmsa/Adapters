@@ -16,8 +16,8 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('cisco_nexus9000', 'adaptor.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 require_once "$db_objects";
 
 /**
@@ -82,11 +82,11 @@ try
     $passwd = $matches['pwd'];
     $admin_passwd = $matches['admin_passwd'];
     $port = '';
-    $ret = cisco_nexus_connect($ipaddr, $login, $passwd, $admin_passwd, $port);
+    $ret = cisco_nexus9000_connect($ipaddr, $login, $passwd, $admin_passwd, $port);
   }
   else
   {
-    $ret = cisco_nexus_connect();
+    $ret = cisco_nexus9000_connect();
   }
 
   if ($ret != SMS_OK)
@@ -94,11 +94,11 @@ try
     throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
-  $conf = new cisco_nexus_configuration($sdid);
+  $conf = new cisco_nexus9000_configuration($sdid);
 
   $status_message = "";
   $ret = $conf->update_firmware($param);
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
 
   if ($ret !== SMS_OK)
   {
@@ -120,11 +120,11 @@ try
   sms_sd_unlock($sms_csp, $sms_sd_info);
 
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
   return SMS_OK;
 }
 

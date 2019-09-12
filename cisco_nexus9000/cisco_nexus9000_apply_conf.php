@@ -14,12 +14,12 @@
 require_once 'smsd/sms_common.php';
 require_once load_once('cisco_nexus9000', 'common.php');
 require_once load_once('cisco_nexus9000', 'apply_errors.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 
 require_once "$db_objects";
 
 define('DELAY', 200000);
-function cisco_nexus_apply_conf($configuration, $push_to_startup = false)
+function cisco_nexus9000_apply_conf($configuration, $push_to_startup = false)
 {
   global $sdid;
   global $sms_sd_ctx;
@@ -58,13 +58,17 @@ function cisco_nexus_apply_conf($configuration, $push_to_startup = false)
   // SCP mode configuration (default mode)
   // ---------------------------------------------------
   $ret = SMS_OK;
-  if ($protocol === 'SSH' && $push_to_startup === false)
+  # skip to try scping configuration - scp to Cisco Nexus is something wrong
+  # if ($protocol === 'SSH' && $push_to_startup === false)
+  if (false)
   {
     echo "SCP mode configuration\n";
 
     try
     {
+sms_log_info(__FILE__ . ':' . __LINE__ . ": passed 1\n");
       $ret = scp_to_router($full_name, $file_name);
+sms_log_info(__FILE__ . ':' . __LINE__ . ": passed 2\n");
 
       if ($ret === SMS_OK)
       {
@@ -103,7 +107,7 @@ function cisco_nexus_apply_conf($configuration, $push_to_startup = false)
         return $ret;
       }
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       if (strpos($e->getMessage(), 'connection failed') !== false)
       {

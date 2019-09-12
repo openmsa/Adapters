@@ -66,7 +66,7 @@ function wsa_apply_conf($configuration)
       	throw new Exception('XML PARSING FAILED');
       }
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       sms_log_error(__FILE__ . ':' . __LINE__ . ': ' . $e->getMessage() . "\n");
       return ERR_CONFIGURATION_INVALID;

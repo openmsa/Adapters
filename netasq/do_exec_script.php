@@ -44,7 +44,7 @@ try
 
   netasq_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   netasq_disconnect();
   sms_set_update_status($sms_csp, $sdid, ERR_SD_CMDTMOUT, $status_type, 'FAILED', '');

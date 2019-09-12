@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: snmp.php 88668 2014-10-22 09:05:58Z ydu $
+ * Version: $Id$
  * Created: Aug 12, 2008
  */
 

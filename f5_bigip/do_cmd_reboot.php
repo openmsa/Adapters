@@ -43,7 +43,7 @@ try {
     $conf = new f5_bigip_configuration($sdid);
     $ret = $conf->reboot($status_type);
     f5_bigip_disconnect(true);
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', '', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
     f5_bigip_disconnect();

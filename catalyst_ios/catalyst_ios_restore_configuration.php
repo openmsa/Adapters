@@ -141,7 +141,7 @@ class catalyst_ios_restore_configuration
 	      return $ret;
 	    }
      }
-     catch ( Exception $e ) {
+     catch ( Exception | Error $e ) {
      	if (strpos ( $e->getMessage (), 'connection failed' ) !== false) {
      		return ERR_SD_CONNREFUSED;
      	}

@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: provisioning_stages.php 74889 2013-08-05 13:30:31Z ees $
+ * Version: $Id$
  * Created: Jun 27, 2008
  * Available global variables
  *  $sms_sd_ctx        pointer to sd_ctx context to retreive usefull field(s)

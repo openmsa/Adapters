@@ -80,7 +80,7 @@
 
   }
 
-  catch (Exception $e)
+  catch (Exception | Error $e)
   {
   	sms_log_error("Exception occur: " . $e->getMessage() . "\n");
   	return $e->getCode();

@@ -116,7 +116,7 @@ class vmware_vsphere_command extends generic_command
 
       sd_disconnect();
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       return $e->getCode();
     }
@@ -287,7 +287,7 @@ class vmware_vsphere_command extends generic_command
         $xpath = str_replace("\xE2\x80\x8B", "", $xpath);
         $conf .= '#' . $xpath;
         $this->configuration .= "{$conf}\n";
-		$SMS_RETURN_BUF .= "{$conf}\n";
+	$SMS_RETURN_BUF .= "{$conf}\n";
       }
     }
     

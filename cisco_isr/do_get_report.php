@@ -88,7 +88,7 @@ try
 
 	cisco_isr_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
 	cisco_isr_disconnect();
 	return $e->getCode();

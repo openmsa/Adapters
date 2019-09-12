@@ -38,7 +38,7 @@ try {
 
   sms_send_user_ok($sms_csp, $sdid, $running_conf);
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   debug_dump($e);
   sms_send_user_error($sms_csp, $sdid, $e->getMessage(), $e->getCode());

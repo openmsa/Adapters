@@ -142,7 +142,7 @@ class oneaccess_lbb_restore_configuration {
 				sms_log_error ( __FILE__ . ':' . __LINE__ . ":SCP Error $ret\n" );
 				return $ret;
 			}
-		} catch ( Exception $e ) {
+		} catch ( Exception | Error $e ) {
 			if (strpos ( $e->getMessage (), 'connection failed' ) !== false) {
 				return ERR_SD_CONNREFUSED;
 			}

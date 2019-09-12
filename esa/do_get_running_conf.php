@@ -34,7 +34,7 @@ try
     sms_send_user_error($sms_csp, $sdid, "", ERR_SD_FAILED);
   }
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   sms_send_user_error($sms_csp, $sdid, $e->getMessage(), $e->getCode());
 }

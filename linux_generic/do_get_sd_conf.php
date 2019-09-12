@@ -31,7 +31,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   linux_generic_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   linux_generic_disconnect();
   return $e->getCode();

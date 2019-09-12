@@ -47,7 +47,7 @@ try {
     $conf = new linux_generic_configuration($sdid);
     $ret = $conf->reboot($status_type);
     linux_generic_disconnect(true);
-} catch (Exception $e) {
+} catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
     linux_generic_disconnect();

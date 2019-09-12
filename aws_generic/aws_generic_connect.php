@@ -103,7 +103,7 @@ class AWSSDKConnection extends GenericConnection
    		//}
    		$array = $result->toArray();
     }
-    catch (Exception $e) {
+    catch (Exception | Error $e) {
 	throw new SmsException("Call to SDK command failed : $e", ERR_SD_CMDFAILED);
     }
     

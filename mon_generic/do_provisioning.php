@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: do_provisioning.php 105696 2016-02-03 16:38:12Z ydu $
+ * Version: $Id$
  * Created: May 30, 2008
  * Available global variables
  *  $sms_sd_info        sd_info structure

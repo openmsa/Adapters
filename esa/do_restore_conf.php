@@ -60,7 +60,7 @@ try
 
   return SMS_OK;
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   esa_disconnect();
   sms_set_update_status($sms_csp, $sdid, $ret, 'RESTORE', 'FAILED', "Failed restoring revision $revision_id: " . $e->getMessage());

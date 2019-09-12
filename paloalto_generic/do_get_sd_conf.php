@@ -31,7 +31,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   paloalto_generic_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   paloalto_generic_disconnect();
   return $e->getCode();

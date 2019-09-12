@@ -51,7 +51,7 @@ try
     }
   }
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, ERR_SD_CMDFAILED, $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
@@ -73,7 +73,7 @@ try
   $ret = $conf->update_firmware();
   esa_disconnect(true);
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);

@@ -19,7 +19,7 @@ try
   esw500_disconnect();
   return SMS_OK;
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   $msg = $e->getMessage();
   $code = $e->getCode();

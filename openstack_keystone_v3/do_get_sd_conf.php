@@ -30,7 +30,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   openstack_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   openstack_disconnect();
   return $e->getCode();

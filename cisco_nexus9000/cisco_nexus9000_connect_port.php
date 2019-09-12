@@ -1,6 +1,6 @@
 <?php
 /*
- * 	Version: 0.1: cisco_nexus_connect.php
+ * 	Version: 0.1: cisco_nexus9000_connect.php
 *  	Created: Jun 7, 2012
 *  	Available global variables
 *  	$sms_sd_ctx        	pointer to sd_ctx context to retreive usefull field(s)
@@ -20,12 +20,12 @@ require_once load_once('cisco_nexus9000', 'common.php');
 require_once "$db_objects";
 
 // return false if error, true if ok
-function cisco_nexus_connect_port($ts_ip, $ts_port, $adminpasswd = null)
+function cisco_nexus9000_connect_port($ts_ip, $ts_port, $adminpasswd = null)
 {
   global $sms_sd_ctx;
 
   try{
-  $sms_sd_ctx = new CiscoIsrPortConsoleConnection($ts_ip, null, null, $adminpasswd, $ts_port);
+  $sms_sd_ctx = new CiscoNexus9000PortConsoleConnection($ts_ip, null, null, $adminpasswd, $ts_port);
   	  $sms_sd_ctx->setParam("PROTOCOL", "CONSOLE");
   } catch (SmsException $e) {
   		return ERR_SD_CONNREFUSED;
@@ -35,14 +35,14 @@ function cisco_nexus_connect_port($ts_ip, $ts_port, $adminpasswd = null)
 
 // Disconnect
 // return false if error, true if ok
-function cisco_nexus_disconnect_port()
+function cisco_nexus9000_disconnect_port()
 {
   global $sms_sd_ctx;
   $sms_sd_ctx = null;
   return SMS_OK;
 }
 
-class CiscoIsrPortConsoleConnection extends PortConsoleConnection
+class CiscoNexus9000PortConsoleConnection extends PortConsoleConnection
 {
 	public function do_connect()
 	{

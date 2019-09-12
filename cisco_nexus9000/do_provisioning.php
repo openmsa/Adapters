@@ -20,7 +20,7 @@ require_once 'smsd/sms_common.php';
 
 require_once load_once('cisco_nexus9000', 'adaptor.php');
 require_once load_once('cisco_nexus9000', 'common.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 require_once load_once('cisco_nexus9000', 'provisioning_stages.php');
 require_once "$db_objects";
 

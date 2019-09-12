@@ -15,8 +15,8 @@
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
-require_once load_once('cisco_nexus9000', 'cisco_nexus_connect.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_configuration.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_connect.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_configuration.php');
 require_once load_once('cisco_nexus9000', 'common.php');
 
 try
@@ -36,14 +36,14 @@ try
   sms_close_user_socket($sms_csp);
   // Asynchronous mode, the user socket is now closed, the results are written in database
 
-  $ret = cisco_nexus_connect();
+  $ret = cisco_nexus9000_connect();
 
   if ($ret != SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
-  $conf = new cisco_nexus_configuration($sdid);
+  $conf = new cisco_nexus9000_configuration($sdid);
 
   $ret = $conf->update_conf();
   if ($ret !== SMS_OK)
@@ -53,13 +53,13 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'ENDED', '');
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  cisco_nexus_disconnect();
+  cisco_nexus9000_disconnect();
 }
 
 return SMS_OK;

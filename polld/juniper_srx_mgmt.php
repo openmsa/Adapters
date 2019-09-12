@@ -103,7 +103,7 @@ try
 
 }
 
-catch (Exception $e)
+catch (Exception | Error $e)
 {
 	juniper_srx_disconnect();
   sms_log_error("Exception occur: " . $e->getMessage() . "\n");

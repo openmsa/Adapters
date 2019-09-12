@@ -63,9 +63,11 @@ class CatalystConfiguration
         $running_conf = substr($running_conf, $pos);
       }
       // remove 'ntp clock-period' line
+      $running_conf = remove_end_of_line_starting_with($running_conf, 'Current configuration');
       $running_conf = remove_end_of_line_starting_with($running_conf, 'ntp clock-period');
       $running_conf = remove_end_of_line_starting_with($running_conf, 'enable secret 5');
       $running_conf = remove_end_of_line_starting_with($running_conf, ' create cnf-files version-stamp');
+      $running_conf = remove_end_of_line_starting_with($running_conf, 'Current configuration :');
       $pos = strrpos($running_conf, "\n");
       if ($pos !== false)
       {
@@ -349,7 +351,10 @@ class CatalystConfiguration
   function update_conf()
   {
     $ret = $this->build_conf($generated_configuration);
-    $ret = catalyst_ios_apply_conf($generated_configuration);
+    if (!empty($generated_configuration))
+    {
+        $ret = catalyst_ios_apply_conf($generated_configuration);
+    }
 
     return $ret;
   }
@@ -569,7 +574,7 @@ class CatalystConfiguration
 	 */
   function generate_pre_conf(&$configuration)
   {
-    $configuration .= "!PRE CONFIG\n";
+    //$configuration .= "!PRE CONFIG\n";
     get_conf_from_config_file($this->sdid, $this->conf_pflid, $configuration, 'PRE_CONFIG', 'Configuration');
     return SMS_OK;
   }
@@ -581,7 +586,7 @@ class CatalystConfiguration
 	 */
   function generate(&$configuration, $use_running = false)
   {
-    $configuration .= "! CONFIGURATION GOES HERE\n";
+    //$configuration .= "! CONFIGURATION GOES HERE\n";
     return SMS_OK;
   }
 
@@ -592,7 +597,7 @@ class CatalystConfiguration
 	 */
   function generate_post_conf(&$configuration)
   {
-    $configuration .= "!POST CONFIG\n";
+    //$configuration .= "!POST CONFIG\n";
     get_conf_from_config_file($this->sdid, $this->conf_pflid, $configuration, 'POST_CONFIG', 'Configuration');
     return SMS_OK;
   }

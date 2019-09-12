@@ -212,7 +212,7 @@ try
   paloalto_generic_disconnect();
 }
 
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   paloalto_generic_disconnect();
   debug_dump($asset, "Asset failed:\n");

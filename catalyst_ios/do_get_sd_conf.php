@@ -29,7 +29,7 @@ try
 	$SMS_RETURN_BUF = $conf->get_running_conf();
 	sd_disconnect();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
 	sd_disconnect();
 	sms_log_error($e->getMessage());

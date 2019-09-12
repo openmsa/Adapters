@@ -48,7 +48,7 @@ function copy_to_running($cmd)
       $index = sendexpect_ex(__FILE__.':'.__LINE__, $sms_sd_ctx, $cmd, $tab, 300000, true, true, true);
       $result .= $sendexpect_result;
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
       sms_log_info(__FILE__.':'.__LINE__.": Connection with router was lost, try to reconnect\n");
       cisco_disconnect();

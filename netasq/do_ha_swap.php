@@ -36,7 +36,7 @@ try
 
   netasq_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   netasq_disconnect();
   sms_sd_unlock($sms_csp, $sms_sd_info);

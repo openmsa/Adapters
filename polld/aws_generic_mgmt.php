@@ -72,7 +72,8 @@ try
     
     sd_disconnect();
 }
-catch (Exception $e)
+
+catch (Exception | Error $e)
 {
     sd_disconnect();
     exit($e->getCode());

@@ -124,7 +124,14 @@ class nsrpc
     echo "Deploy now the config file ($nsrpc_script_file) into the router\n";
 
     // date +\"%Y/%m/%d:%H:%M:%S\" >> /opt/sms/logs/nsrpc.log &&  -l /opt/sms/logs/nsrpc.log
-    $cmd = "cd /opt/sms/bin/netasq 2>&1 && ./nsrpc -c $nsrpc_script_file '{$this->sd->SD_LOGIN_ENTRY}:{$this->sd->SD_PASSWD_ENTRY}@{$this->sd->SD_IP_CONFIG}' 2>&1";
+    if (isset($this->sd->SD_CONF_ISIPV6) && $this->sd->SD_CONF_ISIPV6 ){
+      //IPv6 we should add '-6' and add '[' and ']' arround the IPv6
+      $cmd = "cd /opt/sms/bin/netasq 2>&1 && ./nsrpc -6 -c $nsrpc_script_file '{$this->sd->SD_LOGIN_ENTRY}:{$this->sd->SD_PASSWD_ENTRY}@[".$this->sd->SD_IP_CONFIG."]' 2>&1";
+    }else{
+      //IPV4
+      $cmd = "cd /opt/sms/bin/netasq 2>&1 && ./nsrpc  -c $nsrpc_script_file '{$this->sd->SD_LOGIN_ENTRY}:{$this->sd->SD_PASSWD_ENTRY}@{$this->sd->SD_IP_CONFIG}' 2>&1";
+    }  
+    
     $ret = exec_local(__FILE__.':'.__LINE__, $cmd, $output);
     if ($ret !== SMS_OK)
     {
@@ -172,12 +179,15 @@ class nsrpc
 }
 
 /*
- * $buffer looks like
+ * $buffer to check looks like
  * 100 code=00a00100 msg="Ok"
  * or
  * 102 code=00a00300 msg="Waiting for data"
  * or
  * 200 code=00100800 msg="Error in format"
+ *
+ * $buffer can be something like below and should not be taken into account
+ * level=warning type=cluster code=12 msg="Degraded mode: Can't synchronize connections" causedBy="V50XXA0L0000007"
  */
 function is_error(&$buffer, &$command)
 {
@@ -192,30 +202,33 @@ function is_error(&$buffer, &$command)
     $pos = strpos($buffer, ' code=', $pos);
     if ($pos !== false)
     {
-      // C'est une reponse, recuperer le code
       $pos = $pos - RC_LEN;
       if ($pos < 0)
       {
         return false;
       }
-      $code = substr($buffer, $pos, RC_LEN);
-      if (empty($ok_return_code[$code]) && empty($not_a_return_code[$code]))
+      if (($pos === 0) || ($buffer[$pos-1] === "\n"))
       {
-        foreach ($cmd_exception as $cmd => $rc)
+        // This line contains a return code
+        $code = substr($buffer, $pos, RC_LEN);
+        if (empty($ok_return_code[$code]) && empty($not_a_return_code[$code]))
         {
-          if ((strpos($command, $cmd) !== false) && (strpos($buffer, $rc) !== false))
+          foreach ($cmd_exception as $cmd => $rc)
           {
-            return false;
+            if ((strpos($command, $cmd) !== false) && (strpos($buffer, $rc) !== false))
+            {
+              return false;
+            }
           }
+          return true;
         }
-        return true;
-      }
-      if (empty($not_a_return_code[$code]))
-      {
-        return false;
+        if (empty($not_a_return_code[$code]))
+        {
+          return false;
+        }
       }
       // Get second code after "Waiting for data"
-      $pos += 6; // ' code='
+      $pos += RC_LEN + 6; // 'xxx code='
       $end = false;
     }
   }

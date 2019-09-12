@@ -27,7 +27,7 @@ try {
 	$conf = new netconf_generic_configuration ( $sdid );
 	$SMS_RETURN_BUF = $conf->get_running_conf ();
 	netconf_generic_disconnect ();
-} catch ( Exception $e ) {
+} catch ( Exception | Error $e ) {
 	netconf_generic_disconnect ();
 	return $e->getCode ();
 }

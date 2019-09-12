@@ -211,7 +211,7 @@ function juniper_srx_disconnect()
         $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "exit");
         $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "exit");
     }
-    catch (Exception $e)
+    catch (Exception | Error $e)
     {
         // ignore errors
     }

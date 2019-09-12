@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: cisco_nexus_configuration.php 58927 2012-06-11 15:15:18Z abr $
+ * Version: $Id: cisco_nexus9000_configuration.php 58927 2012-06-11 15:15:18Z abr $
 * Created: Feb 12, 2009
 */
 require_once 'smsd/sms_common.php';
@@ -8,10 +8,10 @@ require_once 'smsd/pattern.php';
 
 require_once load_once('cisco_nexus9000', 'common.php');
 require_once load_once('cisco_nexus9000', 'adaptor.php');
-require_once load_once('cisco_nexus9000', 'cisco_nexus_apply_conf.php');
+require_once load_once('cisco_nexus9000', 'cisco_nexus9000_apply_conf.php');
 require_once "$db_objects";
 
-class cisco_nexus_configuration
+class cisco_nexus9000_configuration
 {
   var $conf_path; // Path for previous stored configuration files
   var $sdid; // ID of the SD to update
@@ -252,7 +252,7 @@ class cisco_nexus_configuration
       status_progress('Reloading device', 'FIRMWARE');
 
       func_reboot('update firmware');
-      cisco_nexus_disconnect();
+      cisco_nexus9000_disconnect();
       sleep(70);
       $ret = wait_for_device_up($this->sd->SD_IP_CONFIG);
       if ($ret != SMS_OK)
@@ -265,7 +265,7 @@ class cisco_nexus_configuration
       while ($loop > 0)
       {
         sleep(10); // wait for ssh to come up
-        $ret = cisco_nexus_connect();
+        $ret = cisco_nexus9000_connect();
         if ($ret == SMS_OK)
         {
           break;
@@ -462,7 +462,7 @@ class cisco_nexus_configuration
 
     if (!empty($generated_configuration))
     {
-      $ret = cisco_nexus_apply_conf($generated_configuration,$flag);
+      $ret = cisco_nexus9000_apply_conf($generated_configuration,$flag);
     }
     return $ret;
   }
@@ -584,7 +584,7 @@ EOF;
           if ($sms_sd_ctx === null)
           {
             // connection lost, try a last time
-            $res = cisco_nexus_connect();
+            $res = cisco_nexus9000_connect();
             if ($res !== SMS_OK)
             {
               // give up
@@ -603,7 +603,7 @@ EOF;
     status_progress('Reloading device', $event);
 
     func_reboot($event);
-    cisco_nexus_disconnect();
+    cisco_nexus9000_disconnect();
     sleep(70);
     $ret = wait_for_device_up($this->sd->SD_IP_CONFIG);
     if ($ret != SMS_OK)
@@ -616,7 +616,7 @@ EOF;
     while ($loop > 0)
     {
       sleep(10); // wait for ssh to come up
-      $ret = cisco_nexus_connect();
+      $ret = cisco_nexus9000_connect();
       if ($ret == SMS_OK)
       {
         break;
@@ -633,7 +633,7 @@ EOF;
 
   	status_progress('Connecting to the device', $event);
 
-  	$ret = cisco_nexus_connect();
+  	$ret = cisco_nexus9000_connect();
 
   	if ($ret != SMS_OK)
   	{

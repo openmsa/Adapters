@@ -114,7 +114,7 @@ try {
 	netconf_generic_disconnect ();
 }
 
-catch ( Exception $e ) {
+catch ( Exception | Error $e ) {
 	netconf_generic_disconnect ();
 	sms_log_error ( "Exception occur: " . $e->getMessage () . "\n" );
 	return $e->getCode ();

@@ -1,6 +1,6 @@
 <?php
 /*
- * 	Version: 0.1: cisco_nexus_connect.php
+ * 	Version: 0.1: cisco_nexus9000_connect.php
 *  	Created: Jun 7, 2012
 *  	Available global variables
 *  	$sms_sd_ctx        	pointer to sd_ctx context to retreive usefull field(s)
@@ -22,19 +22,19 @@ require_once "$db_objects";
 
 
 // return false if error, true if ok
-function cisco_nexus_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
+function cisco_nexus9000_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
 
 
-  echo "===============   cisco_nexus_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null) \n";
+  echo "===============   cisco_nexus9000_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null) \n";
 
 	try{
 		$sms_sd_ctx = new CiscoIsrsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
 		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
 	} catch (SmsException $e) {
 		try{
-			$sms_sd_ctx = new CiscoIsrTelnetConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+			$sms_sd_ctx = new CiscoNexusTelnetConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
 			$sms_sd_ctx->setParam("PROTOCOL", "TELNET");
 		}catch (SmsException $e) {
 			return ERR_SD_CONNREFUSED;
@@ -45,7 +45,7 @@ function cisco_nexus_connect($sd_ip_addr = null, $login = null, $passwd = null, 
 
 // Disconnect
 // return false if error, true if ok
-function cisco_nexus_disconnect()
+function cisco_nexus9000_disconnect()
 {
   global $sms_sd_ctx;
   if(is_object($sms_sd_ctx))
@@ -99,7 +99,7 @@ class CiscoIsrsshConnection extends SshConnection
 	}
 }
 
-class CiscoIsrTelnetConnection extends TelnetConnection
+class CiscoNexusTelnetConnection extends TelnetConnection
 {
 
 	public function do_store_prompt() {

@@ -125,7 +125,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 
     sd_disconnect();
   }
-  catch (Exception $e)
+  catch (Exception | Error $e)
   {
     return $e->getCode();
   }

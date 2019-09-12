@@ -180,7 +180,7 @@ class linux_generic_configuration
   {
     status_progress('Reloading device', $event);
 
-    func_reboot($event = '');
+    func_reboot();
     sleep(40);
     $ret = wait_for_device_up($this->sd->SD_IP_CONFIG);
     if ($ret != SMS_OK)

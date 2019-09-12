@@ -30,7 +30,7 @@ try
   $SMS_RETURN_BUF = $conf->get_running_conf();
   vmware_vsphere_disconnect();
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   vmware_vsphere_disconnect();
   return $e->getCode();

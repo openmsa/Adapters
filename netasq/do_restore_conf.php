@@ -77,7 +77,7 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'ENDED', "Restore done (restore revision: $revision_id)");
 }
-catch (Exception $e)
+catch (Exception | Error $e)
 {
   netasq_disconnect();
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), 'RESTORE', 'FAILED', "Restore failure (restore revision: $revision_id)");
