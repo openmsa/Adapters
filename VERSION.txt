@@ -1,1 +1,1 @@
-OpenMSA-1.1 (BETA) Device Adaptors v1.1.0
+OpenMSA-1.2 Adaptors v1.2.0
