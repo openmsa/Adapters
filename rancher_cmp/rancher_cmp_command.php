@@ -29,7 +29,7 @@ class rancher_cmp_command extends generic_command
   var $configuration;
   var $import_file_list;
 
-  function rancher_cmp_command()
+  function __construct()
   {
     parent::__construct();
     $this->parser_list = array();
