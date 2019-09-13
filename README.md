@@ -15,13 +15,6 @@ OpenMSA comes as 3 separate components:
 - Workflows & Microservices [samples](../../../Workflows-Microservices)
 
 
-Recent Changes
---------------
-
-- [CHANGELOG](../master/CHANGELOG.md)
-- [commits](../../commits/master)
-
-
 Adaptors
 --------
 
@@ -35,6 +28,13 @@ Details on how to get started with Adaptors are available
 in the [doc](../master/doc/Getting_started_with_Adaptors.md).
 
 
+Recent Changes
+--------------
+
+- [CHANGELOG](../master/CHANGELOG.md)
+- [commits](../../commits/master)
+
+
 Contributing to OpenMSA
 -----------------------
 
@@ -46,4 +46,4 @@ Licenses
 --------
 
 - [LICENSE](../master/LICENSE.md)
-- third-party components may have different licenses, see e.g. [vendor/](../../tree/master/vendor).
+- [vendor/](../../tree/master/vendor) third-party components may have different licenses.
