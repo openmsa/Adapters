@@ -33,7 +33,7 @@ Improvements
 - most of the code has been updated to use `PHP 7.2`
   making it no longer compatible with pre 17.1 MSA
 
-- 13 adaptors have been updated to the last version
+- 14 adaptors have been updated to the last version
   available for the 17.1 MSA
 
 
