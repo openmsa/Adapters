@@ -31,7 +31,7 @@ in the [doc](../master/doc/Getting_started_with_Adaptors.md).
 Recent Changes
 --------------
 
-- [CHANGELOG](../master/CHANGELOG.md)
+- [changelog](../master/CHANGELOG.md)
 - [commits](../../commits/master)
 
 
@@ -46,4 +46,4 @@ Licenses
 --------
 
 - [LICENSE](../master/LICENSE.md)
-- [vendor/](../../tree/master/vendor) third-party components may have different licenses.
+- [third-party components](../../tree/master/vendor)
