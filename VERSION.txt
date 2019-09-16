@@ -1,1 +1,1 @@
-OpenMSA-1.2 Adaptors v1.2.0
+OpenMSA-1.3 (ALPHA) Adaptors v1.3.0

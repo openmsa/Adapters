@@ -1,3 +1,11 @@
+OpenMSA-1.3
+===========
+
+Release date:
+
+
+
+
 OpenMSA-1.2
 ===========
 
