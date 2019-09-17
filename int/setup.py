@@ -22,7 +22,12 @@ setup(
     data_files=[
 	('/opt/sms/bin/php/'+d, glob(ad+d+"/*.php")) for d in top_dirs
     ] + [
-	('/opt/sms/bin/php/parserd/filter', PARSERD_FILES),
+	('/opt/sms/bin/php/parserd/filter/'+topdir(d), glob(d+"/parserd/*.php"))
+		for d in glob(ad+'/*')
+    ] + [
+	('/opt/sms/bin/php/parserd/filter/'+topdir(d), glob(d+"/*.php"))
+		for d in glob('parserd/*')
+    ] + [
 	('/opt/sms/bin/php/polld/', POLLD_FILES),
     ],
     cmdclass={ 'install_egg_info': null_install_egg_info },
