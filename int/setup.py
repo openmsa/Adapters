@@ -17,6 +17,7 @@ class null_install_egg_info(install_egg_info):
 
 setup(
     name="openmsa-adapters",
+    version="",
     data_files=[
 	('/opt/sms/bin/php/'+d, glob(d+"/*.php")) for d in top_dirs
     ] + [
