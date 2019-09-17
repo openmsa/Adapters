@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cp int/setup.py .
+
+trap "\rm -rf *.egg-info dist/ build/ setup.py" EXIT
+
+python setup.py bdist_rpm \
+	--binary-only \
+	--dist-dir ..
