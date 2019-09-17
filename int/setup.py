@@ -2,13 +2,14 @@ from setuptools import setup
 from setuptools.command.install_egg_info import install_egg_info
 from glob import glob
 
+ad = "adapters/"
 
-TOPDIRS_FILES = glob('*/*.php')
-PARSERD_FILES = glob('*/parserd/*.php')
-POLLD_FILES = glob('*/polld/*.php')
+TOPDIRS_FILES = glob(ad+'*/*.php')
+PARSERD_FILES = glob(ad+'*/parserd/*.php')
+POLLD_FILES = glob(ad+'*/polld/*.php')
 
 
-def topdir(x): return x.split('/')[0]
+def topdir(x): return x.split('/')[1]
 
 top_dirs = { topdir(f) : 0 for f in TOPDIRS_FILES }
 
@@ -19,7 +20,7 @@ setup(
     name="openmsa-adapters",
     version="",
     data_files=[
-	('/opt/sms/bin/php/'+d, glob(d+"/*.php")) for d in top_dirs
+	('/opt/sms/bin/php/'+d, glob(ad+d+"/*.php")) for d in top_dirs
     ] + [
 	('/opt/sms/bin/php/parserd/filter', PARSERD_FILES),
 	('/opt/sms/bin/php/polld/', POLLD_FILES),
