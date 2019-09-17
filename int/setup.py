@@ -1,17 +1,15 @@
 from setuptools import setup
 from setuptools.command.install_egg_info import install_egg_info
 from glob import glob
+from os import path
 
 ad = "adapters/"
+dd = "/opt/sms/bin/php/"
 
-TOPDIRS_FILES = glob(ad+'*/*.php')
-PARSERD_FILES = glob(ad+'*/parserd/*.php')
-POLLD_FILES = glob(ad+'*/polld/*.php')
+def map_dirs(src, x, y):
+    return [ (dd+y.format(d.split(path.sep)[1]), glob(d+"/"+x))
+                for d in glob(src+'/*') ]
 
-
-def topdir(x): return x.split('/')[1]
-
-top_dirs = { topdir(f) : 0 for f in TOPDIRS_FILES }
 
 class null_install_egg_info(install_egg_info):
     def run(self): pass
@@ -19,16 +17,12 @@ class null_install_egg_info(install_egg_info):
 setup(
     name="openmsa-adapters",
     version="",
-    data_files=[
-	('/opt/sms/bin/php/'+d, glob(ad+d+"/*.php")) for d in top_dirs
-    ] + [
-	('/opt/sms/bin/php/parserd/filter/'+topdir(d), glob(d+"/parserd/*.php"))
-		for d in glob(ad+'/*')
-    ] + [
-	('/opt/sms/bin/php/parserd/filter/'+topdir(d), glob(d+"/*.php"))
-		for d in glob('parserd/*')
-    ] + [
-	('/opt/sms/bin/php/polld/', POLLD_FILES),
-    ],
+    data_files=(
+	map_dirs(ad, '*.php', '{}') +
+	map_dirs(ad, 'parserd/*.php', 'parserd/filter/{}') +
+	map_dirs('parserd/', '*.php', 'parserd/filter/{}') +
+	[ (dd+'polld/', glob(ad+'*/polld/*.php')) ] +
+	[ (dd+'polld/', glob('polld/*.php')) ]
+    ),
     cmdclass={ 'install_egg_info': null_install_egg_info },
 )
