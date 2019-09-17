@@ -1,0 +1,18 @@
+#!/bin/bash
+
+version=${1:-${version:-0}}
+release=${2:-${release:-0}}
+
+[ "$BL" ] && version=${version}.$BL
+
+cp int/setup.py .
+
+sed -i "/version=/ s/=.*/='${version}',/" setup.py
+
+
+trap "\rm -rf *.egg-info dist/ build/ setup.py" EXIT
+
+python setup.py bdist_rpm \
+	--binary-only \
+	--release=${release} \
+	--dist-dir ..
