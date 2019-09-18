@@ -19,6 +19,7 @@ setup(
     version="",
     data_files=(
 	map_dirs(ad, '*.php', '{}') +
+	map_dirs(ad, 'conf/*.conf', '../../templates/devices/{}/conf') +
 	map_dirs(ad, 'parserd/*.php', 'parserd/filter/{}') +
 	map_dirs('parserd/', '*.php', 'parserd/filter/{}') +
 	[ (dd+'polld/', glob(ad+'*/polld/*.php')) ] +
