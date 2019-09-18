@@ -28,18 +28,12 @@ Details on how to get started with Adaptors are available
 in the [doc](../master/doc/Getting_started_with_Adaptors.md).
 
 
-Recent Changes
---------------
-
-- [changelog](../master/CHANGELOG.md)
-- [commits](../../commits/master)
-
-
-Contributing to OpenMSA
------------------------
+Contributing
+------------
 
 - [CONTRIBUTING](../master/CONTRIBUTING.md)
 - [New Adaptors](../master/doc/Manufacturer_and_Model_ID_Convention.md)
+- [changelog](../master/CHANGELOG.md) | [commits](../../commits/master)
 
 
 Licenses
