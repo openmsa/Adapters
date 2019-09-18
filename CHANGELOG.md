@@ -4,6 +4,11 @@ OpenMSA-1.3
 Release date:
 
 
+Improvements
+------------
+
+- source tree layout
+- rpm packaging support
 
 
 OpenMSA-1.2
