@@ -10,6 +10,13 @@ def map_dirs(src, x, y):
     return [ (dd+y.format(d.split(path.sep)[1]), glob(d+"/"+x))
                 for d in glob(src+'/*') ]
 
+def flat_dir(src, x, y):
+    return [ (dd+y, glob(src+x)) ]
+
+def deep_dir(src):
+    return [ (dd+root, [path.join(root, f) for f in files])
+		for root, dirs, files in walk(src) ]
+
 
 class null_install_egg_info(install_egg_info):
     def run(self): pass
@@ -22,10 +29,9 @@ setup(
 	map_dirs(ad, 'conf/*.conf', '../../templates/devices/{}/conf') +
 	map_dirs(ad, 'parserd/*.php', 'parserd/filter/{}') +
 	map_dirs('parserd/', '*.php', 'parserd/filter/{}') +
-	[ (dd+'polld/', glob(ad+'*/polld/*.php')) ] +
-	[ (dd+'polld/', glob('polld/*.php')) ] +
-	[ (dd+root, [path.join(root, f) for f in files])
-		for root, dirs, files in walk('vendor') ]
+	flat_dir(ad, 'polld/*.php', 'polld') +
+	flat_dir('polld/', '*.php', 'polld') +
+	deep_dir('vendor')
     ),
     cmdclass={ 'install_egg_info': null_install_egg_info },
 )
