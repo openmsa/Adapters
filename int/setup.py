@@ -1,7 +1,7 @@
 from setuptools import setup
 from setuptools.command.install_egg_info import install_egg_info
 from glob import glob
-from os import path
+from os import walk, path
 
 ad = "adapters/"
 dd = "/opt/sms/bin/php/"
@@ -23,7 +23,9 @@ setup(
 	map_dirs(ad, 'parserd/*.php', 'parserd/filter/{}') +
 	map_dirs('parserd/', '*.php', 'parserd/filter/{}') +
 	[ (dd+'polld/', glob(ad+'*/polld/*.php')) ] +
-	[ (dd+'polld/', glob('polld/*.php')) ]
+	[ (dd+'polld/', glob('polld/*.php')) ] +
+	[ (dd+root, [path.join(root, f) for f in files])
+		for root, dirs, files in walk('vendor') ]
     ),
     cmdclass={ 'install_egg_info': null_install_egg_info },
 )
