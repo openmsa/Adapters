@@ -32,8 +32,11 @@ Contributing
 ------------
 
 - [CONTRIBUTING](../master/CONTRIBUTING.md)
-- [New Adapters](../master/doc/Manufacturer_and_Model_ID_Convention.md)
-- [changelog](../master/CHANGELOG.md) | [commits](../../commits/master)
+- [Creating new adapters](../master/doc/Manufacturer_and_Model_ID_Convention.md)
+- [changelog](../master/CHANGELOG.md) -
+  [pull requests](../../pulls) -
+  [issues](../../issues) -
+  [commits](../../commits/master)
 
 
 Licenses
