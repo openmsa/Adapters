@@ -5,7 +5,8 @@ release=${2:-${release:-0}}
 
 [ "$BL" ] && version=${version}.$BL
 
-cp int/setup.py .
+
+cat int/setup_utils.py int/setup.py > setup.py
 
 sed -i "/version=/ s/=.*/='${version}',/" setup.py
 

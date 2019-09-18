@@ -1,25 +1,11 @@
 from setuptools import setup
-from setuptools.command.install_egg_info import install_egg_info
-from glob import glob
-from os import walk, path
+
+# from setup_utils import map_dirs, flat_dir, deep_dir
+# from setup_utils import set_dest, null_install_egg_info
 
 ad = "adapters/"
-dd = "/opt/sms/bin/php/"
 
-def map_dirs(src, x, y):
-    return [ (dd+y.format(d.split(path.sep)[1]), glob(d+"/"+x))
-                for d in glob(src+'/*') ]
-
-def flat_dir(src, x, y):
-    return [ (dd+y, glob(src+x)) ]
-
-def deep_dir(src):
-    return [ (dd+root, [path.join(root, f) for f in files])
-		for root, dirs, files in walk(src) ]
-
-
-class null_install_egg_info(install_egg_info):
-    def run(self): pass
+set_dest('/opt/sms/bin/php/')
 
 setup(
     name="openmsa-adapters",
