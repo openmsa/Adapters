@@ -173,13 +173,15 @@ try
             $asset_key = "[" . $feature . "] " . $name;
             if ($name === "expires")
             {
+              if (strpos($node, "Never") === false) {
+                $date = date_conversion($node);
+              }
+              else {
+                $date = "00:00:00";
+              }
               switch ($feature)
               {
                 case "Threat Prevention":
-		  $date = "00:00:00";
-		  if (strpos($node, "Never") === false) {
-			$date = date_conversion($node);
-		  }
                   $asset['ips_expiration'] = $date;
                   $asset['av_expiration'] = $date;
                   $asset['as_expiration'] = $date;

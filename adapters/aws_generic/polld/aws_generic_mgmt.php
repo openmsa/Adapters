@@ -1,84 +1,155 @@
 <?php
 /*
- * Date : Sep 24, 2007
- * Available global variables
- *  $sms_sd_info       sd_info structure
- *  $sdid
- *  $sms_module        module name (for patterns)
- *  $sd_poll_elt       pointer on sd_poll_t structure
- *  $sd_poll_peer      pointer on sd_poll_t structure of the peer (slave of master)
+ *  Available global variables
+ *   $sms_sd_info       sd_info structure
+ *   $sdid
+ *   $sms_module        module name (for patterns)
+ *   $sd_poll_elt       pointer on sd_poll_t structure
+ *   $sd_poll_peer      pointer on sd_poll_t structure of the peer (slave of master)
  */
 
-// Script description
+// Asset management
+require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
-require_once load_once('aws_generic', 'adaptor.php');
+require_once load_once('aws_generic', 'aws_generic_connect.php');
 require_once "$db_objects";
-
-function exit_error($line, $error)
-{
-    sms_log_error("$line: $error\n");
-    sd_disconnect();
-    exit($error);
-}
-
 
 try
 {
-    // Connection
-    sd_connect();
-    
-    $asset['serial'] = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "sudo dmidecode -s system-serial-number");
-    
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "lsb_release -a");
-    $buffer .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "cat /proc/meminfo");
-    
-    $show_ver_asset_patterns = array(
-        'firmware' => '@Description:\s+(?<firmware>.*)@',
-        'cpu' => '@LSB Version:\s+(?<cpu>\S+)@',
-        'model' => '@Distributor ID:\s+(?<model>\S+)@',
-        'memory' => '@MemTotal:\s+(?<memory>.*)@'
-    );
-    
-    $line = get_one_line($buffer);
-    while ($line !== false)
-    {
-        // regular asset fields
-        foreach ($show_ver_asset_patterns as $name => $pattern)
-        {
-            if (preg_match($pattern, $line, $matches) > 0)
-            {
-                $asset[$name] = trim($matches[$name]);
-            }
-        }
-        
-        // remove already used patterns
-        if (isset($asset))
-        {
-            foreach ($asset as $name => $value)
-            {
-                unset($show_ver_asset_patterns[$name]);
-            }
-        }
-        
-        $line = get_one_line($buffer);
+  // Connection
+  aws_connect();
+
+  $asset = array();
+  $asset_attributes = array();
+  
+/**
+listSSHPublicKeys
+
+[
+    'IsTruncated' => true || false,
+    'Marker' => '<string>',
+    'SSHPublicKeys' => [
+        [
+            'SSHPublicKeyId' => '<string>',
+            'Status' => 'Active|Inactive',
+            'UploadDate' => <DateTime>,
+            'UserName' => '<string>',
+        ],
+        // ...
+    ],
+]
+
+listServerCertificates
+
+[
+    'IsTruncated' => true || false,
+    'Marker' => '<string>',
+    'ServerCertificateMetadataList' => [
+        [
+            'Arn' => '<string>',
+            'Expiration' => <DateTime>,
+            'Path' => '<string>',
+            'ServerCertificateId' => '<string>',
+            'ServerCertificateName' => '<string>',
+            'UploadDate' => <DateTime>,
+        ],
+        // ...
+    ],
+]
+
+listSigningCertificates
+
+[
+    'Certificates' => [
+        [
+            'CertificateBody' => '<string>',
+            'CertificateId' => '<string>',
+            'Status' => 'Active|Inactive',
+            'UploadDate' => <DateTime>,
+            'UserName' => '<string>',
+        ],
+        // ...
+    ],
+    'IsTruncated' => true || false,
+    'Marker' => '<string>',
+]
+
+listUsers
+
+[
+    'IsTruncated' => true || false,
+    'Marker' => '<string>',
+    'Users' => [
+        [
+            'Arn' => '<string>',
+            'CreateDate' => <DateTime>,
+            'PasswordLastUsed' => <DateTime>,
+            'Path' => '<string>',
+            'UserId' => '<string>',
+            'UserName' => '<string>',
+        ],
+        // ...
+    ],
+]
+
+*/
+
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "Aws\Iam\IamClient#listAccessKeys#");
+  $buffer = $sms_sd_ctx->get_raw_json();
+  $buffer = json_decode($buffer, true);
+
+  foreach ($buffer['AccessKeyMetadata'] as $accessMetaData)
+  {
+  	foreach ($accessMetaData as $key => $value) {
+  		
+  	  echo "$key => $value\n";
+      $asset[$key] = $value;
+      $ret = sms_sd_set_asset_attribute($sd_poll_elt, 1, $key, $value);
     }
-    
-    $ret = sms_polld_set_asset_in_sd($sd_poll_elt, $asset);
-    if ($ret !== 0)
-    {
-        exit_error(__FILE__ . ':' . __LINE__, ": sms_polld_set_asset_in_sd($sms_sd_ctx, $asset) Failed\n");
-    }
-    
-    
-    sd_disconnect();
+  }
+  
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "Aws\Iam\IamClient#listAccountAliases#");
+  $buffer = $sms_sd_ctx->get_raw_json();
+  $buffer = json_decode($buffer, true);
+  
+  $aliasCount = 1;
+  foreach ($buffer['AccountAliases'] as $value)
+  {
+  		$key = "AccountAlias-{$aliasCount}";
+  		$asset[$key] = $value;
+  		$ret = sms_sd_set_asset_attribute($sd_poll_elt, 1, $key, $value);
+  		$aliasCount++;
+  }
+
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "Aws\Iam\IamClient#getAccountSummary#");
+  $buffer = $sms_sd_ctx->get_raw_json();
+  $buffer = json_decode($buffer, true);
+  
+  foreach ($buffer['SummaryMap'] as $key => $value)
+  {
+  	  echo "$key => $value\n";
+      $asset[$key] = $value;
+      $ret = sms_sd_set_asset_attribute($sd_poll_elt, 1, $key, $value);
+  }
+  
+  /*****/
+  $ret = sms_polld_set_asset_in_sd($sd_poll_elt, $asset);
+  if ($ret !== 0)
+  {
+    debug_dump($asset, "Asset failed:\n");
+    throw new SmsException(" sms_polld_set_asset_in_sd Failed", ERR_DB_FAILED);
+  }
+
+  aws_disconnect();
 }
 
 catch (Exception | Error $e)
 {
-    sd_disconnect();
-    exit($e->getCode());
+  aws_disconnect();
+  debug_dump($asset, "Asset failed:\n");
+  throw new SmsException(" sms_polld_set_asset_in_sd Failed", ERR_DB_FAILED);
 }
 
-return 0;
+return SMS_OK;
 
 ?>
