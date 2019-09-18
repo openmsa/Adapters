@@ -19,7 +19,7 @@ Release date: 2019-07-11
 Features
 --------
 
-New Adaptors
+New Adapters
 
 - `hp2530` for HPE Switch OS Aruba Type
 - `hp5900` for HPE Switch OS H3C Type
@@ -30,7 +30,7 @@ New Adaptors
 - `Veex_RTU`
 
 
-Preview Adaptor Installer
+Preview Adapter Installer
 
 - `bin/da_installer`
 - `doc/Adaptor_installer.md`
@@ -46,7 +46,7 @@ Improvements
 - most of the code has been updated to use `PHP 7.2`
   making it no longer compatible with pre 17.1 MSA
 
-- 14 adaptors have been updated to the last version
+- 14 adapters have been updated to the last version
   available for the 17.1 MSA
 
 
@@ -58,9 +58,9 @@ Release date: 2018-07-25
 Features
 --------
 
-- add AWS device adaptor
-- add Cisco Nexus9000 device adaptor
-- add VMware vSphere device adaptor
+- add AWS device adapter
+- add Cisco Nexus9000 device adapter
+- add VMware vSphere device adapter
 
 Improvements
 ------------
