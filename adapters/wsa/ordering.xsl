@@ -25,6 +25,13 @@
     </xsl:element>
   </xsl:template>
 
+  <xsl:template match="/config/wga_config">
+    <xsl:element name="wga_config">
+      <xsl:copy-of select="prox_acl_custom_categories"/>
+      <xsl:copy-of select="prox_acl_policy_groups"/>
+    </xsl:element>
+  </xsl:template>
+
 
   <xsl:template match="/config/wga_config/prox_acl_policy_groups/prox_acl_group">
     <xsl:element name="prox_acl_group">
