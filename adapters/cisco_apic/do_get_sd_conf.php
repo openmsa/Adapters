@@ -24,7 +24,7 @@ try
   $conf = new apic_configuration($sdid);
   $SMS_RETURN_BUF = $conf->get_running_conf();
 }
-catch(Exception $e)
+catch(Exception | Error $e)
 {
   return $e->getCode();
 }
