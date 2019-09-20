@@ -1,4 +1,3 @@
-from setuptools.command.install_egg_info import install_egg_info
 from glob import glob
 from os import walk, path
 
@@ -20,5 +19,19 @@ def deep_dir(src):
 		for root, dirs, files in walk(src) ]
 
 
+from setuptools.command.install_egg_info import install_egg_info
+
 class null_install_egg_info(install_egg_info):
     def run(self): pass
+
+def patch_setup():
+    import setuptools
+    _setup = setuptools.setup
+
+    def setup(**kwargs):
+	_setup( cmdclass={ 'install_egg_info': null_install_egg_info },
+		**kwargs)
+    setuptools.setup = setup
+
+
+patch_setup()
