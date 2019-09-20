@@ -1,7 +1,6 @@
 from setuptools import setup
 
-# from setup_utils import map_dirs, flat_dir, deep_dir
-# from setup_utils import set_dest, null_install_egg_info
+# from setup_utils import map_dirs, flat_dir, deep_dir, set_dest
 
 ad = "adapters/"
 
@@ -21,5 +20,4 @@ setup(
 	flat_dir('polld/', '*.php', 'polld') +
 	deep_dir('vendor')
     ),
-    cmdclass={ 'install_egg_info': null_install_egg_info },
 )
