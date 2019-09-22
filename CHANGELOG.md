@@ -1,4 +1,4 @@
-OpenMSA-1.3
+openmsa-1.3
 ===========
 
 Release date:
@@ -11,7 +11,7 @@ Improvements
 - rpm packaging support
 
 
-OpenMSA-1.2
+openmsa-1.2
 ===========
 
 Release date: 2019-07-11
@@ -50,7 +50,7 @@ Improvements
   available for the 17.1 MSA
 
 
-OpenMSA-1.1
+openmsa-1.1
 ===========
 
 Release date: 2018-07-25
@@ -70,7 +70,7 @@ Improvements
 - Fortinet: handle new firmwares in fortinet generic
 
 
-OpenMSA-1.0
+openmsa-1.0
 ===========
 
 Release date: 2017-12-14
