@@ -5,7 +5,6 @@ Release date:
 
 
 Improvements
-------------
 
 - source tree layout
 - rpm packaging support
@@ -16,8 +15,6 @@ openmsa-1.2
 
 Release date: 2019-07-11
 
-Features
---------
 
 New Adapters
 
@@ -37,7 +34,6 @@ Preview Adapter Installer
 
 
 Improvements
-------------
 
 - `catalyst_ios`
   - improvement on telnet connection function
@@ -55,8 +51,8 @@ openmsa-1.1
 
 Release date: 2018-07-25
 
-Features
---------
+
+New adapters
 
 - add AWS device adapter
 - add Cisco Nexus9000 device adapter
@@ -64,7 +60,6 @@ Features
 - add OpenDaylight Netconf device adapter
 
 Improvements
-------------
 
 - Cisco ISR and Catalyst: add error strings, fix Catalyst initial provisioning
 - Fortinet: license status check on Fortigate VDOM
