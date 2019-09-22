@@ -61,6 +61,7 @@ Features
 - add AWS device adapter
 - add Cisco Nexus9000 device adapter
 - add VMware vSphere device adapter
+- add OpenDaylight Netconf device adapter
 
 Improvements
 ------------
@@ -68,6 +69,9 @@ Improvements
 - Cisco ISR and Catalyst: add error strings, fix Catalyst initial provisioning
 - Fortinet: license status check on Fortigate VDOM
 - Fortinet: handle new firmwares in fortinet generic
+- OpenStack Keystone v3: multiple enhancements and bug fixes
+- Linux generic: multiple enhancements and bug fixes
+- PaloAlto: add support for PaloAlto PAN-OS 8.1
 
 
 openmsa-1.0
