@@ -35,9 +35,7 @@ Preview Adapter Installer
 
 Improvements
 
-- `catalyst_ios`
-  - improvement on telnet connection function
-  - added handling for new error messages
+- `catalyst_ios`: better telnet connection, handle new error messages
 
 - most of the code has been updated to use `PHP 7.2`
   making it no longer compatible with pre 17.1 MSA
