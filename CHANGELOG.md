@@ -33,12 +33,15 @@ Preview Adapter Installer
 - `doc/Adaptor_installer.md`
 
 
+PHP-7.2
+
+- the core engine uses a newer version of PHP
+- adapters code no longer compatible with pre-17.1 MSA
+
+
 Improvements
 
 - `catalyst_ios`: better telnet connection, handle new error messages
-
-- most of the code has been updated to use `PHP 7.2`
-  making it no longer compatible with pre 17.1 MSA
 
 - 14 adapters have been updated to the last version
   available for the 17.1 MSA
