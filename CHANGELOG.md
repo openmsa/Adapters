@@ -73,6 +73,6 @@ Improvements
 OpenMSA-1.0
 ===========
 
-Relase date: 2017-12-14
+Release date: 2017-12-14
 
 Initial github release
