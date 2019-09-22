@@ -16,15 +16,15 @@ openmsa-1.2
 Release date: 2019-07-11
 
 
-New Adapters
+New adapters
 
-- `hp2530` for HPE Switch OS Aruba Type
-- `hp5900` for HPE Switch OS H3C Type
-- `nec_pflow_pfcscapi` for controlling ProgrammableFlow Controller using REST API
-- `nec_nfa` for Network Flow Analyzer (Log Management Function only)
-- `nec_ix` for NEC IX devices (NEC IX2000/IX3000 series)
-- `fortinet_json` for Fortinet devices (FortiManager, FortiAnalyzer)
-- `Veex_RTU`
+- `hp2530`: HPE Switch OS Aruba Type
+- `hp5900`: HPE Switch OS H3C Type
+- `nec_pflow_pfcscapi`: NEC ProgrammableFlow Controller, using REST API
+- `nec_nfa`: NEC Network Flow Analyzer (Log Management Function only)
+- `nec_ix`: NEC IX devices (NEC IX2000/IX3000 series)
+- `fortinet_jsonapi`: Fortinet devices (FortiManager, FortiAnalyzer)
+- `veex_rtu`: VeEX RTU devices
 
 
 Preview Adapter Installer
@@ -42,9 +42,7 @@ PHP-7.2
 Improvements
 
 - `catalyst_ios`: better telnet connection, handle new error messages
-
-- 14 adapters have been updated to the last version
-  available for the 17.1 MSA
+- `14 adapters`: code synced to last version of 17.1 MSA
 
 
 openmsa-1.1
@@ -55,19 +53,18 @@ Release date: 2018-07-25
 
 New adapters
 
-- add AWS device adapter
-- add Cisco Nexus9000 device adapter
-- add VMware vSphere device adapter
-- add OpenDaylight Netconf device adapter
+- `aws_generic`: Amazon VMs
+- `cisco_nexus9000`: Cisco Nexus 9000 devices
+- `vmware_vsphere`: VMware vSphere VMs
+- `netconf_generic`: OpenDaylight Netconf devices
 
 Improvements
 
-- Cisco ISR and Catalyst: add error strings, fix Catalyst initial provisioning
-- Fortinet: license status check on Fortigate VDOM
-- Fortinet: handle new firmwares in fortinet generic
-- OpenStack Keystone v3: multiple enhancements and bug fixes
-- Linux generic: multiple enhancements and bug fixes
-- PaloAlto: add support for PaloAlto PAN-OS 8.1
+- `cisco_isr`, `catalyst_ios`: add error strings, fix Catalyst initial provisioning
+- `fortinet_generic`: license status check (VDOM), handle new firmwares
+- `openstack_keystone_v3`: multiple enhancements and bug fixes
+- `linux_generic`: multiple enhancements and bug fixes
+- `paloalto_generic`: add support for PaloAlto PAN-OS 8.1
 
 
 openmsa-1.0
