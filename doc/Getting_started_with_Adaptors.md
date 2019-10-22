@@ -1,5 +1,6 @@
 # MSA-Device-Adaptors
 
+
 The MSActivator(TM) is a multi-tenant, full lifecycle management framework developed for agile service
 design and assurance, making automation not only possible - but easy.
 
@@ -38,6 +39,10 @@ The following device adaptors are provided as standard:
 | Linux | Generic | linux_generic |
 | Openstack | Generic | openstack_keystone_v3 |
 | AWS | Generic | aws (dependency: vendor) |
+
+
+```NOTE: The section below is deprecated as the adapter installer script can be used to add a new DA```
+
 
 ### Create a new Device Adaptor
 ##### Create new Model/Manufacturer
