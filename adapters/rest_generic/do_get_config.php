@@ -4,12 +4,12 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('generic_rest', 'generic_rest_configuration.php');
+require_once load_once('rest_generic', 'rest_generic_configuration.php');
 
 try {
 	$generated_configuration = '';
 
-	$conf = new generic_rest_configuration($sdid);
+	$conf = new rest_generic_configuration($sdid);
 
 	$ret = $conf->build_conf($generated_configuration);
 	if ($ret !== SMS_OK)

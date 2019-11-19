@@ -4,11 +4,11 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('generic_rest', 'generic_rest_connect.php');
-require_once load_once('generic_rest', 'generic_rest_configuration.php');
+require_once load_once('rest_generic', 'rest_generic_connect.php');
+require_once load_once('rest_generic', 'rest_generic_configuration.php');
 
 try {
-    $ret = generic_rest_connect();
+    $ret = rest_generic_connect();
 	if ($ret !== SMS_OK)
 	{
 		sms_send_user_error($sms_csp, $sdid, "", ERR_SD_CONNREFUSED);
@@ -16,9 +16,9 @@ try {
 	}
 
 	// Get the conf on the router
-	$conf = new generic_rest_configuration($sdid);
+	$conf = new rest_generic_configuration($sdid);
 	$running_conf = htmlentities($conf->get_running_conf());
-	generic_rest_disconnect();
+	rest_generic_disconnect();
 
 	if (!empty($running_conf))
 	{

@@ -14,25 +14,25 @@
 // Get router configuration, not JSON response format
 require_once 'smsd/sms_common.php';
 
-require_once load_once('generic_rest', 'generic_rest_connect.php');
-require_once load_once('generic_rest', 'generic_rest_configuration.php');
+require_once load_once('rest_generic', 'rest_generic_connect.php');
+require_once load_once('rest_generic', 'rest_generic_configuration.php');
 
 try
 {
-  $ret = generic_rest_connect();
+  $ret = rest_generic_connect();
   if ($ret !== SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
   // Get the conf on the router
-  $conf = new generic_rest_configuration($sdid);
+  $conf = new rest_generic_configuration($sdid);
   $SMS_RETURN_BUF = $conf->get_running_conf();
-  generic_rest_disconnect();
+  rest_generic_disconnect();
 }
 catch (Exception $e)
 {
-    generic_rest_disconnect();
+    rest_generic_disconnect();
   return $e->getCode();
 }
 

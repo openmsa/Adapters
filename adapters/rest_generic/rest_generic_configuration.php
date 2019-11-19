@@ -2,12 +2,12 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 
-require_once load_once('generic_rest', 'adaptor.php');
-require_once load_once('generic_rest', 'generic_rest_apply_conf.php');
+require_once load_once('rest_generic', 'adaptor.php');
+require_once load_once('rest_generic', 'rest_generic_apply_conf.php');
 
 
 require_once "$db_objects";
-class generic_rest_configuration
+class rest_generic_configuration
 {
   var $conf_path; // Path for previous stored configuration files
   var $sdid; // ID of the SD to update
@@ -118,7 +118,7 @@ class generic_rest_configuration
    */
   function restore_conf($configuration)
   {
-    $ret = generic_rest_apply_restore_conf($configuration);
+    $ret = rest_generic_apply_restore_conf($configuration);
     return $ret;
   }
 

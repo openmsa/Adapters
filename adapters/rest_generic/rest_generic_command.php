@@ -18,8 +18,8 @@ require_once load_once('smsd', 'cmd_import_xml.php');
 require_once load_once('smsd', 'cmd_read.php');
 require_once load_once('smsd', 'cmd_list.php');
 
-require_once load_once('generic_rest', 'adaptor.php');
-class generic_rest_command extends generic_command
+require_once load_once('rest_generic', 'adaptor.php');
+class rest_generic_command extends generic_command
 {
   var $parser_list;
   var $parsed_objects;

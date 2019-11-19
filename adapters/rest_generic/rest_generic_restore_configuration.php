@@ -3,7 +3,7 @@
 require_once 'smsd/sms_common.php';
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_user_message.php';
-//require_once 'generic_rest_connect.php';
+//require_once 'rest_generic_connect.php';
 
 require_once "$db_objects";
 

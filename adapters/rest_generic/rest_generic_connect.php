@@ -193,7 +193,7 @@ class DeviceConnection extends GenericConnection
 
 // ------------------------------------------------------------------------------------------------
 // return false if error, true if ok
-function generic_rest_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
+function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
     global $sms_sd_ctx;
     
@@ -203,7 +203,7 @@ function generic_rest_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 // ------------------------------------------------------------------------------------------------
 // Disconnect
-function generic_rest_disconnect()
+function rest_generic_disconnect()
 {
     $cmd = "logout' -d'{}";
     
