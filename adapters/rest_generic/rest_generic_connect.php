@@ -14,16 +14,6 @@ class DeviceConnection extends GenericConnection {
 	
 	// ------------------------------------------------------------------------------------------------
 	public function do_connect() {
-		unset ( $this->key );
-		$data = array (
-				'user' => $this->sd_login_entry,
-				'password' => $this->sd_passwd_entry 
-		);
-		
-		$data = json_encode ( $data );
-		
-		$cmd = "login' -d '" . $data;
-		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
 	}
 	public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true) {
 		global $sendexpect_result;
@@ -42,6 +32,7 @@ class DeviceConnection extends GenericConnection {
 		}
 		return $sendexpect_result;
 	}
+	
 	function execute_curl_cmd($origin, $curl_cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
@@ -111,12 +102,13 @@ class GenericBASICConnection extends DeviceConnection {
 	public function send($origin, $cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
-		echo "\n**************" . $cmd . "****************************\n";
+		echo "\n**************origin: " . $origin. "****************************\n";
+		echo "\n**************cmd: " . $cmd . "****************************\n";
 		$delay = EXPECT_DELAY / 1000;
 		
 		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		
-		$curl_cmd = "curl " . $auth . " -XPOST -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$cmd}";
+		$curl_cmd = "curl " . $auth . " -X {$cmd} -sw 'HTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$cmd}";
 		
 		$curl_cmd .= "' && echo";
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
@@ -157,6 +149,8 @@ class GenericBASICConnection extends DeviceConnection {
 		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 }
+
+
 class GenericTokenConnection extends DeviceConnection {
 	private $key;
 	private $xml_response;

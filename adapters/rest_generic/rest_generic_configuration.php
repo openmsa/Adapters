@@ -20,7 +20,6 @@ class rest_generic_configuration
   var $sd;
   var $is_ztd;
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	* Constructor
 	*/
@@ -34,33 +33,12 @@ class rest_generic_configuration
     $this->sd = &$net->SD;
   }
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	* Get running configuration from the router
 	*/
   function get_running_conf()
   {
-//     global $sms_sd_ctx;
-//     $SMS_OUTPUT_BUF = '';
-
-//     if ($this->sd->MOD_ID === 136)
-//     {
-//       $xpath = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='{$this->sd->SD_HOSTNAME}']";
-//       $result = 'result/entry';
-//     }
-//     else
-//     {
-//       $xpath = "/config";
-//       $result = 'result/config';
-//     }
-//     $xpath = urlencode($xpath);
-//     $result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "type=config&action=show&xpath={$xpath}", $result);
-//     $SMS_OUTPUT_BUF = $sms_sd_ctx->get_raw_xml();
-//     $config_string = $result->asXml();
-
-//     $this->running_conf = $config_string;
-//     return $this->running_conf;
-        return ''; // TODO fix this
+  	return ERR_SD_NOT_SUPPORTED;
   }
 
   /**
@@ -69,8 +47,7 @@ class rest_generic_configuration
    */
   function get_staging_conf()
   {
-    get_conf_from_config_file($this->sdid, $this->conf_pflid, $staging_conf, 'STAGING', 'Configuration');
-    return $staging_conf;
+  	return ERR_SD_NOT_SUPPORTED;
   }
 
   /**
@@ -80,7 +57,7 @@ class rest_generic_configuration
    */
   function update_firmware($param = '')
   {
-    return SMS_OK;
+  	return ERR_SD_NOT_SUPPORTED;
   }
 
   /**
@@ -128,12 +105,9 @@ class rest_generic_configuration
 	*/
   function generate_pre_conf(&$configuration)
   {
-    //$configuration .= "!PRE CONFIG\n";
-    get_conf_from_config_file($this->sdid, $this->conf_pflid, $configuration, 'PRE_CONFIG', 'Configuration');
-    return SMS_OK;
+  	return ERR_SD_NOT_SUPPORTED;
   }
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	* Generate a full configuration
 	* Uses the previous conf if present to perform deltas
@@ -145,7 +119,6 @@ class rest_generic_configuration
     return SMS_OK;
   }
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	* Generate the general post-configuration
 	* @param $configuration   configuration buffer to fill
@@ -157,7 +130,6 @@ class rest_generic_configuration
     return SMS_OK;
   }
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	*
 	*/
@@ -183,7 +155,6 @@ class rest_generic_configuration
     return SMS_OK;
   }
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	*
 	*/
@@ -200,29 +171,23 @@ class rest_generic_configuration
     return $ret;
   }
 
-  // ------------------------------------------------------------------------------------------------
-  /**
-	*
-	*/
   function provisioning()
   {
     return $this->update_conf();
   }
 
-  // ------------------------------------------------------------------------------------------------
   function reboot($event, $params = '')
   {
-    return SMS_OK;
+  	return ERR_SD_NOT_SUPPORTED;
   }
 
-  // ------------------------------------------------------------------------------------------------
   /**
 	 * Mise a jour de la licence
 	 * Attente du reboot de l'equipement
 	 */
   function update_license()
   {
-    return SMS_OK;
+  	return ERR_SD_NOT_SUPPORTED;
   }
 }
 
