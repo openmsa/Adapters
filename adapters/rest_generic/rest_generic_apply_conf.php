@@ -3,7 +3,7 @@
 // Transfer the configuration file on the router
 // First try to use SCP then TFTP
 require_once 'smsd/sms_common.php';
-require_once load_once('rest_generic', 'rest_generic_connect.php');
+require_once load_once('rest_generic', 'c_connect.php');
 require_once "$db_objects";
 
 /**
@@ -11,7 +11,7 @@ require_once "$db_objects";
  * @param string  $configuration	configuration to apply
  * @param boolean $copy_to_startup	copy in startup-config+reboot instead of running-config+write mem
  */
-function checkpoint_r80_apply_conf($configuration)
+function rest_generic_apply_conf($configuration)
 {
     global $sdid;
     global $sms_sd_ctx;
