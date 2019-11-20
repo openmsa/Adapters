@@ -105,10 +105,12 @@ class GenericBASICConnection extends DeviceConnection {
 		echo "\n**************origin: " . $origin. "****************************\n";
 		echo "\n**************cmd: " . $cmd . "****************************\n";
 		$delay = EXPECT_DELAY / 1000;
-		
+		$cmd_list = preg_split('@##@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
+		$http_op = $cmd_list[0];
+		$rest_path = $cmd_list[1];
 		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		
-		$curl_cmd = "curl " . $auth . " -X {$cmd} -sw 'HTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$cmd}";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw 'HTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$rest_path}";
 		
 		$curl_cmd .= "' && echo";
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );

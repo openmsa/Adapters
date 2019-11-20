@@ -81,8 +81,6 @@ class rest_generic_command extends generic_command
         foreach ($this->parser_list as $parser)
         {
           $op_eval = $parser->evaluate_internal('IMPORT', 'operation');    
-          //$op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-          
           $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
         
           
@@ -90,8 +88,8 @@ class rest_generic_command extends generic_command
           {                           
               $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
               foreach ($path_list as $xpth) {
-              	$cmd = trim($op_eval).trim($xpth);
-                  $parser_list[$cmd][] = $parser;
+              	$cmd = trim($op_eval)."##".trim($xpth);
+                $parser_list[$cmd][] = $parser;
               }
           }
           else
@@ -102,21 +100,30 @@ class rest_generic_command extends generic_command
           }
           
         }
-
+	debug_dump($parser_list, "PARSER LIST 1");
         foreach ($parser_list as $op_eval => $sub_parsers)
         {
+	  debug_dump($op_eval, "OP_EVAL");
+	  $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval);
+          debug_dump($sms_sd_ctx->get_raw_xml());
+          foreach ($sub_parsers as $parser)
+          {
+              $parser->parse($running_conf, $objects);
+          }
           // Run evaluated operation
+          /*
           $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
           foreach ($op_list as $op)
           {
             $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
             //debug_dump($sms_sd_ctx->get_raw_xml());
-            // Apply concerned parsers
+            // Apply  parsers
             foreach ($sub_parsers as $parser)
             {
               $parser->parse($running_conf, $objects);
             }
           }
+          */
         }
 
         $this->parsed_objects = $objects;
