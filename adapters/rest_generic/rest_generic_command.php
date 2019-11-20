@@ -80,7 +80,9 @@ class rest_generic_command extends generic_command
 
         foreach ($this->parser_list as $parser)
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');          
+          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');    
+          //$op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+          
           $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
         
           
@@ -88,13 +90,13 @@ class rest_generic_command extends generic_command
           {                           
               $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
               foreach ($path_list as $xpth) {
-                  $cmd = trim($op_eval). "' -d'{".$xpth."}";
+              	$cmd = trim($op_eval).trim($xpth);
                   $parser_list[$cmd][] = $parser;
               }
           }
           else
           {
-              $cmd = trim($op_eval) . "' -d'{}";
+              $cmd = trim($op_eval);
               // Group parsers into evaluated operations
               $parser_list[$cmd][] = $parser;
           }
