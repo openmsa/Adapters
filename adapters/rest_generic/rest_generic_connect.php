@@ -319,7 +319,7 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 {
     global $sms_sd_ctx;
     $class = $data['class'];
-  
+    echo "rest_generic_connect: using connection class: ".$class;
     $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
     //$sms_sd_ctx = new DeviceConnection($sd_ip_addr, $login, $passwd, $port_to_use);
     return SMS_OK;
