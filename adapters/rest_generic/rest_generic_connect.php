@@ -27,32 +27,6 @@ class DeviceConnection extends GenericConnection
         $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     }
     
-    // ------------------------------------------------------------------------------------------------
-    public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
-    {
-        global $sendexpect_result;
-        $this->send($origin, $cmd);
-        
-        if ($prompt !== 'lire dans sdctx' && !empty($prompt))
-        {
-            $tab[0] = $prompt;
-        }
-        else
-        {
-            $tab = array();
-        }
-        
-        
-        $this->expect($origin, $tab);
-        
-        if (is_array($sendexpect_result))
-        {
-            return $sendexpect_result[0];
-        }
-        return $sendexpect_result;
-    }
-    
-    // ------------------------------------------------------------------------------------------------
     public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
     {
     	global $sendexpect_result;
@@ -76,9 +50,7 @@ class DeviceConnection extends GenericConnection
     	}
     	return $sendexpect_result;
     }
-    
   
-    // ------------------------------------------------------------------------------------------------
     function execute_curl_cmd ($origin, $curl_cmd) {
         
         unset($this->xml_response);
@@ -318,8 +290,12 @@ class GenericBASICConnection extends DeviceConnection {
 function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
     global $sms_sd_ctx;
+    global $model_data;
+
+    $data = json_decode($model_data, true);
+
     $class = $data['class'];
-    echo "rest_generic_connect: using connection class: ".$class;
+    echo "rest_generic_connect: using connection class: ".$class."\n";
     $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
     //$sms_sd_ctx = new DeviceConnection($sd_ip_addr, $login, $passwd, $port_to_use);
     return SMS_OK;
