@@ -235,7 +235,7 @@ class GenericBASICConnection extends DeviceConnection {
 		
 		$auth = " -u ".$this->sd_login_entry.":".$this->sd_passwd_entry;
 		
-		$curl_cmd = "curl ".$auth." -XPOST -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' {$header} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$cmd}";
+		$curl_cmd = "curl ".$auth." -XPOST -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$cmd}";
 		
 		$curl_cmd .= "' && echo";
 		$ret = exec_local($origin, $curl_cmd, $output_array);
