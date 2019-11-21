@@ -10,8 +10,8 @@ require_once "$db_objects";
 class DeviceConnection extends GenericConnection {
 	
 	private $key;
-	private $xml_response;
-	private $raw_xml;
+	protected $xml_response;
+	protected $raw_xml;
 	public $content_type = "application/json";
 	public $accept = "application/json";
 	public $protocol = "https";
@@ -20,6 +20,7 @@ class DeviceConnection extends GenericConnection {
 	}
 	public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true) {
 		global $sendexpect_result;
+		
 		$this->send ( $origin, $cmd );
 		
 		if ($prompt !== 'lire dans sdctx' && ! empty ( $prompt )) {
@@ -53,20 +54,18 @@ class DeviceConnection extends GenericConnection {
 		}
 		$this->xml_response = new SimpleXMLElement ( $result );
 		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 	
-	// ------------------------------------------------------------------------------------------------
 	public function sendCmd($origin, $cmd) {
 		$this->send ( $origin, $cmd );
 	}
 	
-	// ------------------------------------------------------------------------------------------------
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
+
 		global $$global_result_name;
-		
-		if (! isset ( $this->xml_response )) {
-			throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
+	
+		if (!isset($this->xml_response )) {
+			throw new SmsException ( "expect failed, xml_response response not found", ERR_SD_CMDFAILED, $origin );
 		}
 		$index = 0;
 		if (empty ( $tab )) {
@@ -83,7 +82,7 @@ class DeviceConnection extends GenericConnection {
 			$index ++;
 		}
 		
-		throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
+		throw new SmsException ( "cmd failed, xpath $tab[0] not found", ERR_SD_CMDFAILED, $origin );
 	}
 	public function do_store_prompt() {
 	}
@@ -100,8 +99,6 @@ class GenericBASICConnection extends DeviceConnection {
 	public function send($origin, $cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
-		echo "\n**************origin: " . $origin. "****************************\n";
-		echo "\n**************cmd: " . $cmd . "****************************\n";
 		$delay = EXPECT_DELAY / 1000;
 		$cmd_list = preg_split('@##@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
 		$http_op = $cmd_list[0];
@@ -132,31 +129,26 @@ class GenericBASICConnection extends DeviceConnection {
 		}
 		$xml;
 		if (strpos($this->accept, "json")) {
+        	        $this->raw_json = $result;
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
-				
-				echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 				$this->key = $array ['sid'];
 			}
 			
 			// call array to xml conversion function
 			$xml = arrayToXml ( $array, '<root></root>' );
 		} else {
+			
 			$xml = new SimpleXMLElement($result);
 		}
 		$this->xml_response = $xml; // new SimpleXMLElement($result);
-		$this->raw_json = $result;
 		
-		// FIN AJOUT
 		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 }
 
 class GenericTokenConnection extends DeviceConnection {
-	private $key;
-	private $xml_response;
-	private $raw_xml;
+	
 	public function do_connect() {
 		unset ( $this->key );
 		$data = array (
