@@ -108,7 +108,7 @@ class GenericBASICConnection extends DeviceConnection {
 		$rest_path = $cmd_list[1];
 		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw 'HTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: {$this->content_type}' -H 'Accept: {$this->accept}' --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}/{$rest_path}";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: {$this->content_type}' -H 'Accept: {$this->accept}' --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}";
 		
 		$curl_cmd .= "' && echo";
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
@@ -130,7 +130,7 @@ class GenericBASICConnection extends DeviceConnection {
 				}
 			}
 		}
-		
+		debug_dump($result, "CURL RESULT");		
 		$array = json_decode ( $result, true );
 		if (isset ( $array ['sid'] )) {
 			
