@@ -189,7 +189,7 @@ check_sms_router_conf() {
 	[ -f "$DA_DIR/$sms_router_conf" ] || \
 		fatal "file not found: $sms_router_conf"
 
-	spec=$(cat $DA_DIR/$sms_router_conf | egrep '^model' | awk '{print $2}')
+	spec=$(cat $DA_DIR/$sms_router_conf | egrep '^model ' | awk '{print $2}')
 	man_id=$(cut -d : -f 1 <<< "$spec")
 	mod_id=$(cut -d : -f 2 <<< "$spec")
 
