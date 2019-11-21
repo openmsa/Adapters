@@ -12,6 +12,7 @@ class DeviceConnection extends GenericConnection {
 	private $key;
 	private $xml_response;
 	private $raw_xml;
+	// values below can be customized in sms_router.conf
 	public $content_type = "application/json";
 	public $accept = "application/json";
 	public $protocol = "https";
