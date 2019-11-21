@@ -101,8 +101,9 @@ class rest_generic_command extends generic_command
         }
         foreach ($parser_list as $op_eval => $sub_parsers)
         {
-	  $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval);
-          foreach ($sub_parsers as $parser)
+
+	 $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "");
+	 foreach ($sub_parsers as $parser)
           {
               $parser->parse($running_conf, $objects);
           }

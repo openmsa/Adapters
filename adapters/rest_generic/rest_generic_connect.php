@@ -57,12 +57,10 @@ class DeviceConnection extends GenericConnection {
 		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 	
-	// ------------------------------------------------------------------------------------------------
 	public function sendCmd($origin, $cmd) {
 		$this->send ( $origin, $cmd );
 	}
 	
-	// ------------------------------------------------------------------------------------------------
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
 		global $$global_result_name;
 		
@@ -101,8 +99,6 @@ class GenericBASICConnection extends DeviceConnection {
 	public function send($origin, $cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
-		echo "\n**************origin: " . $origin. "****************************\n";
-		echo "\n**************cmd: " . $cmd . "****************************\n";
 		$delay = EXPECT_DELAY / 1000;
 		$cmd_list = preg_split('@##@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
 		$http_op = $cmd_list[0];
@@ -173,7 +169,6 @@ class GenericTokenConnection extends DeviceConnection {
 	public function send($origin, $cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
-		echo "\n**************" . $cmd . "****************************\n";
 		$delay = EXPECT_DELAY / 1000;
 		
 		$header = "";
