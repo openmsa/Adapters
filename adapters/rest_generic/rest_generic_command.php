@@ -100,13 +100,12 @@ class rest_generic_command extends generic_command
           }
           
         }
-	debug_dump($parser_list, "PARSER LIST 1");
         foreach ($parser_list as $op_eval => $sub_parsers)
         {
-	  debug_dump($op_eval, "OP_EVAL");
-	  $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval);
-          debug_dump($sms_sd_ctx->get_raw_xml());
-          foreach ($sub_parsers as $parser)
+	  
+	 $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "");
+         debug_dump( $running_conf, "RUNNING CONF");
+	 foreach ($sub_parsers as $parser)
           {
               $parser->parse($running_conf, $objects);
           }
