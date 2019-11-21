@@ -8,11 +8,14 @@ require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
+	
 	private $key;
 	private $xml_response;
 	private $raw_xml;
+	public $content_type = "application/json";
+	public $accept = "application/json";
+	public $protocol = "https";
 	
-	// ------------------------------------------------------------------------------------------------
 	public function do_connect() {
 	}
 	public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true) {
@@ -90,15 +93,10 @@ class DeviceConnection extends GenericConnection {
 }
 
 class GenericBASICConnection extends DeviceConnection {
-	private $key;
-	private $xml_response;
-	private $raw_xml;
 	
-	// ------------------------------------------------------------------------------------------------
 	public function do_connect() {
 	}
 	
-	// ------------------------------------------------------------------------------------------------
 	public function send($origin, $cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
@@ -110,7 +108,7 @@ class GenericBASICConnection extends DeviceConnection {
 		$rest_path = $cmd_list[1];
 		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw 'HTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/{$rest_path}";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw 'HTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: {$this->content_type}' -H 'Accept: {$this->accept}' --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}/{$rest_path}";
 		
 		$curl_cmd .= "' && echo";
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
@@ -152,7 +150,6 @@ class GenericBASICConnection extends DeviceConnection {
 	}
 }
 
-
 class GenericTokenConnection extends DeviceConnection {
 	private $key;
 	private $xml_response;
@@ -179,7 +176,7 @@ class GenericTokenConnection extends DeviceConnection {
 		
 		if (isset ( $this->key )) {
 			$header = "-H 'X-chkp-sid: " . $this->key . "'";
-		}
+		}		
 		
 		$curl_cmd = "curl -XPOST -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' {$header} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/web_api/{$cmd}";
 		
@@ -230,10 +227,28 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	
 	$data = json_decode ( $model_data, true );
 	
-	$class = $data ['class'];
-	echo "rest_generic_connect: using connection class: " . $class . "\n";
-	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
-	// $sms_sd_ctx = new DeviceConnection($sd_ip_addr, $login, $passwd, $port_to_use);
+	if (isset($data ['class'])) {
+		$class = $data ['class'];	
+		echo "rest_generic_connect: using connection class: " . $class . "\n";
+		$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
+	} else { 
+		$sms_sd_ctx = new GenericBASICConnection($sd_ip_addr, $login, $passwd, $port_to_use);
+	}
+	if (isset($data ['header-content-type'])) {
+		$sms_sd_ctx->content_type=$data ['header-content-type'];
+	} else {
+		$sms_sd_ctx->content_type="application/json";
+	}
+	if (isset($data ['header-accept'])) {
+		$sms_sd_ctx->content_type=$data ['header-accept'];
+	} else {
+		$sms_sd_ctx->content_type="application/json";
+	}
+	if (isset($data ['protocol'])) {
+		$sms_sd_ctx->protocol=$data ['protocol'];
+	} else {
+		$sms_sd_ctx->protocol="https";
+	}
 	return SMS_OK;
 }
 
