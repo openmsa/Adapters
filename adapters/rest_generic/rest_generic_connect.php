@@ -130,17 +130,20 @@ class GenericBASICConnection extends DeviceConnection {
 				}
 			}
 		}
-		
-		$array = json_decode ( $result, true );
-		if (isset ( $array ['sid'] )) {
+		$xml;
+		if (strpos($this->accept, "json")) {
+			$array = json_decode ( $result, true );
+			if (isset ( $array ['sid'] )) {
+				
+				echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+				$this->key = $array ['sid'];
+			}
 			
-			echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-			$this->key = $array ['sid'];
+			// call array to xml conversion function
+			$xml = arrayToXml ( $array, '<root></root>' );
+		} else {
+			$xml = new SimpleXMLElement($result);
 		}
-		
-		// call array to xml conversion function
-		$xml = arrayToXml ( $array, '<root></root>' );
-		
 		$this->xml_response = $xml; // new SimpleXMLElement($result);
 		$this->raw_json = $result;
 		
