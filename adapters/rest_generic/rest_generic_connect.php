@@ -9,9 +9,9 @@ require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
 	
-	private $key;
-	private $xml_response;
-	private $raw_xml;
+	protected $key;
+	protected $xml_response;
+	protected $raw_xml;
 	// values below can be customized in sms_router.conf
 	public $content_type = "application/json";
 	public $accept = "application/json";
@@ -151,9 +151,7 @@ class GenericBASICConnection extends DeviceConnection {
 }
 
 class GenericTokenConnection extends DeviceConnection {
-	private $key;
-	private $xml_response;
-	private $raw_xml;
+	
 	public function do_connect() {
 		unset ( $this->key );
 		$data = array (
