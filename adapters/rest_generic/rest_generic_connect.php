@@ -144,9 +144,8 @@ class GenericBASICConnection extends DeviceConnection {
 		$this->xml_response = $xml; // new SimpleXMLElement($result);
 		$this->raw_json = $result;
 		
-		// FIN AJOUT
 		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
+		//debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 }
 
