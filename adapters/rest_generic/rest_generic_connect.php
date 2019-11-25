@@ -54,7 +54,7 @@ class DeviceConnection extends GenericConnection {
 		}
 		$this->xml_response = new SimpleXMLElement ( $result );
 		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
+		//debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 	
 	public function sendCmd($origin, $cmd) {
@@ -97,17 +97,28 @@ class GenericBASICConnection extends DeviceConnection {
 	}
 	
 	public function send($origin, $cmd) {
+		//echo "*** SEND cmd: {$cmd}\n";
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
 		$delay = EXPECT_DELAY / 1000;
-		$cmd_list = preg_split('@##@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
+		$cmd_list = preg_split('@#@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
 		$http_op = $cmd_list[0];
-		$rest_path = $cmd_list[1];
+		$rest_path = "";
+		if (count($cmd_list) >1 ) {
+			$rest_path = $cmd_list[1];
+		}
+		
 		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: {$this->content_type}' -H 'Accept: {$this->accept}' --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: {$this->content_type}' -H 'Accept: {$this->accept}' --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
+		if (count($cmd_list) >2 ) {
+			$rest_payload = $cmd_list[2];
+			$curl_cmd .= " -d ";
+			$curl_cmd .= "'{$rest_payload}'";
+		}
 		
-		$curl_cmd .= "' && echo";
+		
+		$curl_cmd .= " && echo";
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
 		if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed", $ret );
@@ -122,7 +133,7 @@ class GenericBASICConnection extends DeviceConnection {
 					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
 						$cmd_quote = str_replace ( "\"", "'", $result );
 						$cmd_return = str_replace ( "\n", "", $cmd_quote );
-						throw new SmsException ( "$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
+						throw new SmsException ( "$origin: Call to API {$cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
 					}
 				}
 			}
@@ -132,7 +143,7 @@ class GenericBASICConnection extends DeviceConnection {
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				
-				echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+				//echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 				$this->key = $array ['sid'];
 			}
 			
@@ -200,7 +211,7 @@ class GenericTokenConnection extends DeviceConnection {
 		$array = json_decode ( $result, true );
 		if (isset ( $array ['sid'] )) {
 			
-			echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			//echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 			$this->key = $array ['sid'];
 		}
 		
