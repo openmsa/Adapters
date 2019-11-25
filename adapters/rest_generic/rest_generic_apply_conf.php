@@ -22,26 +22,23 @@ function rest_generic_apply_conf($configuration)
     // Save the configuration applied on the router
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
-    
-    echo (":::::::::::::::::::::::::::: APPLY2 ::::::::::::::::::::::::::::\n");
-    
+        
     $line = get_one_line($configuration);
-    $res = "";
     while ($line !== false)
     {
-        $line = trim($line);
-        
-        if (!empty($line))
-        {
-            $res .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '//root');                                
-           
-        }
-        $line = get_one_line($configuration);
+    	$line = trim($line);
+    	
+    	if (!empty($line))
+    	{
+    		$res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '');
+    		
+    		$SMS_RETURN_BUF = json_encode($res);
+    	}
+    	$line = get_one_line($configuration);
     }
-    $SMS_RETURN_BUF = json_encode($res);
-    $publish_cmd = "publish' -d '{}";
-    $publish = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $publish_cmd, '//root');  
+    
     return SMS_OK;
 }
+
 
 ?>
