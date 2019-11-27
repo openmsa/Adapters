@@ -38,7 +38,12 @@ class rest_generic_configuration
 	*/
   function get_running_conf()
   {
-  	return ERR_SD_NOT_SUPPORTED;
+  	$result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "GET#/#", $result);
+  	$SMS_OUTPUT_BUF = $sms_sd_ctx->get_raw_xml();
+  	$config_string = $result->asXml();
+  	
+  	$this->running_conf = $config_string;
+  	return $this->running_conf;
   }
 
   /**
@@ -155,16 +160,13 @@ class rest_generic_configuration
     return SMS_OK;
   }
 
-  /**
-	*
-	*/
+  
   function update_conf()
   {
     $ret = $this->build_conf($generated_configuration);
 
     if (!empty($generated_configuration))
     {
-      #$ret = checkpoint_r80_apply_conf($generated_configuration);
     	$ret = send_configuration_file($generated_configuration);
     }
 
