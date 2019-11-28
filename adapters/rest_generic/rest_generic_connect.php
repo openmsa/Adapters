@@ -16,6 +16,7 @@ class DeviceConnection extends GenericConnection {
 	public $content_type = "application/json";
 	public $accept = "application/json";
 	public $protocol = "https";
+	public $no_auth = false;
 	
 	public function do_connect() {
 	}
@@ -107,9 +108,9 @@ class GenericBASICConnection extends DeviceConnection {
 		if (count($cmd_list) >1 ) {
 			$rest_path = $cmd_list[1];
 		}
-		
-		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		
+		if (!$this->no_auth) {
+			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		}
 		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: {$this->content_type}' -H 'Accept: {$this->accept}' --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
@@ -256,6 +257,12 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	} else {
 		$sms_sd_ctx->protocol="https";
 	}
+	if (isset($data ['ignore-auth'])) {
+		$sms_sd_ctx->no_auth=$data ['ignore-auth'];
+	} else {
+		$sms_sd_ctx->no_auth=true;
+	}
+	
 	return SMS_OK;
 }
 
