@@ -108,6 +108,7 @@ class GenericBASICConnection extends DeviceConnection {
 		if (count($cmd_list) >1 ) {
 			$rest_path = $cmd_list[1];
 		}
+		$auth = "";
 		if (!$this->no_auth) {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		}
