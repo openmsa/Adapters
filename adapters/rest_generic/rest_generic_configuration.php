@@ -38,12 +38,7 @@ class rest_generic_configuration
 	*/
   function get_running_conf()
   {
-  	$result = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "GET#/#", $result);
-  	$SMS_OUTPUT_BUF = $sms_sd_ctx->get_raw_xml();
-  	$config_string = $result->asXml();
-  	
-  	$this->running_conf = $config_string;
-  	return $this->running_conf;
+  	return '';
   }
 
   /**
@@ -52,7 +47,7 @@ class rest_generic_configuration
    */
   function get_staging_conf()
   {
-  	return ERR_SD_NOT_SUPPORTED;
+  	return '';
   }
 
   /**
@@ -110,7 +105,7 @@ class rest_generic_configuration
 	*/
   function generate_pre_conf(&$configuration)
   {
-  	return ERR_SD_NOT_SUPPORTED;
+  	return SMS_OK;
   }
 
   /**
@@ -130,9 +125,7 @@ class rest_generic_configuration
 	*/
   function generate_post_conf(&$configuration)
   {
-    //$configuration .= "!POST CONFIG\n";
-    get_conf_from_config_file($this->sdid, $this->conf_pflid, $configuration, 'POST_CONFIG', 'Configuration');
-    return SMS_OK;
+   return SMS_OK;
   }
 
   /**
