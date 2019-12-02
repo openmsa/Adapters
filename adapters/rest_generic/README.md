@@ -1,0 +1,2 @@
+Generic REST adaptor
+====================

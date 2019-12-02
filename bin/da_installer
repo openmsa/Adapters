@@ -18,7 +18,7 @@ main() {
 			usage
 			;;
 		-i|install)
-			da_install "$1"
+			da_install "$1" "$2"
 			;;
 		-u|uninstall)
 			da_uninstall "$1"
@@ -33,6 +33,14 @@ da_install() {
 	DA_DIR=$1
 	[ -d "$DA_DIR" ] || \
 		fatal "device-adaptor dir not found: $DA_DIR"
+	
+	CONF_DIR=$2
+	if [ -z "$CONF_DIR" ]
+	then
+		$CONF_DIR="conf"
+	fi
+	[ -d "$DA_DIR/$CONF_DIR" ] || \
+		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
 
 	read_properties_files
 	check_sms_router_conf
@@ -120,7 +128,7 @@ update_manageLinks_properties() {
 
 	grep -q "$keyname" $target_file && return 0
 
-	dafile="$DA_DIR/conf/features.properties"
+	dafile="$DA_DIR/$CONF_DIR/features.properties"
 	cat $dafile | grep -e "= *yes" | while read line; do
 		prop=$(sed 's: *=.*::g' <<< "$line")
 		grep -q "$prop" $target_file || \
@@ -157,7 +165,7 @@ update_repository_properties() {
 	grep -q "^repository.model.$keyname" $target_file || \
 		echo "repository.model.$keyname=$deviceid" >> $target_file
 
-	dafile="$DA_DIR/conf/repository.properties"
+	dafile="$DA_DIR/$CONF_DIR/repository.properties"
 	props="|$(cat $dafile | grep yes | awk '{printf $1 "|"}')"
 
 	grep -q "^repository.access.$keyname" $target_file || \
@@ -174,7 +182,7 @@ fixup_no_newline_at_eof() {
 }
 
 read_properties_files() {
-	device_properties="conf/device.properties"
+	device_properties="$CONF_DIR/device.properties"
 	[ -f "$DA_DIR/$device_properties" ] || \
 		fatal "file not found: $device_properties"
 
@@ -185,11 +193,11 @@ read_properties_files() {
 }
 
 check_sms_router_conf() {
-	sms_router_conf="conf/sms_router.conf"
+	sms_router_conf="$CONF_DIR/sms_router.conf"
 	[ -f "$DA_DIR/$sms_router_conf" ] || \
 		fatal "file not found: $sms_router_conf"
 
-	spec=$(cat $DA_DIR/$sms_router_conf | egrep '^model' | awk '{print $2}')
+	spec=$(cat $DA_DIR/$sms_router_conf | egrep '^model\s' | awk '{print $2}')
 	man_id=$(cut -d : -f 1 <<< "$spec")
 	mod_id=$(cut -d : -f 2 <<< "$spec")
 
