@@ -87,9 +87,50 @@ class DeviceConnection extends GenericConnection {
 	}
 	public function do_store_prompt() {
 	}
+	
 	public function get_raw_xml() {
 		return $this->raw_xml;
 	}
+	
+	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
+		$ret = exec_local ( $origin, $curl_cmd, $output_array );
+		if ($ret !== SMS_OK) {
+			throw new SmsException ( "Call to API Failed", $ret );
+		}
+		
+		$result = '';
+		foreach ( $output_array as $line ) {
+			if ($line !== 'SMS_OK') {
+				if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
+					$result .= "{$line}\n";
+				} else {
+					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
+						$cmd_quote = str_replace ( "\"", "'", $result );
+						$cmd_return = str_replace ( "\n", "", $cmd_quote );
+						throw new SmsException ( "$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
+					}
+				}
+			}
+		}
+		$xml;
+		if (strpos($this->accept, "json")) {
+			$array = json_decode ( $result, true );
+			if (isset ( $array ['sid'] )) {
+				$this->key = $array ['sid'];
+			}
+			
+			// call array to xml conversion function
+			$xml = arrayToXml ( $array, '<root></root>' );
+		} else {
+			$xml = new SimpleXMLElement($result);
+		}
+		$this->xml_response = $xml; // new SimpleXMLElement($result);
+		$this->raw_json = $result;
+		
+		$this->raw_xml = $this->xml_response->asXML ();
+		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
+	}
+	
 }
 
 class GenericBASICConnection extends DeviceConnection {
@@ -97,12 +138,12 @@ class GenericBASICConnection extends DeviceConnection {
 	public function do_connect() {
 	}
 	
-	public function send($origin, $cmd) {
+	public function send($origin, $rest_cmd) {
 		//echo "*** SEND cmd: {$cmd}\n";
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
 		$delay = EXPECT_DELAY / 1000;
-		$cmd_list = preg_split('@#@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
+		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
 		$http_op = $cmd_list[0];
 		$rest_path = "";
 		if (count($cmd_list) >1 ) {
@@ -131,45 +172,9 @@ class GenericBASICConnection extends DeviceConnection {
 		
 		$curl_cmd .= " && echo";
 		
-		$ret = exec_local ( $origin, $curl_cmd, $output_array );
-		if ($ret !== SMS_OK) {
-			throw new SmsException ( "Call to API Failed", $ret );
-		}
-		
-		$result = '';
-		foreach ( $output_array as $line ) {
-			if ($line !== 'SMS_OK') {
-				if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
-					$result .= "{$line}\n";
-				} else {
-					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
-						$cmd_quote = str_replace ( "\"", "'", $result );
-						$cmd_return = str_replace ( "\n", "", $cmd_quote );
-						throw new SmsException ( "$origin: Call to API {$cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
-					}
-				}
-			}
-		}
-		$xml;
-		if (strpos($this->accept, "json")) {
-			$array = json_decode ( $result, true );
-			if (isset ( $array ['sid'] )) {
-				
-				//echo "\n!!!!!!!!!!!!!!KEY :" . $array ['sid'] . "!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-				$this->key = $array ['sid'];
-			}
-			
-			// call array to xml conversion function
-			$xml = arrayToXml ( $array, '<root></root>' );
-		} else {
-			$xml = new SimpleXMLElement($result);
-		}
-		$this->xml_response = $xml; // new SimpleXMLElement($result);
-		$this->raw_json = $result;
-		
-		$this->raw_xml = $this->xml_response->asXML ();
-		//debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
 	}
+
 }
 
 class JWTTokenConnection extends DeviceConnection {
@@ -226,42 +231,7 @@ class JWTTokenConnection extends DeviceConnection {
 		}
 	
 		$curl_cmd .= " && echo";
-		$ret = exec_local ( $origin, $curl_cmd, $output_array );
-		if ($ret !== SMS_OK) {
-			throw new SmsException ( "Call to API Failed", $ret );
-		}
-		
-		$result = '';
-		foreach ( $output_array as $line ) {
-			if ($line !== 'SMS_OK') {
-				if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
-					$result .= "{$line}\n";
-				} else {
-					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
-						$cmd_quote = str_replace ( "\"", "'", $result );
-						$cmd_return = str_replace ( "\n", "", $cmd_quote );
-						throw new SmsException ( "$origin: Call to API {$cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
-					}
-				}
-			}
-		}
-		$xml;
-		if (strpos($this->accept, "json")) {
-			$array = json_decode ( $result, true );
-			if (isset ( $array ['sid'] )) {
-				$this->key = $array ['sid'];
-			}			
-			// call array to xml conversion function
-			$xml = arrayToXml ( $array, '<root></root>' );
-		} else {
-			$xml = new SimpleXMLElement($result);
-		}
-		$this->xml_response = $xml; // new SimpleXMLElement($result);
-		$this->raw_json = $result;
-		
-		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
-		
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
 	
 	}
 }
