@@ -42,8 +42,13 @@ The Generic REST adapter is designed to work by default with
 ## Token based authentication
 For supporting a token based authentication REST API, the configuration variables below should be set:
 * AUTH_MODE : token
-* SIGNIN_REQ_PATH : <depend on your API>
+* SIGNIN_REQ_PATH : /depend/on/your/API
 * This configuration will use the HTTP authentication header 'Authorization: Bearer'
 
+## no authentication
+For supporting API that don't require any authentication, you should set 
+AUTH_MODE : ignore-auth
 
+Important: by default the device credential are mandatory in the device creation/update form.
+You need to input some dummy credentials that will be ignored by the adapter.
 
