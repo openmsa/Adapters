@@ -5,13 +5,13 @@ Generic REST adaptor
 
 ## PROTOCOL
 Use this configuration to select the protocol for the REST API requets
-*values: http, https
-*default: https 
+* values: http, https
+* default: https 
 
 ## AUTH_MODE
 Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication
-*values: ignore-auth, BASIC, token
-*default: BASIC 
+* values: ignore-auth, BASIC, token
+* default: BASIC 
 
 ## AUTH_HEADER
 Use this configuration variable to set the HTTP header to use for setting the authentication token.
