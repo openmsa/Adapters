@@ -13,10 +13,28 @@ class DeviceConnection extends GenericConnection {
 	protected $xml_response;
 	protected $raw_xml;
 	// values below can be customized in sms_router.conf
-	public $content_type = "application/json";
+	public $http_header_list = array("Content-Type: application/json", "Accept: application/json");
 	public $accept = "application/json";
 	public $protocol = "https";
-	public $no_auth = false;
+	public $auth_mode = "BASIC";
+	public $http_auth_header = "Authorization: Bearer";
+	
+	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
+	{
+		$network = get_network_profile();
+		$SD = &$network->SD;
+		
+		$this->sd_ip_config = empty($ip) ? $SD->SD_IP_CONFIG : $ip;
+		$this->sd_login_entry = empty($login) ? $SD->SD_LOGIN_ENTRY : $login;
+		$this->sd_passwd_entry = empty($passwd) ? $SD->SD_PASSWD_ENTRY : $passwd;
+		$this->sd_admin_passwd_entry = empty($admin_password) ? $SD->SD_PASSWD_ADM : $admin_password;
+		$this->sd_management_port = empty($port) ? $SD->SD_MANAGEMENT_PORT : $port;
+		
+		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
+		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
+		
+		
+	}
 	
 	public function do_connect() {
 	}
@@ -38,29 +56,6 @@ class DeviceConnection extends GenericConnection {
 		return $sendexpect_result;
 	}
 	
-	function execute_curl_cmd($origin, $curl_cmd) {
-		unset ( $this->xml_response );
-		unset ( $this->raw_xml );
-		
-		$ret = exec_local ( $origin, $curl_cmd, $output_array );
-		if ($ret !== SMS_OK) {
-			throw new SmsException ( "Call to API Failed", $ret );
-		}
-		
-		$result = '';
-		foreach ( $output_array as $line ) {
-			if ($line !== 'SMS_OK') {
-				$result .= "{$line}\n";
-			}
-		}
-		$this->xml_response = new SimpleXMLElement ( $result );
-		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
-	}
-	
-	public function sendCmd($origin, $cmd) {
-		$this->send ( $origin, $cmd );
-	}
 	
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
 		global $$global_result_name;
@@ -90,6 +85,42 @@ class DeviceConnection extends GenericConnection {
 	
 	public function get_raw_xml() {
 		return $this->raw_xml;
+	}
+	
+	public function send($origin, $rest_cmd) {
+		//echo "*** SEND cmd: {$cmd}\n";
+		unset ( $this->xml_response );
+		unset ( $this->raw_xml );
+		$delay = EXPECT_DELAY / 1000;
+		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
+		$http_op = $cmd_list[0];
+		$rest_path = "";
+		if (count($cmd_list) >1 ) {
+			$rest_path = $cmd_list[1];
+		}
+		
+		$headers = "";
+		$auth = "";
+		
+		if ($this->auth_mode == "BASIC") {
+			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		} else if ($this->auth_mode == "token" && isset($this->key)) {
+			$headers .= " -H '{$this->http_auth_header} {$this->key}'";
+		}
+		
+		foreach($this->http_header_list as $H) {
+			$headers .= " -H '{$H}'";
+		}
+		
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} {$headers} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
+		if (count($cmd_list) >2 ) {
+			$rest_payload = $cmd_list[2];
+			$curl_cmd .= " -d ";
+			$curl_cmd .= "'{$rest_payload}'";
+		}
+		$curl_cmd .= " && echo";
+		
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
 	}
 	
 	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
@@ -137,54 +168,15 @@ class GenericBASICConnection extends DeviceConnection {
 	
 	public function do_connect() {
 	}
-	
-	public function send($origin, $rest_cmd) {
-		//echo "*** SEND cmd: {$cmd}\n";
-		unset ( $this->xml_response );
-		unset ( $this->raw_xml );
-		$delay = EXPECT_DELAY / 1000;
-		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
-		$http_op = $cmd_list[0];
-		$rest_path = "";
-		if (count($cmd_list) >1 ) {
-			$rest_path = $cmd_list[1];
-		}
-		$auth = "";
-		if (!$this->no_auth  || !$this->no_auth ===true) {
-			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		}
-		
-		$header = "";
-		if ($this->content_type != "") {
-			$header .= " -H 'Content-Type: {$this->content_type}'";
-		}
-		if ($this->accept != "") {
-			$header .= " -H 'Accept: {$this->accept}'";
-		}
-		
-		
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} {$header} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
-		if (count($cmd_list) >2 ) {
-			$rest_payload = $cmd_list[2];
-			$curl_cmd .= " -d ";
-			$curl_cmd .= "'{$rest_payload}'";
-		}
-		
-		$curl_cmd .= " && echo";
-		
-		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
-	}
 
 }
 
-class JWTTokenConnection extends DeviceConnection {
+class TokenConnection extends DeviceConnection {
+	
+	public $sign_in_req_path;
 	
 	public function do_connect() {
 		unset ( $this->key );
-		
-		$network = get_network_profile();
-		$sd = &$network->SD;
-		$sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGN_IN_REQ_PATH']->VAR_VALUE;
 		
 		$data = array (
 				"username" => $this->sd_login_entry,
@@ -193,46 +185,12 @@ class JWTTokenConnection extends DeviceConnection {
 		
 		$data = json_encode ( $data );
 		
-		$cmd = "POST#{$sign_in_req_path}#{$data}";
+		$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
 		//debug_dump($result, "do_connect result: \n");
 		// extract token
 		$this->key = (string)($result->xpath('//root/token')[0]);
 		debug_dump($this->key, "TOKEN\n");
-	}
-	public function send($origin, $cmd) {
-		unset ( $this->xml_response );
-		unset ( $this->raw_xml );
-		$delay = EXPECT_DELAY / 1000;
-		
-		$cmd_list = preg_split('@#@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
-		$http_op = $cmd_list[0];
-		$rest_path = "";
-		if (count($cmd_list) >1 ) {
-			$rest_path = $cmd_list[1];
-		}
-		$headers = "";
-		if ($this->content_type != "") {
-		$headers .= " -H 'Content-Type: {$this->content_type}'";
-		}	
-		if ($this->accept != "") {
-			$headers .= " -H 'Accept: {$this->accept}'";
-		}
-		
-		if (isset($this->key)) {
-			$headers .= " -H 'Authorization: Bearer {$this->key}'";
-		}
-		
-		$curl_cmd = "curl -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} {$headers} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
-		if (count($cmd_list) >2 ) {
-			$rest_payload = $cmd_list[2];
-			$curl_cmd .= " -d ";
-			$curl_cmd .= "'{$rest_payload}'";
-		}
-	
-		$curl_cmd .= " && echo";
-		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
-	
 	}
 }
 
@@ -240,36 +198,66 @@ class JWTTokenConnection extends DeviceConnection {
 function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null) {
 	global $sms_sd_ctx;
 	global $model_data;
-	debug_dump($model_data, "rest_generic_connect model_data: \n");
-	$data = json_decode (trim($model_data), true );
-	debug_dump($data, "ADAPTER CUSTOMISATION PARAMS (defined in sms_router.conf)\n");
-	if (isset($data ['class'])) {
-		$class = $data ['class'];	
-		echo "rest_generic_connect: using connection class: " . $class . "\n";
-		$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
-	} else { 
-		throw new SmsException ( "no class found to define the REST authentication type", ERR_SD_CMDFAILED );
+	
+	//$data = json_decode (trim($model_data), true );
+	
+	$network = get_network_profile();
+	$sd = &$network->SD;
+	//debug_dump($sd, "SD\n");
+	
+	//debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+	//debug_dump($sd->SD_CONFIGVAR_list['AUTH_MODE'], "AUTH_MODE\n");
+	
+	$class = "GenericBASICConnection";
+	$auth_mode = "BASIC";
+	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
+		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
+		if ($auth_mode == "token") {
+			$class = "TokenConnection";
+		}
 	}
-	if (isset($data ['header-content-type'])) {
-		$sms_sd_ctx->content_type=$data ['header-content-type'];
-	} else {
-		$sms_sd_ctx->content_type="application/json";
+	echo "rest_generic_connect: using connection class: " . $class . "\n";
+	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
+	debug_dump($sms_sd_ctx, "sms_sd_ctx\n");
+	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
+	$sms_sd_ctx->auth_mode = $auth_mode;
+	
+	
+	if ($sms_sd_ctx->auth_mode == "token") {
+		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
+			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
+		}
+		$sms_sd_ctx->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
+		if (isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
+			$sms_sd_ctx->auth_header = $sd->SD_CONFIGVAR_list['AUTH_HEADER']->VAR_VALUE;
+		}
+		echo  "rest_generic_connect: setting authentication header to: {$sms_sd_ctx->auth_header}\n";
+	} 
+	
+	$http_header_str ="";
+	if (isset($sd->SD_CONFIGVAR_list['HTTP_HEADER']->VAR_VALUE)) {
+		$http_header_str = $sd->SD_CONFIGVAR_list['HTTP_HEADER']->VAR_VALUE;
+		$sms_sd_ctx->http_header_list = explode("|", $http_header_str);
 	}
-	if (isset($data ['header-accept'])) {
-		$sms_sd_ctx->content_type=$data ['header-accept'];
-	} else {
-		$sms_sd_ctx->content_type="application/json";
+	$http_header_str = print_r($sms_sd_ctx->http_header_list, true);
+	echo "rest_generic_connect: setting HTTP header to: {$http_header_str}\n";
+	
+	if (isset($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE)) {
+		$sms_sd_ctx->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
+	}	
+	echo  "rest_generic_connect: setting HTTP protocol to: {$sms_sd_ctx->protocol}\n";
+	
+	try
+	{
+		$sms_sd_ctx->do_connect();
 	}
-	if (isset($data ['protocol'])) {
-		$sms_sd_ctx->protocol=$data ['protocol'];
-	} else {
-		$sms_sd_ctx->protocol="https";
+	catch (SmsException $e)
+	{
+		$sms_sd_ctx->disconnect();
+		rest_generic_disconnect();
+		throw new SmsException($e->getMessage(), $e->getCode());
 	}
-	if (isset($data ['ignore-auth'])) {
-		$sms_sd_ctx->no_auth=$data ['ignore-auth'];
-	} else {
-		$sms_sd_ctx->no_auth=false;
-	}
+	
 	
 	return SMS_OK;
 }
