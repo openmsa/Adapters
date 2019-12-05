@@ -34,6 +34,16 @@ default: Content-Type: application/json | Accept: application/json
 
 # Sample configurations
 ## BASIC authentification
+The Generic REST adapter is designed to work by default with 
+*BASIC REST authentication
+*HTTPS protocol
+*JSON content type and accept HTTP headers
+
+## Token based authentication
+For supporting a token based authentication REST API, the configuration variables below should be set:
+AUTH_MODE : token
+SIGNIN_REQ_PATH : <depend on your API>
+This configuration will use the HTTP authentication header 'Authorization: Bearer'
 
 
 
