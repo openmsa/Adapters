@@ -12,12 +12,9 @@ class DeviceConnection extends GenericConnection {
 	protected $key;
 	protected $xml_response;
 	protected $raw_xml;
-	// values below can be customized in sms_router.conf
-	public $http_header_list = array("Content-Type: application/json", "Accept: application/json");
-	public $accept = "application/json";
-	public $protocol = "https";
-	public $auth_mode = "BASIC";
-	public $http_auth_header = "Authorization: Bearer";
+	public $http_header_list;
+	public $protocol;
+	public $auth_mode;
 	
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -88,7 +85,6 @@ class DeviceConnection extends GenericConnection {
 	}
 	
 	public function send($origin, $rest_cmd) {
-		//echo "*** SEND cmd: {$cmd}\n";
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
 		$delay = EXPECT_DELAY / 1000;
@@ -105,10 +101,12 @@ class DeviceConnection extends GenericConnection {
 		if ($this->auth_mode == "BASIC") {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		} else if ($this->auth_mode == "token" && isset($this->key)) {
-			$headers .= " -H '{$this->http_auth_header} {$this->key}'";
+			$H = trim($this->auth_header);
+			$headers .= " -H '{$H}: {$this->key}'";
 		}
 		
-		foreach($this->http_header_list as $H) {
+		foreach($this->http_header_list as $header) {
+			$H = trim($header);
 			$headers .= " -H '{$H}'";
 		}
 		
@@ -144,7 +142,7 @@ class DeviceConnection extends GenericConnection {
 			}
 		}
 		$xml;
-		if (strpos($this->accept, "json")) {
+		if (strpos($curl_cmd, "Content-Type: application/json")) {
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
@@ -174,6 +172,8 @@ class GenericBASICConnection extends DeviceConnection {
 class TokenConnection extends DeviceConnection {
 	
 	public $sign_in_req_path;
+	public $token_xpath = '//root/token';
+	public $auth_header;
 	
 	public function do_connect() {
 		unset ( $this->key );
@@ -189,7 +189,7 @@ class TokenConnection extends DeviceConnection {
 		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
 		//debug_dump($result, "do_connect result: \n");
 		// extract token
-		$this->key = (string)($result->xpath('//root/token')[0]);
+		$this->key = (string)($result->xpath($this->token_xpath)[0]);
 		debug_dump($this->key, "TOKEN\n");
 	}
 }
@@ -218,7 +218,6 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	}
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
-	debug_dump($sms_sd_ctx, "sms_sd_ctx\n");
 	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
 	$sms_sd_ctx->auth_mode = $auth_mode;
 	
@@ -228,20 +227,25 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
 		$sms_sd_ctx->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
+		if (!isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
+			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var TOKEN_XPATH" , ERR_SD_CMDFAILED);
+		}
+		$sms_sd_ctx->token_xpath = $sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE;
 		if (isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
 			$sms_sd_ctx->auth_header = $sd->SD_CONFIGVAR_list['AUTH_HEADER']->VAR_VALUE;
 		}
 		echo  "rest_generic_connect: setting authentication header to: {$sms_sd_ctx->auth_header}\n";
 	} 
 	
-	$http_header_str ="";
-	if (isset($sd->SD_CONFIGVAR_list['HTTP_HEADER']->VAR_VALUE)) {
+	$http_header_str ="Content-Type: application/json | Accept: application/json";
+	if (isset($sd->SD_CONFIGVAR_list['HTTP_HEADER'])) {
 		$http_header_str = $sd->SD_CONFIGVAR_list['HTTP_HEADER']->VAR_VALUE;
 		$sms_sd_ctx->http_header_list = explode("|", $http_header_str);
-	}
-	$http_header_str = print_r($sms_sd_ctx->http_header_list, true);
-	echo "rest_generic_connect: setting HTTP header to: {$http_header_str}\n";
+	} 
+	$sms_sd_ctx->http_header_list = explode("|", $http_header_str);
+	echo "rest_generic_connect: setting HTTP header to: ".print_r($sms_sd_ctx->http_header_list, true)."\n";
 	
+	$sms_sd_ctx->protocol = "https";
 	if (isset($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE)) {
 		$sms_sd_ctx->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
 	}	
