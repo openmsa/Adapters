@@ -10,19 +10,27 @@ Use this configuration to select the protocol for the REST API requets
 
 ## AUTH_MODE
 Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication
-* values: ignore-auth, BASIC, token
+* values: no-auth, BASIC, token
 * default: BASIC 
 
 ## AUTH_HEADER
 Use this configuration variable to set the HTTP header to use for setting the authentication token.
-This configuration variable will only be used if AUTH_MODE has been set to **token**
-* values: 'Authorization: Bearer',  'X-chkp-sid'
+This configuration variable will only be used if AUTH_MODE has been set to **token**.
+* values: 'Authorization: Bearer',  'X-chkp-sid',...
 * default: 'Authorization: Bearer'
+
+Important: many REST API are using custom, specific authorization header, use this configuration to set the one required by the REST API.
 
 ## SIGNIN_REQ_PATH
 Use this to set the API sign in request path. This is specific to the API.
 It's a mandatory configuration when AUTH_MODE is set to token, it will be ignored for the other modes
 * values: API specific, check the API documentation
+
+## TOKEN_XPATH
+The XPath to get the token from the authentication response.
+The Generic REST adapter will handle JSON response by transforming the JSON string into an XML string to allows the use of XPath. The root element of the generated XML will be set to <root>.
+The transformation to XML will be trigered if the Content-Type HTTP header is set to application/json
+* default: //root/token
 
 ## HTTP_HEADER
 Use this to list the HTTP header to pass to the API HTTP requests.
@@ -45,7 +53,7 @@ For supporting a token based authentication REST API, the configuration variable
 * SIGNIN_REQ_PATH : /depend/on/your/API
 * This configuration will use the HTTP authentication header 'Authorization: Bearer'
 
-## no authentication
+## No authentication
 For supporting API that don't require any authentication, you should set 
 AUTH_MODE : ignore-auth
 
