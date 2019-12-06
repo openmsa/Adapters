@@ -31,13 +31,12 @@ main() {
 
 da_install() {
 	DA_DIR=$1
-	[ -d "$DA_DIR" ] || \
+	if [ ! -d "$DA_DIR" ]; then
 		fatal "device-adaptor dir not found: $DA_DIR"
-	
+	fi
 	CONF_DIR=$2
-	if [ -z "$CONF_DIR" ]
-	then
-		$CONF_DIR="conf"
+	if [ -z "$CONF_DIR" ]; then
+		CONF_DIR="conf"
 	fi
 	[ -d "$DA_DIR/$CONF_DIR" ] || \
 		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
