@@ -184,11 +184,16 @@ class rest_generic_command extends generic_command {
 			debug_dump ( $operation, "DELETE CONF\n" );
 			$xpath = trim ( $delete->evaluate_xpath () );
 			debug_dump ( $xpath, "DELETE XPATH\n" );
-			if (! empty ( $operation )) {
-				$conf = $operation . '##' . $xpath;
-				$this->configuration .= "{$conf}\n";
-				$SMS_RETURN_BUF .= "{$conf}\n";
-			}
+		
+			if (! empty ( $operation )) {                             
+                             $conf = $operation . '##' . $xpath;
+                             $xml_conf = trim($delete->evaluate_xml());
+                             $xml_conf_str = str_replace("\n", '', $xml_conf);
+                             $conf .= "' -d'".$xml_conf_str;
+                                
+                             $this->configuration .= "{$conf}\n";
+                             $SMS_RETURN_BUF .= "{$conf}\n";
+                        }
 		}
 		return SMS_OK;
 	}
