@@ -15,6 +15,7 @@ class DeviceConnection extends GenericConnection {
 	public $http_header_list;
 	public $protocol;
 	public $auth_mode;
+	public $conn_timeout;
 	
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -87,7 +88,6 @@ class DeviceConnection extends GenericConnection {
 	public function send($origin, $rest_cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
-		$delay = EXPECT_DELAY / 1000;
 		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
 		$http_op = $cmd_list[0];
 		$rest_path = "";
@@ -110,7 +110,7 @@ class DeviceConnection extends GenericConnection {
 			$headers .= " -H '{$H}'";
 		}
 		
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} {$headers} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
@@ -246,10 +246,16 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	echo "rest_generic_connect: setting HTTP header to: ".print_r($sms_sd_ctx->http_header_list, true)."\n";
 	
 	$sms_sd_ctx->protocol = "https";
-	if (isset($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE)) {
+	if (isset($sd->SD_CONFIGVAR_list['PROTOCOL'])) {
 		$sms_sd_ctx->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
 	}	
 	echo  "rest_generic_connect: setting HTTP protocol to: {$sms_sd_ctx->protocol}\n";
+
+	$sms_sd_ctx->conn_timeout = EXPECT_DELAY / 1000;
+	if (isset($sd->SD_CONFIGVAR_list['CONN_TIMEOUT'])) {
+		$sms_sd_ctx->conn_timeout=trim($sd->SD_CONFIGVAR_list['CONN_TIMEOUT']->VAR_VALUE);
+	}
+	echo  "rest_generic_connect: setting HTTP timeout to: {$sms_sd_ctx->conn_timeout}\n";
 	
 	try
 	{

@@ -60,3 +60,8 @@ AUTH_MODE : ignore-auth
 Important: by default the device credential are mandatory in the device creation/update form.
 You need to input some dummy credentials that will be ignored by the adapter.
 
+## Maximum time allowed for HTTP connection and transfer
+For customising the Maximum time allowed for the HTTP connection and transfer
+The default value is set to 50 seconds.
+CONN_TIMEOUT : <an integer>
+
