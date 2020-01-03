@@ -227,13 +227,17 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
 		$sms_sd_ctx->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
-		if (!isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
-			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var TOKEN_XPATH" , ERR_SD_CMDFAILED);
+		echo  "rest_generic_connect: setting SIGNIN_REQ_PATH to: {$sms_sd_ctx->sign_in_req_path}\n";
+
+		if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
+			$sms_sd_ctx->token_xpath = $sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE;
 		}
-		$sms_sd_ctx->token_xpath = $sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE;
-		if (isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
-			$sms_sd_ctx->auth_header = $sd->SD_CONFIGVAR_list['AUTH_HEADER']->VAR_VALUE;
+		echo  "rest_generic_connect: setting TOKEN_XPATH to: {$sms_sd_ctx->token_xpath}\n";
+
+		if (!isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
+			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var AUTH_HEADER" , ERR_SD_CMDFAILED);
 		}
+		$sms_sd_ctx->auth_header = $sd->SD_CONFIGVAR_list['AUTH_HEADER']->VAR_VALUE;
 		echo  "rest_generic_connect: setting authentication header to: {$sms_sd_ctx->auth_header}\n";
 	} 
 	
