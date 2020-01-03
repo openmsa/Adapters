@@ -1,12 +1,4 @@
 <?php
-/*
- * Version: $Id$
-* Created: Sep 12, 2011
-* Available global variables
-*/
-
-// Enter Script description here
-
 
 require_once 'smsd/sms_common.php';
 require_once load_once('rest_generic', 'rest_generic_connect.php');
