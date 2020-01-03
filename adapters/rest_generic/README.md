@@ -17,7 +17,6 @@ Use this configuration variable to select the authentication scheme: no authenti
 Use this configuration variable to set the HTTP header to use for setting the authentication token.
 This configuration variable will only be used if AUTH_MODE has been set to **token**.
 * values: 'Authorization: Bearer',  'X-chkp-sid',...
-* default: 'Authorization: Bearer'
 
 Important: many REST API are using custom, specific authorization header, use this configuration to set the one required by the REST API.
 
