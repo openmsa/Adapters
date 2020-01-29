@@ -98,7 +98,7 @@ update_models_properties() {
 
 	fixup_no_newline_at_eof $target_file
 
-	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> $target_file
+	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,1,1,0,0,1,0,1,0,1,1,U,0,1' >> $target_file
 
 }
 
