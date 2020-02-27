@@ -100,7 +100,7 @@ class DeviceConnection extends GenericConnection {
 		
 		if ($this->auth_mode == "BASIC") {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		} else if ($this->auth_mode == "token" && isset($this->key)) {
+		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H}: {$this->key}'";
 		}
@@ -178,13 +178,18 @@ class TokenConnection extends DeviceConnection {
 	public function do_connect() {
 		unset ( $this->key );
 		
-		$data = array (
-				"username" => $this->sd_login_entry,
-				"password" => $this->sd_passwd_entry 
-		);
+		$data = "";
+		if($this->auth_mode != "auth-key")
+		{
+			$data = array (
+					"username" => $this->sd_login_entry,
+					"password" => $this->sd_passwd_entry 
+			);
+			
+		}
 		
+	
 		$data = json_encode ( $data );
-		
 		$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
 		//debug_dump($result, "do_connect result: \n");
@@ -212,9 +217,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	$auth_mode = "BASIC";
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token") {
+		if ($auth_mode == "token" || $auth_mode == "auth-key") {
 			$class = "TokenConnection";
-		}
+		}		
+
 	}
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
@@ -222,7 +228,7 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	$sms_sd_ctx->auth_mode = $auth_mode;
 	
 	
-	if ($sms_sd_ctx->auth_mode == "token") {
+	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" ) {
 		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
