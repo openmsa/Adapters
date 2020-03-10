@@ -71,9 +71,13 @@ Example:
 ```
 
 ###### Model
+The custom folder can be created under /opt/ubi-jentreprise/resources/templates/conf/device/custom, with models.properties, modelFamilies.properties or manufacturers.properties....with ncuser rights
+
+It allows to override the default files delivered by jentreprise RPM, subsequent upgrades will not modifiy this custom files.
+
 To add a new model, edit 
 ```sh
-/opt/ubi-jentreprise/resources/templates/conf/device/models.properties
+/opt/ubi-jentreprise/resources/templates/conf/device/custom/models.properties
 ```
 There are 16 fields:
 - model id: must be unique and superior to 10000
