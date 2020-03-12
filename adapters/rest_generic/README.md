@@ -9,8 +9,9 @@ Use this configuration to select the protocol for the REST API requets
 * default: https 
 
 ## AUTH_MODE
-Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication
-* values: no-auth, BASIC, token
+Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication or token based authentication with no login
+values required
+* values: no-auth, BASIC, token, auth-key
 * default: BASIC 
 
 ## AUTH_HEADER
