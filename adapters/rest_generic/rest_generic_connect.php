@@ -176,11 +176,12 @@ class TokenConnection extends DeviceConnection {
 	public $auth_header;
 	
 	public function do_connect() {
-		unset ( $this->key );
-		
+
 		$data = "";
 		if($this->auth_mode != "auth-key")
 		{
+			unset ( $this->key );
+
 			$data = array (
 					"username" => $this->sd_login_entry,
 					"password" => $this->sd_passwd_entry 
@@ -194,7 +195,11 @@ class TokenConnection extends DeviceConnection {
 		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
 		//debug_dump($result, "do_connect result: \n");
 		// extract token
-		$this->key = (string)($result->xpath($this->token_xpath)[0]);
+		if($this->auth_mode != "auth-key")
+		{
+			$this->key = (string)($result->xpath($this->token_xpath)[0]);
+		}	
+
 		debug_dump($this->key, "TOKEN\n");
 	}
 }
@@ -221,6 +226,11 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 			$class = "TokenConnection";
 		}		
 
+	}
+
+
+	if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
+		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
 	}
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
