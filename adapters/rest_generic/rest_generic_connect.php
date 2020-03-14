@@ -5,6 +5,7 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
+require_once 'pfsense.php';
 require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
@@ -198,7 +199,7 @@ class TokenConnection extends DeviceConnection {
 		$data = "";
 		
 		
-		if($this->auth_mode != "auth-key")
+		if($this->auth_mode != "auth-key" && $this->auth_mode != "pfsense" )
 		{
 			unset ( $this->key );
 
@@ -216,6 +217,7 @@ class TokenConnection extends DeviceConnection {
 			$this->key = (string)($result->xpath($this->token_xpath)[0]);
 			
         }
+
 		debug_dump($this->key, "TOKEN\n");
 	}
 }
@@ -238,10 +240,9 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	$auth_mode = "BASIC";
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" || $auth_mode == "auth-key") {
+		if ($auth_mode == "token" || $auth_mode == "auth-key" || $auth_mode == "pfsense") {
 			$class = "TokenConnection";
-		}		
-
+		}
 	}
      
     
@@ -250,17 +251,43 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
 	$sms_sd_ctx->auth_mode = $auth_mode;	
-if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
-                $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-$sms_sd_ctx->fqdn = $fqdn;
-        }
+
+
+	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
+        $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
+     	$sms_sd_ctx->fqdn = $fqdn;
+    }
 	
-	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" ) {
-	    	if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-                	$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-                	$sms_sd_ctx->key = $key;
-		}
+		if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key"  || $sms_sd_ctx->auth_mode == "pfsense" ) {
+	    	
+
+			if( $sms_sd_ctx->auth_mode == "pfsense")
+			{
+				$apiKey = ""; 
+				$apiSecret = "";
+				if (isset($sd->SD_CONFIGVAR_list['AUTH_APIKEY'])) {
+			        $apiKey = trim($sd->SD_CONFIGVAR_list['AUTH_APIKEY']->VAR_VALUE);
+			     	
+			    }
+			    if (isset($sd->SD_CONFIGVAR_list['AUTH_APISECRET'])) {
+			        $apiSecret = trim($sd->SD_CONFIGVAR_list['AUTH_APISECRET']->VAR_VALUE);
+			     	
+			    }
+
+			    $key = this->api_request($apiSecret, $apiKey);
+			    $sms_sd_ctx->key = $key;
                 echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
+
+			}
+			else
+			{
+		    	if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
+	               	$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
+	               	$sms_sd_ctx->key = $key;
+                	echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
+	            }
+			}
+		}
 
 		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
@@ -314,6 +341,55 @@ $sms_sd_ctx->fqdn = $fqdn;
 	
 	return SMS_OK;
 }
+
+
+/**
+ * Generate a random string usable for nonce
+ *
+ * @param int $length
+ * @return string
+ */
+private function generate_random_string($length = 8)
+{
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[mt_rand(0, $charactersLength - 1)];
+    }
+
+    return $randomString;
+}
+
+/**
+ * Generate the value to be used for the auth header
+ *
+ * apikey:timestamp:nonce:HASH(apisecret:timestamp:nonce)
+ *
+ * @return string
+ */
+private function generate_auth($apiSecret, $apiKey)
+{
+    $nonce = $this->generate_random_string(8);
+    $timestamp = gmdate("Ymd\ZHis");
+    $hash = hash('sha256', $apiSecret.$timestamp.$nonce);
+
+    return $apiKey.':'.$timestamp.':'.$nonce.':'.$hash;
+}
+
+/**
+ * Perform API request
+ *
+ */
+private function api_request($apiSecret, $apiKey)
+{
+    $auth = $this->generate_auth($apiSecret, $apiKey);
+
+    //$header = "fauxapi-auth: ${auth}";
+
+    return $auth;
+}
+
 
 // ------------------------------------------------------------------------------------------------
 // Disconnect
