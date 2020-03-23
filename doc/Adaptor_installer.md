@@ -50,7 +50,7 @@ This updates the MSA-global configurations files adding the adaptor's info.
 Restart of most MSA services is then required, as per product documentation:
 
 	service restart jboss
-	service restart ses
+	service restart tomcat
 	service restart sms
 
 
