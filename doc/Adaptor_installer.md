@@ -73,8 +73,8 @@ Check existing adaptor properties files e.g. the `f5_bigip` or
 the `vmware_vsphere` adaptors `conf/` sub-directories.  These are
 example sets of properties files:
 
-- [`vmware_vsphere`](../vmware_vsphere/conf)
-- [`f5_bigip`](../f5_bigip/conf)
+- [`vmware_vsphere`](../adapters/vmware_vsphere/conf)
+- [`f5_bigip`](../adapters/f5_bigip/conf)
 
 
 Un-installing
