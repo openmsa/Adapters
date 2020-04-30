@@ -9,14 +9,15 @@ require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
 	
-	public $key;
+	protected $key;
+	protected $header_token;
 	protected $xml_response;
 	protected $raw_xml;
+	protected $instance_id;
 	public $http_header_list;
 	public $protocol;
 	public $auth_mode;
 	public $conn_timeout;
-	public $fqdn;
 	
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -98,17 +99,12 @@ class DeviceConnection extends GenericConnection {
 		
 		$headers = "";
 		$auth = "";
-	
-		echo("auth_mode= ".$this->auth_mode."\n");
-                echo("auth_header= ".$this->auth_header."\n");
-                echo("key= ".$this->key."\n");
-
+		
 		if ($this->auth_mode == "BASIC") {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key" || $this->auth_mode == "pfsense") && isset($this->key)) {
+		} else if ($this->auth_mode == "token" && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H}: {$this->key}'";
-	//		echo ("headers= {$headers}\n");
 		}
 		
 		foreach($this->http_header_list as $header) {
@@ -116,27 +112,17 @@ class DeviceConnection extends GenericConnection {
 			$headers .= " -H '{$H}'";
 		}
 		
-		
-
-	
-		if(isset($this->fqdn))
-		{
-			$ip_address = $this->fqdn;
-		}
-		else
-		{
-			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
-		}
-
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -siw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$this->sd_ip_config}:{$this->sd_management_port}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
 			$curl_cmd .= "'{$rest_payload}'";
 		}
 		$curl_cmd .= " && echo";
+	
 		
-		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd);	
+	
 	}
 	
 	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
@@ -145,11 +131,23 @@ class DeviceConnection extends GenericConnection {
 			throw new SmsException ( "Call to API Failed", $ret );
 		}
 		
+		unset($this->header_token);
 		$result = '';
 		foreach ( $output_array as $line ) {
 			if ($line !== 'SMS_OK') {
 				if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
-					$result .= "{$line}\n";
+					if (strpos ( $line, '{' ) === 0) {
+                                        
+						debug_dump($line,"***************** ONLY RESULT****************************\n");
+                                        	$result .= "{$line}\n";
+                                	}
+					
+					if (strpos ( $line, 'X-Auth-Token' ) === 0) {
+
+                                               $this->header_token = str_replace("X-Auth-Token:","",$line);
+                                        }
+ 
+					
 				} else {
 					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
 						$cmd_quote = str_replace ( "\"", "'", $result );
@@ -162,20 +160,28 @@ class DeviceConnection extends GenericConnection {
 		$xml;
 		if (strpos($curl_cmd, "Content-Type: application/json")) {
 			$array = json_decode ( $result, true );
+	/*		if(isset($array['Id'])){
+				$this->instance_id = $array['Id'];
+			}*/
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
 			}
 			
 			// call array to xml conversion function
+			debug_dump($array,"=============Array================\n");
 			$xml = arrayToXml ( $array, '<root></root>' );
 		} else {
 			$xml = new SimpleXMLElement($result);
 		}
-		$this->xml_response = $xml; // new SimpleXMLElement($result);
+
+//		debug_dump($xml,"****************XML*******************zn");
+		$this->xml_response = $xml;//new SimpleXMLElement($result);
 		$this->raw_json = $result;
 		
 		$this->raw_xml = $this->xml_response->asXML ();
 		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
+
+//		$ret = exec_local ( $origin, $curl_logout, $output_array );
 	}
 	
 }
@@ -194,30 +200,56 @@ class TokenConnection extends DeviceConnection {
 	public $auth_header;
 	
 	public function do_connect() {
+		unset ( $this->key );
 
-		$data = "";
-		
-		
-		if($this->auth_mode != "auth-key" && $this->auth_mode != "pfsense")
-		{
-			unset ( $this->key );
+                $username = "UserName";
+                $password = "Password";
+                if(isset($sd->SD_CONFIGVAR_list['LOGIN_UNAME'])) {
+                        $username = $sd->SD_CONFIGVAR_list['LOGIN_UNAME']->VAR_VALUE;
+                }
 
-			$data = array (
-					"username" => $this->sd_login_entry,
-					"password" => $this->sd_passwd_entry 
-			);		
+                if(isset($sd->SD_CONFIGVAR_list['LOGIN_PASS'])) {
+                        $password = $sd->SD_CONFIGVAR_list['LOGIN_PASS']->VAR_VALUE;
+                }
+
+                $data = array (
+                                $username => $this->sd_login_entry,
+                                $password => $this->sd_passwd_entry
+                );
 		
-	
-			$data = json_encode ( $data );
-			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
-			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
-			//debug_dump($result, "do_connect result: \n");
-			// extract token		
-			$this->key = (string)($result->xpath($this->token_xpath)[0]);
-			
-        }
+		
+		$data = json_encode ( $data );
+		
+		$cmd = "POST#{$this->sign_in_req_path}#{$data}";
+		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
+		//debug_dump($result, "do_connect result: \n");
+		// extract token
+		$temp = $this->header_token;
+		$this->key = $temp;
 		debug_dump($this->key, "TOKEN\n");
+		$this->instance_id = (string)($result->xpath("Id")[0]);
+		debug_dump($this->instance_id, "Instance ID\n");
+
 	}
+	public function do_disconnect()
+	{
+
+            $instance_id = 1;
+            if(isset($this->instance_id))
+            {
+                $instance_id = $this->instance_id;
+            }
+
+        $cmd = "DELETE#/redfish/v1/SessionService/Sessions/".$instance_id ;
+         debug_dump($cmd, "**********CMD DISCONNECTED***********");
+
+        $result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
+        //debug_dump($result, "do_connect result: \n");
+        // extract token
+       debug_dump($result, "********************* RESULT DISCONNECT********************\n");
+
+	
+	}	
 }
 
 // return false if error, true if ok
@@ -238,56 +270,17 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	$auth_mode = "BASIC";
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" || $auth_mode == "auth-key"|| $auth_mode == "pfsense" ) {
+		if ($auth_mode == "token") {
 			$class = "TokenConnection";
-		}		
-
+		}
 	}
-     
-    
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
-
 	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
-	$sms_sd_ctx->auth_mode = $auth_mode;	
-if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
-                $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-$sms_sd_ctx->fqdn = $fqdn;
-        }
+	$sms_sd_ctx->auth_mode = $auth_mode;
 	
-	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "pfsense"  ) {
-		
-		if( $sms_sd_ctx->auth_mode == "pfsense")
-		{
-		   $apiKey = ""; 
-		   $apiSecret = "";
-		   if (isset($sd->SD_CONFIGVAR_list['AUTH_APIKEY'])) {
-		        $apiKey = trim($sd->SD_CONFIGVAR_list['AUTH_APIKEY']->VAR_VALUE);
-		    }
-
-		    if (isset($sd->SD_CONFIGVAR_list['AUTH_APISECRET'])) {
-		        $apiSecret = trim($sd->SD_CONFIGVAR_list['AUTH_APISECRET']->VAR_VALUE);
-		    }
-
-		    $key = generate_auth($apiSecret, $apiKey);
-		    
-		    $sms_sd_ctx->key = $key;
-                     echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-		}
-		else
-		{
-	    	   if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-               		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-               		$sms_sd_ctx->key = $key;
-            	   }
-            	   echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-		}
-	    /*	if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-                	$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-                	$sms_sd_ctx->key = $key;
-		}
-                echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-*/
+	
+	if ($sms_sd_ctx->auth_mode == "token") {
 		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
@@ -346,29 +339,22 @@ $sms_sd_ctx->fqdn = $fqdn;
 function rest_generic_disconnect() {
 	global $sms_sd_ctx;
 	$sms_sd_ctx = null;
+/*	debug_dump("#################IN DISCO########################");
+	$instance_id = 1;
+	if(isset($this->instance_id))
+	{
+		$instance_id = $this->instance_id;		
+	}		
+		
+	$cmd = "DELETE#{$this->sign_in_req_path}/".$instance_id ;
+	 debug_dump($cmd, "*********************DISCONNECT********************\n");
+
+	$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
+	//debug_dump($result, "do_connect result: \n");
+	// extract token
+	debug_dump($result, "*********************DISCONNECT********************\n");		
+*/
 	return SMS_OK;
 }
 
-
-function generate_random_string($length = 8)
-{
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[mt_rand(0, $charactersLength - 1)];
-    }
-
-    return $randomString;
-}
-
-
-function generate_auth($apiSecret, $apiKey)
-{
-    $nonce = generate_random_string(8);
-    $timestamp = gmdate("Ymd\ZHis");
-    $hash = hash('sha256', $apiSecret.$timestamp.$nonce);
-
-    return $apiKey.':'.$timestamp.':'.$nonce.':'.$hash;
-}
 ?>
