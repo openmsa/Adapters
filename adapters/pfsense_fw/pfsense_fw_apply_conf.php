@@ -98,8 +98,8 @@ debug_dump($configuration, 'CONFIG TO APPLY');
 
   $src = $local_file_name;
   $dst = "/cf/conf/config.xml";
-
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d /$dst -l $login -a $ipaddr -p $passwd", $output);
+ $scp_cmd="/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l root -p '".$passwd."'  -a $ipaddr";
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, $scp_cmd, $output);
   unlink($local_file_name);
 
   if ($ret_scp !== SMS_OK)
@@ -127,7 +127,7 @@ debug_dump($configuration, 'CONFIG TO APPLY');
   }
 
   // Save the configuration applied on the router
-  save_result_file($xmlConfig, 'conf.applied');
+  save_result_file($configuration, 'conf.applied');
 
   $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "/etc/rc.reload_all");
 /*

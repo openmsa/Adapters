@@ -90,6 +90,10 @@ class pfsense_fw_configuration
 echo "In get running function\n";
 	$prompt = $sms_sd_ctx->getPrompt();
 	$buffer = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'cat /cf/conf/config.xml', $prompt);
+	//Remove the first line of the buffer
+	$buffer = preg_replace('/^.+\n/', '', $buffer);
+	//Remove the last line of the buffer as well
+	$buffer = substr($buffer, 0, strrpos($buffer, "\n"));
 	return $buffer;
   }
 
