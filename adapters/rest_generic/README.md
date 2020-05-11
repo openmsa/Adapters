@@ -53,7 +53,7 @@ For supporting a token based authentication REST API, the configuration variable
 * SIGNIN_REQ_PATH : /depend/on/your/API
 * This configuration will use the HTTP authentication header 'Authorization: Bearer'
 
-## Token based authentication for Juniper Northstar API v2
+## Token based authentication for Juniper Northstar APIv2
 jns_api_v2 mode provides vendor specific data structure
 -d '{"grant_type":"password","username":"'${username}'","password":"'${password}'"}'
 subsequent assess should have the following HTTP header set ex.: "Authorization: Bearer zRApShiOxoCcBiFGPRhISKAbaUACWQBRqMPmaq40/NU=" 
