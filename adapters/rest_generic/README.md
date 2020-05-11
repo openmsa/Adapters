@@ -11,7 +11,7 @@ Use this configuration to select the protocol for the REST API requets
 ## AUTH_MODE
 Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication or token based authentication with no login
 values required
-* values: no-auth, BASIC, token, auth-key
+* values: no-auth, BASIC, token, auth-key, jns_api_v2
 * default: BASIC 
 
 ## AUTH_HEADER
@@ -52,6 +52,15 @@ For supporting a token based authentication REST API, the configuration variable
 * AUTH_MODE : token
 * SIGNIN_REQ_PATH : /depend/on/your/API
 * This configuration will use the HTTP authentication header 'Authorization: Bearer'
+
+## Token based authentication for Juniper Northstar API v2
+jns_api_v2 mode provides vendor specific data structure
+-d '{"grant_type":"password","username":"'${username}'","password":"'${password}'"}'
+subsequent assess should have the following HTTP header set ex.: "Authorization: Bearer zRApShiOxoCcBiFGPRhISKAbaUACWQBRqMPmaq40/NU=" 
+* AUTH_MODE : jns_api_v2
+* AUTH_HEADER : Authorization: Bearer
+* SIGNIN_REQ_PATH : /oauth2/token
+* TOKEN_XPATH : //root/access_token
 
 ## No authentication
 For supporting API that don't require any authentication, you should set 
