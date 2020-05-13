@@ -11,7 +11,7 @@ Step 1: clone the Adaptors git repository on your MSActivator
 ------ 
 ```
 # cd /opt/
-# git clone git@github.com:openmsa/Adaptors.git 
+# git clone https://github.com/openmsa/Adaptors.git
 ```
 
 Step 2: use a symlink to install the source code of the adaptor
