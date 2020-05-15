@@ -27,18 +27,10 @@ require_once "$db_objects";
 $network = get_network_profile();
 $SD = &$network->SD;
 
-$port = $adminpasswd; // NOTE: we use passed parameter "adminpasswd" to pass port in ZTD mode
-if (empty($port))
-{
-  // normal provisioning (not ZTD)
-  if ($SD->SD_MANAGEMENT_PORT !== 0)
-  {
+if ($SD->SD_MANAGEMENT_PORT !== 0) {
     $port = $SD->SD_MANAGEMENT_PORT;
-  }
-  else
-  {
+} else {
     $port = 22;
-  }
 }
 
 // -------------------------------------------------------------------------------------
