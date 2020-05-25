@@ -236,24 +236,26 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	
 	$class = "GenericBASICConnection";
 	$auth_mode = "BASIC";
-	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
-		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" || $auth_mode == "auth-key"|| $auth_mode == "pfsense" ) {
-			$class = "TokenConnection";
-		}		
 
-	}
-     
-    
+	if (isset($sd->SD_CONFIGVAR_list['AUTH_CLASS'])) {
+		$class = trim($sd->SD_CONFIGVAR_list['AUTH_CLASS']->VAR_VALUE);
+	} else {	
+		if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
+			$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
+			if ($auth_mode == "token" || $auth_mode == "auth-key"|| $auth_mode == "pfsense" ) {
+				$class = "TokenConnection";
+			}		
+		}
+    }
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
 
 	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
 	$sms_sd_ctx->auth_mode = $auth_mode;	
-if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
-                $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-$sms_sd_ctx->fqdn = $fqdn;
-        }
+	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
+        $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
+		$sms_sd_ctx->fqdn = $fqdn;
+    }
 	
 	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "pfsense"  ) {
 		
@@ -282,12 +284,7 @@ $sms_sd_ctx->fqdn = $fqdn;
             	   }
             	   echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
 		}
-	    /*	if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-                	$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-                	$sms_sd_ctx->key = $key;
-		}
-                echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-*/
+
 		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
