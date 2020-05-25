@@ -8,8 +8,7 @@ require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
-
-	public $key;
+  
 	protected $xml_response;
 	protected $raw_xml;
 	public $http_header_list;
@@ -101,11 +100,13 @@ class DeviceConnection extends GenericConnection {
 
 		echo("auth_mode= ".$this->auth_mode."\n");
                 echo("auth_header= ".$this->auth_header."\n");
-                echo("key= ".$this->key."\n");
+		if (isset($this->key)) {
+	                echo("key= ".$this->key."\n");
+		}
 
 		if ($this->auth_mode == "BASIC") {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key" || $this->auth_mode == "pfsense") && isset($this->key)) {
+		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H}: {$this->key}'";
 	//		echo ("headers= {$headers}\n");
@@ -196,13 +197,13 @@ class TokenConnection extends DeviceConnection {
 	public $sign_in_req_path;
 	public $token_xpath = '//root/token';
 	public $auth_header;
-
+	public $key;
+	
 	public function do_connect() {
 
 		$data = "";
-
-
-		if($this->auth_mode != "auth-key" && $this->auth_mode != "pfsense")
+		
+		if($this->auth_mode != "auth-key")
 		{
 			unset ( $this->key );
 
@@ -250,26 +251,27 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	$class = "GenericBASICConnection";
 	$auth_mode = "BASIC";
+
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" || $auth_mode == "auth-key"|| $auth_mode == "pfsense" || $auth_mode == "jns_api_v2") {
+		if ($auth_mode == "token" || $auth_mode == "auth-key" || $auth_mode == "jns_api_v2") {
 			$class = "TokenConnection";
 		}
 
 	}
 
-
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
 
 	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
-	$sms_sd_ctx->auth_mode = $auth_mode;
-if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
+
+  $sms_sd_ctx->auth_mode = $auth_mode;
+  if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
                 $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-$sms_sd_ctx->fqdn = $fqdn;
+  $sms_sd_ctx->fqdn = $fqdn;
         }
 
-	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "pfsense" || $sms_sd_ctx->auth_mode == "jns_api_v2") {
+	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "jns_api_v2") {
 
 		if( $sms_sd_ctx->auth_mode == "pfsense")
 		{
@@ -278,13 +280,7 @@ $sms_sd_ctx->fqdn = $fqdn;
 		   if (isset($sd->SD_CONFIGVAR_list['AUTH_APIKEY'])) {
 		        $apiKey = trim($sd->SD_CONFIGVAR_list['AUTH_APIKEY']->VAR_VALUE);
 		    }
-
-		    if (isset($sd->SD_CONFIGVAR_list['AUTH_APISECRET'])) {
-		        $apiSecret = trim($sd->SD_CONFIGVAR_list['AUTH_APISECRET']->VAR_VALUE);
-		    }
-
 		    $key = generate_auth($apiSecret, $apiKey);
-
 		    $sms_sd_ctx->key = $key;
                      echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
 		}
@@ -296,22 +292,14 @@ $sms_sd_ctx->fqdn = $fqdn;
             	   }
             	   echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
 		}
-	    /*	if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-                	$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-                	$sms_sd_ctx->key = $key;
-		}
-                echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-*/
+
 		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
 		$sms_sd_ctx->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
 		echo  "rest_generic_connect: setting SIGNIN_REQ_PATH to: {$sms_sd_ctx->sign_in_req_path}\n";
 
-		if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
-			$sms_sd_ctx->token_xpath = $sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE;
-		}
-		echo  "rest_generic_connect: setting TOKEN_XPATH to: {$sms_sd_ctx->token_xpath}\n";
+
 
 		if (!isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var AUTH_HEADER" , ERR_SD_CMDFAILED);
