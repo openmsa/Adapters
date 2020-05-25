@@ -265,41 +265,25 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
 
-  $sms_sd_ctx->auth_mode = $auth_mode;
-  if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
-                $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-  $sms_sd_ctx->fqdn = $fqdn;
-        }
+  	$sms_sd_ctx->auth_mode = $auth_mode;
+  	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
+        $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
+  		$sms_sd_ctx->fqdn = $fqdn;
+    }
 
 	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "jns_api_v2") {
 
-		if( $sms_sd_ctx->auth_mode == "pfsense")
-		{
-		   $apiKey = "";
-		   $apiSecret = "";
-		   if (isset($sd->SD_CONFIGVAR_list['AUTH_APIKEY'])) {
-		        $apiKey = trim($sd->SD_CONFIGVAR_list['AUTH_APIKEY']->VAR_VALUE);
-		    }
-		    $key = generate_auth($apiSecret, $apiKey);
-		    $sms_sd_ctx->key = $key;
-                     echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-		}
-		else
-		{
-	    	   if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-               		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-               		$sms_sd_ctx->key = $key;
-            	   }
-            	   echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-		}
+	    if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
+    		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
+       		$sms_sd_ctx->key = $key;
+   	   	}
+   	    echo  "rest_generic_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
 
 		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
 		}
 		$sms_sd_ctx->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
 		echo  "rest_generic_connect: setting SIGNIN_REQ_PATH to: {$sms_sd_ctx->sign_in_req_path}\n";
-
-
 
 		if (!isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
 			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var AUTH_HEADER" , ERR_SD_CMDFAILED);
