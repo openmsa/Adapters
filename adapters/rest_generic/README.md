@@ -8,6 +8,11 @@ Use this configuration to select the protocol for the REST API requets
 * values: http, https
 * default: https 
 
+## MANAGEMENT_PORT
+Use this configuration to set a specific management port. This is especially useful when the managed entity was created with the REST API and port couldn't be set and was left to the default which is 22.
+
+Most common port are 80 or 443
+
 ## AUTH_MODE
 Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication or token based authentication with no login
 values required
