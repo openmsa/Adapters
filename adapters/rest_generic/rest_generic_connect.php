@@ -226,7 +226,7 @@ class TokenConnection extends DeviceConnection {
 			$data = json_encode ( $data );
 			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
-			//debug_dump($result, "do_connect result: \n");
+		debug_dump($this->token_xpath, "do_connect result: \n");
 			// extract token
 			$this->key = (string)($result->xpath($this->token_xpath)[0]);
 
@@ -272,8 +272,12 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
   	$sms_sd_ctx->auth_mode = $auth_mode;
   	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
         $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-  		$sms_sd_ctx->fqdn = $fqdn;
+                $sms_sd_ctx->fqdn = $fqdn;
     }
+        if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
+        	$token_xpath = trim($sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE);
+  		$sms_sd_ctx->token_xpath = $token_xpath;
+    	}
 
 	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "jns_api_v2") {
 
