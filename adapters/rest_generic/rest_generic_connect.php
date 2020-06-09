@@ -21,7 +21,7 @@ class DeviceConnection extends GenericConnection {
 	{
 		$network = get_network_profile();
 		$SD = &$network->SD;
-
+		echo("**** port: ".$port);
 		$this->sd_ip_config = empty($ip) ? $SD->SD_IP_CONFIG : $ip;
 		$this->sd_login_entry = empty($login) ? $SD->SD_LOGIN_ENTRY : $login;
 		$this->sd_passwd_entry = empty($passwd) ? $SD->SD_PASSWD_ENTRY : $passwd;
@@ -259,11 +259,15 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		}
 
 	}
+        echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
+
+	if (isset($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT'])) {
+                $port_to_use = trim($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT']->VAR_VALUE);
+                echo "rest_generic_connect: using management port: " . $port_to_use . "\n";
+	}
 
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
-	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, $port_to_use );
-
-	echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
+	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, "", $port_to_use );
 
   	$sms_sd_ctx->auth_mode = $auth_mode;
   	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {

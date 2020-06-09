@@ -53,6 +53,6 @@ restart the MSA portal
 ```
 alternatively on MSA-2.0 (Centos 7.5)
 ```
-# systemctl restart wildfly
-# systemctl restart tomcat
+# service wildfly restart
+# service tomcat restart
 ```
