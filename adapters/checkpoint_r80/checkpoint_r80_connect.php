@@ -17,8 +17,10 @@ class DeviceConnection extends GenericConnection
     public function do_connect()
     {
         unset($this->key);
-        $data = array( 'user'=> $this->sd_login_entry,
-            'password'=> $this->sd_passwd_entry
+        $data = array( 
+	    'user'=> $this->sd_login_entry,
+            'password'=> $this->sd_passwd_entry,
+	'continue-last-session' => 'true'
         );
         
         $data = json_encode($data);
@@ -114,7 +116,7 @@ class DeviceConnection extends GenericConnection
         
         // FIN AJOUT
         $this->raw_xml = $this->xml_response->asXML();
-        debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
+        //debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
     }
     
     // ------------------------------------------------------------------------------------------------
@@ -209,7 +211,9 @@ function checkpoint_r80_disconnect()
     
     global $sms_sd_ctx;
     $publish_cmd = "publish' -d '{}";
+    sleep(3);
     $publish = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
+    sleep(8);
     $result =  $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     $sms_sd_ctx = null;
     return SMS_OK;
