@@ -48,9 +48,9 @@ class NetconfGenericsshConnection extends GenericConnection
     {
       $this->expect(__FILE__.':'.__LINE__, $tab, $cnx_timeout * 1000);
     }
-    catch (SmsExcpetion $e)
+    catch (SmsException $e)
     {
-      throw new SmsExpection("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
+      throw new SmsException("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
     }
 
     $this->do_store_prompt();
@@ -60,6 +60,9 @@ class NetconfGenericsshConnection extends GenericConnection
     $tab[1] = 'passphrase';
     $tab[2] = '(yes/no)?';
     $tab[3] = "]]>]]>";
+
+    //Adding another expect to wait for one of the above prompts
+    $this->expect(__FILE__.':'.__LINE__, $tab, $cnx_timeout * 1000);
 
     foreach ($tab as $t)
     {
