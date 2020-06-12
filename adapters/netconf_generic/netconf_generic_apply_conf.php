@@ -75,8 +75,10 @@ function netconf_generic_apply_conf($configuration) {
 
 function analyze_answer($answer) {
 	sms_log_debug(15,__FILE__ . ':' . __LINE__ . "--ANALYZE ANSWER--\n");
-	//check if the answer contains ><ok/></rpc-reply>
+	//Strip off line breaks in the $answer
+	$answer=str_replace(array("\n", "\r"), '', $answer);
 	sms_log_debug(15,__FILE__ . ':' . __LINE__ . "Received answer: ".$answer."\n");
+	//check if the answer contains ><ok/></rpc-reply>
 	if(strpos($answer, '><ok/></rpc-reply>') !== false){
 		sms_log_debug(15,__FILE__ . ':' . __LINE__ . "Answer contains OK -> return true\n");
 		return true;
