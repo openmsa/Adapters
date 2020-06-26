@@ -5,8 +5,8 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('virtuora_nc', 'adva_nc_connect.php');                                          
-require_once load_once('virtuora_nc', 'adva_nc_apply_conf.php');
+require_once load_once('adva_nc', 'adva_nc_connect.php');                                          
+require_once load_once('adva_nc', 'adva_nc_apply_conf.php');
 
 require_once "$db_objects";
 
