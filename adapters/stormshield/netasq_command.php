@@ -13,9 +13,9 @@ require_once load_once('smsd', 'cmd_create.php');
 require_once load_once('smsd', 'cmd_read.php');
 require_once load_once('smsd', 'cmd_update.php');
 require_once load_once('smsd', 'cmd_delete.php');
-require_once load_once('netasq', 'cmd_import.php');
+require_once load_once('stormshield', 'cmd_import.php');
 require_once load_once('smsd', 'cmd_list.php');
-require_once load_once('netasq', 'adaptor.php');
+require_once load_once('stormshield', 'adaptor.php');
 
 require_once load_once('smsd', 'generic_command.php');
 class netasq_command extends generic_command

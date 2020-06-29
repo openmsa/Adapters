@@ -7,9 +7,9 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/net_common.php';
 require_once 'smsd/pattern.php';
 
-require_once load_once('netasq', 'nsrpc.php');
-require_once load_once('netasq', 'netasq_connect.php');
-require_once load_once('netasq', 'smarty_functions.php');
+require_once load_once('stormshield', 'nsrpc.php');
+require_once load_once('stormshield', 'netasq_connect.php');
+require_once load_once('stormshield', 'smarty_functions.php');
 
 require_once "$db_objects";
 

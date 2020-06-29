@@ -2,9 +2,9 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('netasq', 'netasq_connect.php');
-require_once load_once('netasq', 'netasq_configuration.php');
-require_once load_once('netasq', 'apply_errors.php');
+require_once load_once('stormshield', 'netasq_connect.php');
+require_once load_once('stormshield', 'netasq_configuration.php');
+require_once load_once('stormshield', 'apply_errors.php');
 require_once "$db_objects";
 
 global $sms_sd_ctx;

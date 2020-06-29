@@ -13,7 +13,7 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('netasq', 'netasq_configuration.php');
+require_once load_once('stormshield', 'netasq_configuration.php');
 
 $status_type = 'LICENSE';
 

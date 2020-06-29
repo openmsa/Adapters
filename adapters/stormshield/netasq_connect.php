@@ -15,7 +15,7 @@ require_once 'smsd/expect.php';
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_connection.php';
 
-require_once load_once('netasq', 'common.php');
+require_once load_once('stormshield', 'common.php');
 
 require_once "$db_objects";
 

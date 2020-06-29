@@ -11,8 +11,8 @@
 
 // Transfer the configuration file on the router
 require_once 'smsd/sms_common.php';
-require_once load_once('netasq', 'common.php');
-require_once load_once('netasq', 'apply_errors.php');
+require_once load_once('stormshield', 'common.php');
+require_once load_once('stormshield', 'apply_errors.php');
 
 require_once "$db_objects";
 

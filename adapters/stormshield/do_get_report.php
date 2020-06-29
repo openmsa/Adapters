@@ -14,8 +14,8 @@
 
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
-require_once load_once('netasq', 'netasq_connect.php');
-require_once load_once('netasq', 'nsrpc.php');
+require_once load_once('stormshield', 'netasq_connect.php');
+require_once load_once('stormshield', 'nsrpc.php');
 
 $report_stages = array(
     0 => array('cmd' => 'MONITOR GETSA', 'descr' => 'Ipsec SAD', 'expect' => 'SRPClient>', 'encoded' => false),

@@ -19,7 +19,7 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('netasq', 'netasq_configuration.php');
+require_once load_once('stormshield', 'netasq_configuration.php');
 
 $ret = sms_sd_lock($sms_csp, $sms_sd_info);
 if ($ret !== 0)

@@ -13,8 +13,8 @@
 require_once 'smsd/sms_user_message.php';
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
-require_once load_once('netasq', 'common.php');
-require_once load_once('netasq', 'netasq_configuration.php');
+require_once load_once('stormshield', 'common.php');
+require_once load_once('stormshield', 'netasq_configuration.php');
 
 $json_msg = array();
 
