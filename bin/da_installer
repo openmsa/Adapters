@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x
+set -x
 
 PROG=$(basename $0)
 
@@ -87,6 +87,8 @@ update_manufacturers_properties() {
   	[ -d "$JENTREPRISE_CONF/custom/" ] || \
 	mkdir "$JENTREPRISE_CONF/custom/"
 
+	[ ! -f $target_file ] && echo > $target_file
+
 	grep -q "^$MAN_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
@@ -103,6 +105,8 @@ update_models_properties() {
 	
 	[ -d "$JENTREPRISE_CONF/custom/" ] || \
         mkdir "$JENTREPRISE_CONF/custom/"
+
+        [ ! -f $target_file ] && echo > $target_file
 
 	grep -q "^$MOD_ID," $target_file && return 0
 
