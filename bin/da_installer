@@ -147,7 +147,7 @@ update_manageLinks_properties() {
 	cat $dafile | grep -e "= *yes" | while read line; do
 		prop=$(sed 's: *=.*::g' <<< "$line")
 		grep -q "$prop" $target_file || \
-			echo "$prop.models = " >> $target_file
+		echo "$prop.models = " >> $target_file
 		sed -i "s:^\($prop.models.*\):\1 $keyname:"  $target_file
 	done
 
@@ -191,6 +191,7 @@ update_repository_properties() {
 
 fixup_no_newline_at_eof() {
   ## ファイル末尾に改行がない場合の対処
+  [ ! -f $1 ] && echo > $1
   /bin/cat "$1" | awk '{print}' > /tmp/msa.$$
   /bin/cp -p /tmp/msa.$$ "$1"
   /bin/rm -f /tmp/msa.$$
