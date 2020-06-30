@@ -93,7 +93,10 @@ update_manufacturers_properties() {
   	[ -d "$JENTREPRISE_CONF/custom/" ] || \
 	mkdir "$JENTREPRISE_CONF/custom/"
 
-	[ ! -f $target_file ] && echo > $target_file
+	if [ ! -f $target_file ]; then
+		echo "id,name,supported"
+		echo > $target_file
+	fi
 
 	grep -q "^$MOD_ID," $default_file && return 0
 	grep -q "^$MAN_ID," $target_file && return 0
@@ -114,7 +117,9 @@ update_models_properties() {
 	[ -d "$JENTREPRISE_CONF/custom/" ] || \
         mkdir "$JENTREPRISE_CONF/custom/"
 
-    [ ! -f $target_file ] && echo > $target_file
+    if [ ! -f $target_file ]; then
+		echo "id,manId,name,type,obsolete,familyId,managed,Utm,proxy,wizard,ztdOverPortConsole,backup,generateTemplate,restore,proxyWeb,category,detailedReportMail,detailedReportFirewall" > $target_file
+	fi
 
 	grep -q "^$MOD_ID," $default_file && return 0
 	grep -q "^$MOD_ID," $target_file && return 0
@@ -181,19 +186,19 @@ update_repository_properties() {
 	keyname=$(toupper $MAN_NAME)
 
 	grep -q "^repository.manufacturer *= *.* $keyname" $target_file || \
-		sed -i 's/^\(repository.manufacturer.*\)/\1'" $keyname/"  $target_file
+	sed -i 's/^\(repository.manufacturer.*\)/\1'" $keyname/"  $target_file
 
 	keyname=$(tolower $MAN_NAME)
 	deviceid="${MAN_ID}-${MOD_ID}"
 
 	grep -q "^repository.model.$keyname" $target_file || \
-		echo "repository.model.$keyname=$deviceid" >> $target_file
+	echo "repository.model.$keyname=$deviceid" >> $target_file
 
 	dafile="$DA_DIR/$CONF_DIR/repository.properties"
 	props="|$(cat $dafile | grep yes | awk '{printf $1 "|"}')"
 
 	grep -q "^repository.access.$keyname" $target_file || \
-		echo "repository.access.$keyname=|$props" >> $target_file
+	echo "repository.access.$keyname=|$props" >> $target_file
 }
 
 
