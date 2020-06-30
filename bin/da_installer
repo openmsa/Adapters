@@ -129,7 +129,7 @@ update_sdExtendedInfo_properties() {
 	keyname="${MAN_NAME}${MOD_NAME}"
 	deviceid="${MAN_ID}-${MOD_ID}"
 
-	grep -q "$keyname" $target_file && return 0
+	grep -q -i "$keyname" $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
 
@@ -145,7 +145,7 @@ update_manageLinks_properties() {
 
 	keyname="${MAN_NAME}${MOD_NAME}"
 
-	grep -q "$keyname" $target_file && return 0
+	grep -q -i "$keyname" $target_file && return 0
 
 	dafile="$DA_DIR/$CONF_DIR/features.properties"
 	cat $dafile | grep -e "= *yes" | while read line; do
