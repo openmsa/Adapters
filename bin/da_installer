@@ -94,7 +94,7 @@ update_manufacturers_properties() {
 	mkdir "$JENTREPRISE_CONF/custom/"
 
 	if [ ! -f $target_file ]; then
-		echo "id,name,supported"
+		echo > "id,name,supported"
 		echo > $target_file
 	fi
 
