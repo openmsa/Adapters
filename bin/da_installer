@@ -90,11 +90,15 @@ update_manufacturers_properties() {
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
 	default_file="$JENTREPRISE_CONF/manufacturers.properties"
 
-  	[ -d "$JENTREPRISE_CONF/custom/" ] || \
-	mkdir "$JENTREPRISE_CONF/custom/"
+	mkdir -p "$JENTREPRISE_CONF/custom/"
+
+  	if [ ! -f $target_file ]; then
+		cp $default_file $target_file
+	fi
 
 	if [ ! -f $target_file ]; then
 		echo "id,name,supported" > $target_file
+		fixup_no_newline_at_eof $target_file
 	fi
 
 	grep -q "^$MOD_ID," $default_file && return 0
@@ -113,11 +117,15 @@ update_models_properties() {
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 	default_file="$JENTREPRISE_CONF/models.properties"
 
-	[ -d "$JENTREPRISE_CONF/custom/" ] || \
-        mkdir "$JENTREPRISE_CONF/custom/"
+	mkdir -p "$JENTREPRISE_CONF/custom/"
+
+  	if [ ! -f $target_file ]; then
+		cp $default_file $target_file
+	fi
 
     if [ ! -f $target_file ]; then
 		echo "id,manId,name,type,obsolete,familyId,managed,Utm,proxy,wizard,ztdOverPortConsole,backup,generateTemplate,restore,proxyWeb,category,detailedReportMail,detailedReportFirewall" > $target_file
+		fixup_no_newline_at_eof $target_file
 	fi
 
 	grep -q "^$MOD_ID," $default_file && return 0
