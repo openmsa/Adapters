@@ -40,10 +40,10 @@ da_install() {
 	fi
 	[ -d "$DA_DIR/$CONF_DIR" ] || \
 		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
-
+	
+	check_create_model
 	read_properties_files
 	check_sms_router_conf
-	check_create_model
 	check_create_files
 	update_files
 }
