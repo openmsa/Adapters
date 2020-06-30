@@ -92,10 +92,10 @@ update_manufacturers_properties() {
 	grep -q "^$MAN_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
-        fixup_no_newline_at_eof "$JENTREPRISE_CONF/manufacturers.properties"
+    fixup_no_newline_at_eof "$JENTREPRISE_CONF/manufacturers.properties"
 
 	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
-        echo $MAN_ID',"'$MAN_NAME'",1' >> "$JENTREPRISE_CONF/manufacturers.properties"
+    echo $MAN_ID',"'$MAN_NAME'",1' >> "$JENTREPRISE_CONF/manufacturers.properties"
 
 }
 
@@ -106,7 +106,7 @@ update_models_properties() {
 	[ -d "$JENTREPRISE_CONF/custom/" ] || \
         mkdir "$JENTREPRISE_CONF/custom/"
 
-        [ ! -f $target_file ] && echo > $target_file
+    [ ! -f $target_file ] && echo > $target_file
 
 	grep -q "^$MOD_ID," $target_file && return 0
 
@@ -114,7 +114,7 @@ update_models_properties() {
 	fixup_no_newline_at_eof "$JENTREPRISE_CONF/models.properties"
 
 	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> $target_file
-        echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> "$JENTREPRISE_CONF/models.properties"
+    echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> "$JENTREPRISE_CONF/models.properties"
 
 }
 
