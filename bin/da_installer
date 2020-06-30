@@ -43,7 +43,7 @@ da_install() {
 
 	read_properties_files
 	check_sms_router_conf
-
+	check_create_model
 	check_create_files
 	update_files
 }
