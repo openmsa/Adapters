@@ -66,6 +66,11 @@ JENTREPRISE_CONF="/opt/ubi-jentreprise/resources/templates/conf/device"
 SES_TEMPLATE="/opt/ses/templates/server_ALL"
 SES_CONF="/opt/ses/properties/specifics/server_ALL"
 
+check_create_model() {
+	default_file="$JENTREPRISE_CONF/models.properties"
+	keyname="${MAN_NAME}${MOD_NAME}"
+	grep -q "^$keyname" $default_file && return 0
+}
 
 check_create_files() {
 
