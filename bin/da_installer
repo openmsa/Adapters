@@ -94,8 +94,7 @@ update_manufacturers_properties() {
 	mkdir "$JENTREPRISE_CONF/custom/"
 
 	if [ ! -f $target_file ]; then
-		echo > "id,name,supported"
-		echo > $target_file
+		echo "id,name,supported" > $target_file
 	fi
 
 	grep -q "^$MOD_ID," $default_file && return 0
