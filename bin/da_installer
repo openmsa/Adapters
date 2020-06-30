@@ -69,7 +69,7 @@ SES_CONF="/opt/ses/properties/specifics/server_ALL"
 check_create_model() {
 	default_file="$JENTREPRISE_CONF/models.properties"
 	keyname="${MOD_ID},${MAN_ID}"
-	grep  "$keyname" $default_file && return 0
+	grep  "$keyname" $default_file && exit 0
 }
 
 check_create_files() {
