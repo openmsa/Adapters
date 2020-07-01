@@ -21,7 +21,7 @@ main() {
 			da_install "$1" "$2"
 			;;
 		-u|uninstall)
-			da_uninstall "$1"
+			da_uninstall "$1" "$2"
 			;;
 		*)
 			fatal "unknown command: $1"
@@ -46,10 +46,33 @@ da_install() {
 	check_sms_router_conf
 	check_create_files
 	update_files
+	update_core_engine DEV_MODE
 }
 
 da_uninstall() {
-	:;
+	DA_DIR=$1
+	if [ ! -d "$DA_DIR" ]; then
+		fatal "device-adaptor dir not found: $DA_DIR"
+	fi
+	CONF_DIR=$2
+	if [ -z "$CONF_DIR" ]; then
+		CONF_DIR="conf"
+	fi
+	[ -d "$DA_DIR/$CONF_DIR" ] || \
+		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
+
+	read_properties_files
+	check_sms_router_conf
+
+	target_file="$JENTREPRISE_CONF/custom/models.properties"
+	default_file="$JENTREPRISE_CONF/models.properties"
+
+
+	keyname="${MOD_ID},${MAN_ID}"
+
+	sed "/^$keyname/d" $target_file
+	sed "/^$keyname/d" $default_file
+
 }
 
 update_files() {
@@ -84,6 +107,31 @@ check_create_files() {
 	done
 }
 
+update_core_engine() {
+	cd /opt/sms/bin/php 
+    
+    [[ -L $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH;
+    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak;
+    if [[ $1 = DEV_MODE ]]; then 
+        ln -fs /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH $DA_SRC_PATH 
+    elif [[ $1 = USER_MODE ]]; then
+        rm -rf /opt/sms/bin/php/$DA_SRC_PATH
+        cp -r /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH .
+    fi
+    chown -R ncuser.ncuser /opt/sms/bin/php/$1;
+    
+    cd /opt/sms/templates/devices/; 
+    [[ -L $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH;
+    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak;
+
+    if [[ $1 = DEV_MODE ]]; then
+        ln -fs /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH $DA_SRC_PATH
+    elif [[ $1 = USER_MODE ]]; then  
+        rm -rf /opt/sms/templates/devices/$DA_SRC_PATH
+        mkdir -p /opt/sms/templates/devices/$DA_SRC_PATH/conf
+        cp -r /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH/conf/* /opt/sms/templates/devices/$DA_SRC_PATH/conf/
+    fi
+}
 
 update_manufacturers_properties() {
 
@@ -94,6 +142,7 @@ update_manufacturers_properties() {
 
   	if [ ! -f $target_file ]; then
 		cp $default_file $target_file
+		rm $default_file
 	fi
 
 	if [ ! -f $target_file ]; then
@@ -101,16 +150,15 @@ update_manufacturers_properties() {
 		fixup_no_newline_at_eof $target_file
 	fi
 
-	grep -q "^$MOD_ID," $default_file && return 0
 	grep -q "^$MAN_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
-    fixup_no_newline_at_eof "$JENTREPRISE_CONF/manufacturers.properties"
 
 	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
-    echo $MAN_ID',"'$MAN_NAME'",1' >> "$JENTREPRISE_CONF/manufacturers.properties"
 
 }
+
+
 
 update_models_properties() {
 
@@ -121,6 +169,7 @@ update_models_properties() {
 
   	if [ ! -f $target_file ]; then
 		cp $default_file $target_file
+		rm $default_file
 	fi
 
     if [ ! -f $target_file ]; then
@@ -128,14 +177,11 @@ update_models_properties() {
 		fixup_no_newline_at_eof $target_file
 	fi
 
-	grep -q "^$MOD_ID," $default_file && return 0
 	grep -q "^$MOD_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
-	fixup_no_newline_at_eof "$JENTREPRISE_CONF/models.properties"
 
 	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0' >> $target_file
-    echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0' >> "$JENTREPRISE_CONF/models.properties"
 
 }
 
@@ -227,6 +273,7 @@ read_properties_files() {
 	MOD_ID=$(read_property "$device_properties" "model.id")
 	MOD_NAME=$(read_property "$device_properties" "model.name")
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
+	DA_SRC_PATH=basename $DA_DIR
 }
 
 check_sms_router_conf() {
