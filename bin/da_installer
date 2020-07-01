@@ -97,8 +97,13 @@ SES_CONF="/opt/ses/properties/specifics/server_ALL"
 
 check_create_model() {
 	default_file="$JENTREPRISE_CONF/models.properties"
+
 	keyname="${MOD_ID},${MAN_ID}"
-	grep  "$keyname" $default_file && exit 0
+	if grep  "$keyname" $default_file; then 
+		echo "${MAN_NAME}:${MAN_ID} / ${MOD_NAME}:${MOD_ID} found in $default_file. "
+		echo "Exit intall"
+		exit 0
+	fi
 }
 
 check_create_files() {
