@@ -100,7 +100,7 @@ check_create_model() {
 
 	keyname="${MOD_ID},${MAN_ID}"
 	if grep  "$keyname" $default_file; then 
-		echo "${MAN_NAME}:${MAN_ID} / ${MOD_NAME}:${MOD_ID} found in $default_file. "
+		echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $default_file. "
 		echo "Exit intall"
 		exit 0
 	fi
