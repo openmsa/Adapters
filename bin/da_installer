@@ -131,7 +131,7 @@ update_core_engine() {
 	keyname="${MAN_NAME} ${MOD_NAME}"
 
 	if [[ -f sms_router.conf ]]; then
-		if [[ grep $deviceid sms_router.conf ]]; then
+		if grep $deviceid sms_router.conf; then
 			echo "$deviceid found in /opt/sms/templates/devices/$DA_SRC_PATH/conf/sms_router.conf"
 		else
 			echo "add $deviceid to /opt/sms/templates/devices/$DA_SRC_PATH/conf/sms_router.conf"
