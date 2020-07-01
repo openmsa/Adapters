@@ -41,7 +41,7 @@ da_install() {
 	[ -d "$DA_DIR/$CONF_DIR" ] || \
 		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
 	
-	DA_SRC_PATH=basename $DA_DIR
+	DA_SRC_PATH=`basename $DA_DIR`
 
 	read_properties_files
 	check_create_model
@@ -150,7 +150,7 @@ update_manufacturers_properties() {
 
   	if [ ! -f $target_file ]; then
 		cp $default_file $target_file
-		rm $default_file
+		#rm $default_file
 	fi
 
 	if [ ! -f $target_file ]; then
@@ -177,7 +177,7 @@ update_models_properties() {
 
   	if [ ! -f $target_file ]; then
 		cp $default_file $target_file
-		rm $default_file
+		#rm $default_file
 	fi
 
     if [ ! -f $target_file ]; then
