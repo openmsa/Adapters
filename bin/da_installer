@@ -41,6 +41,8 @@ da_install() {
 	[ -d "$DA_DIR/$CONF_DIR" ] || \
 		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
 	
+	DA_SRC_PATH=basename $DA_DIR
+
 	read_properties_files
 	check_create_model
 	check_sms_router_conf
@@ -60,6 +62,8 @@ da_uninstall() {
 	fi
 	[ -d "$DA_DIR/$CONF_DIR" ] || \
 		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
+	
+	DA_SRC_PATH=basename $DA_DIR
 
 	read_properties_files
 	check_sms_router_conf
@@ -110,8 +114,8 @@ check_create_files() {
 update_core_engine() {
 	cd /opt/sms/bin/php 
     
-    [[ -L $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH;
-    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak;
+    [[ -L $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
+    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak
     if [[ $1 = DEV_MODE ]]; then 
         ln -fs /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH $DA_SRC_PATH 
     elif [[ $1 = USER_MODE ]]; then
@@ -120,17 +124,20 @@ update_core_engine() {
     fi
     chown -R ncuser.ncuser /opt/sms/bin/php/$1;
     
-    cd /opt/sms/templates/devices/; 
-    [[ -L $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH;
-    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak;
+    mkdir -p /opt/sms/templates/devices/$DA_SRC_PATH/conf
+    cd /opt/sms/templates/devices/$DA_SRC_PATH/conf
+	
+	deviceid="${MAN_ID}:${MOD_ID}"
 
-    if [[ $1 = DEV_MODE ]]; then
-        ln -fs /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH $DA_SRC_PATH
-    elif [[ $1 = USER_MODE ]]; then  
-        rm -rf /opt/sms/templates/devices/$DA_SRC_PATH
-        mkdir -p /opt/sms/templates/devices/$DA_SRC_PATH/conf
-        cp -r /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH/conf/* /opt/sms/templates/devices/$DA_SRC_PATH/conf/
-    fi
+	if [[ -f sms_router.conf ]]; then
+		if [[ grep $deviceid $target_file sms_router.conf ]]; then
+			echo "$deviceid found in /opt/sms/templates/devices/$DA_SRC_PATH/conf/sms_router.conf"
+		else
+			echo "add $deviceid to /opt/sms/templates/devices/$DA_SRC_PATH/conf/sms_router.conf"
+			echo >> " "
+			cat  $DA_DIR/$CONF_DIR/sms_router.conf >> sms_router.conf
+		fi
+	fi
 }
 
 update_manufacturers_properties() {
@@ -273,7 +280,6 @@ read_properties_files() {
 	MOD_ID=$(read_property "$device_properties" "model.id")
 	MOD_NAME=$(read_property "$device_properties" "model.name")
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
-	DA_SRC_PATH=basename $DA_DIR
 }
 
 check_sms_router_conf() {
