@@ -48,7 +48,9 @@ da_install() {
 	check_sms_router_conf
 	check_create_files
 	update_files
+	set -x
 	update_core_engine DEV_MODE
+	set +x
 }
 
 da_uninstall() {
@@ -112,6 +114,7 @@ check_create_files() {
 }
 
 update_core_engine() {
+	
 	cd /opt/sms/bin/php 
     
     [[ -L $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
