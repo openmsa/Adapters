@@ -128,13 +128,14 @@ update_core_engine() {
     cd /opt/sms/templates/devices/$DA_SRC_PATH/conf
 	
 	deviceid="${MAN_ID}:${MOD_ID}"
+	keyname="${MAN_NAME} ${MOD_NAME}"
 
 	if [[ -f sms_router.conf ]]; then
 		if [[ grep $deviceid $target_file sms_router.conf ]]; then
 			echo "$deviceid found in /opt/sms/templates/devices/$DA_SRC_PATH/conf/sms_router.conf"
 		else
 			echo "add $deviceid to /opt/sms/templates/devices/$DA_SRC_PATH/conf/sms_router.conf"
-			echo >> " "
+			echo "# $keyname added by da_installer " >> sms_router.conf
 			cat  $DA_DIR/$CONF_DIR/sms_router.conf >> sms_router.conf
 		fi
 	fi
