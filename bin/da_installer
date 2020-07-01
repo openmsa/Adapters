@@ -141,6 +141,8 @@ update_core_engine() {
 			echo "# $keyname added by da_installer " >> sms_router.conf
 			cat  $DA_DIR/$CONF_DIR/sms_router.conf >> sms_router.conf
 		fi
+	else
+		cp $DA_DIR/$CONF_DIR/sms_router.conf .
 	fi
 }
 
