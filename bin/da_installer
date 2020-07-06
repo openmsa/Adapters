@@ -20,12 +20,12 @@ main() {
 		-i|install)
 			da_install "$1" "$2"
 			;;
-		-u|uninstall)
-			da_uninstall "$1" "$2"
-			;;
-		-u|deactivate)
-			da_deactivate "$1" "$2"
-			;;
+		#-u|uninstall)
+		#	da_uninstall "$1" "$2"
+		#	;;
+		#-u|deactivate)
+		#	da_deactivate "$1" "$2"
+		#	;;
 
 		*)
 			fatal "unknown command: $1"
@@ -82,7 +82,7 @@ da_uninstall() {
 	sed "/^$keyname/d" $default_file
 
 }
-
+#WIP#
 da_deactivate() {
 	DA_DIR=$1
 	if [ ! -d "$DA_DIR" ]; then
