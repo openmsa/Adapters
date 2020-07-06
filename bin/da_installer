@@ -137,6 +137,7 @@ check_create_model() {
 		echo "Exit intall"
 		exit 0
 		fi
+	fi
 	if [ -f $default_file ]; then
 		if grep  "$keyname" $default_file; then 
 			echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $default_file. "
