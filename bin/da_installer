@@ -201,8 +201,7 @@ update_manufacturers_properties() {
 
 	fixup_no_newline_at_eof $target_file
 
-	echo "update  $target_file"
-	echo "  add" $MAN_ID',"'$MAN_NAME'",1'
+	echo 'update  $target_file with '$MAN_ID',"'$MAN_NAME'",1'
 	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
 
 }
@@ -231,10 +230,7 @@ update_models_properties() {
 	fixup_no_newline_at_eof $target_file
 
 
-	echo "update  $target_file"
-	echo "  add " $MAN_ID',"'$MAN_NAME'",1'
-	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
-
+	echo update  '$target_file with '$MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0'
 	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0' >> $target_file
 
 }
