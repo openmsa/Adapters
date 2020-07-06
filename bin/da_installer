@@ -131,13 +131,13 @@ check_create_model() {
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 	keyname="${MOD_ID},${MAN_ID}"
 
-	if [ ! -f $default_file && -f $target_file ]; then
+	if [ -f $target_file ]; then
 		if grep  "$keyname" $target_file; then 
 		echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $target_file. "
 		echo "Exit intall"
 		exit 0
 		fi
-	elif [ -f $default_file ]; then
+	if [ -f $default_file ]; then
 		if grep  "$keyname" $default_file; then 
 			echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $default_file. "
 			echo "Exit intall"
