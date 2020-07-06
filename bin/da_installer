@@ -20,9 +20,13 @@ main() {
 		-i|install)
 			da_install "$1" "$2"
 			;;
-		-u|uninstall)
-			da_uninstall "$1"
-			;;
+		#-u|uninstall)
+		#	da_uninstall "$1" "$2"
+		#	;;
+		#-u|deactivate)
+		#	da_deactivate "$1" "$2"
+		#	;;
+
 		*)
 			fatal "unknown command: $1"
 			;;
@@ -40,19 +44,76 @@ da_install() {
 	fi
 	[ -d "$DA_DIR/$CONF_DIR" ] || \
 		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
+	
+	DA_SRC_PATH=`basename $DA_DIR`
+
+	read_properties_files
+	check_create_model
+	check_sms_router_conf
+	check_create_files
+	update_files
+	update_core_engine
+}
+
+da_uninstall() {
+	DA_DIR=$1
+	if [ ! -d "$DA_DIR" ]; then
+		fatal "device-adaptor dir not found: $DA_DIR"
+	fi
+	CONF_DIR=$2
+	if [ -z "$CONF_DIR" ]; then
+		CONF_DIR="conf"
+	fi
+	[ -d "$DA_DIR/$CONF_DIR" ] || \
+		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
+	
+	DA_SRC_PATH=basename $DA_DIR
 
 	read_properties_files
 	check_sms_router_conf
 
-	check_create_files
-	update_files
-}
+	target_file="$JENTREPRISE_CONF/custom/models.properties"
+	default_file="$JENTREPRISE_CONF/models.properties"
 
-da_uninstall() {
-	:;
+
+	keyname="${MOD_ID},${MAN_ID}"
+
+	sed "/^$keyname/d" $target_file
+	sed "/^$keyname/d" $default_file
+
+}
+#WIP#
+da_deactivate() {
+	DA_DIR=$1
+	if [ ! -d "$DA_DIR" ]; then
+		fatal "device-adaptor dir not found: $DA_DIR"
+	fi
+	CONF_DIR=$2
+	if [ -z "$CONF_DIR" ]; then
+		CONF_DIR="conf"
+	fi
+	[ -d "$DA_DIR/$CONF_DIR" ] || \
+		fatal "device-adaptor config dir not found: $DA_DIR/$CONF_DIR"
+	
+	DA_SRC_PATH=basename $DA_DIR
+
+	read_properties_files
+	check_sms_router_conf
+
+	target_file="$JENTREPRISE_CONF/custom/models.properties"
+	default_file="$JENTREPRISE_CONF/models.properties"
+
+
+	keyname="${MOD_ID},${MAN_ID},,1-9]+,"
+
+	# replace 15010202,1,"ASA Generic","H",0 by 15010202,1,"ASA Generic","H",1
+
+	sed "/^$keyname/d" $target_file
+	sed "/^$keyname/d" $default_file
 }
 
 update_files() {
+	update_core_engine
 	update_manufacturers_properties
 	update_models_properties
 	update_sdExtendedInfo_properties
@@ -66,6 +127,26 @@ JENTREPRISE_CONF="/opt/ubi-jentreprise/resources/templates/conf/device"
 SES_TEMPLATE="/opt/ses/templates/server_ALL"
 SES_CONF="/opt/ses/properties/specifics/server_ALL"
 
+check_create_model() {
+	default_file="$JENTREPRISE_CONF/models.properties"
+	target_file="$JENTREPRISE_CONF/custom/models.properties"
+	keyname="${MOD_ID},${MAN_ID}"
+
+	if [ -f $target_file ]; then
+		if grep  "$keyname" $target_file; then 
+		echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $target_file. "
+		echo "Exit intall"
+		exit 0
+		fi
+	fi
+	if [ -f $default_file ]; then
+		if grep  "$keyname" $default_file; then 
+			echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $default_file. "
+			echo "Exit intall"
+			exit 0
+		fi
+	fi
+}
 
 check_create_files() {
 
@@ -79,38 +160,79 @@ check_create_files() {
 	done
 }
 
+update_core_engine() {
+	deviceid="${MAN_ID}:${MOD_ID}"
+	keyname="${MAN_NAME} ${MOD_NAME}"
+
+	echo "update core_engine config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
+	cd /opt/sms/bin/php 
+    
+    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak
+	rm -rf /opt/sms/bin/php/$DA_SRC_PATH
+    cp -r /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH .
+    chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
+    
+	cd /opt/sms/templates/devices/
+	[[ -d $DA_SRC_PATH ]] && rm -rf /opt/sms/templates/devices/$DA_SRC_PATH
+    mkdir -p /opt/sms/templates/devices/$DA_SRC_PATH/conf
+    cd /opt/sms/templates/devices/$DA_SRC_PATH/conf
+
+	cp $DA_DIR/$CONF_DIR/sms_router.conf .
+
+}
 
 update_manufacturers_properties() {
 
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
+	default_file="$JENTREPRISE_CONF/manufacturers.properties"
 
-  	[ -d "$JENTREPRISE_CONF/custom/" ] || \
-	mkdir "$JENTREPRISE_CONF/custom/"
+	mkdir -p "$JENTREPRISE_CONF/custom/"
+
+  	if [ ! -f $target_file ]; then
+		cp $default_file $target_file
+		#rm $default_file
+	fi
+
+	if [ ! -f $target_file ]; then
+		echo "id,name,supported" > $target_file
+		fixup_no_newline_at_eof $target_file
+	fi
 
 	grep -q "^$MAN_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
-        fixup_no_newline_at_eof "$JENTREPRISE_CONF/manufacturers.properties"
 
+	echo 'update  $target_file with '$MAN_ID',"'$MAN_NAME'",1'
 	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
-        echo $MAN_ID',"'$MAN_NAME'",1' >> "$JENTREPRISE_CONF/manufacturers.properties"
 
 }
+
+
 
 update_models_properties() {
 
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
-	
-	[ -d "$JENTREPRISE_CONF/custom/" ] || \
-        mkdir "$JENTREPRISE_CONF/custom/"
+	default_file="$JENTREPRISE_CONF/models.properties"
+
+	mkdir -p "$JENTREPRISE_CONF/custom/"
+
+  	if [ ! -f $target_file ]; then
+		cp $default_file $target_file
+		#rm $default_file
+	fi
+
+    if [ ! -f $target_file ]; then
+		echo "id,manId,name,type,obsolete,familyId,managed,Utm,proxy,wizard,ztdOverPortConsole,backup,generateTemplate,restore,proxyWeb,category,detailedReportMail,detailedReportFirewall" > $target_file
+		fixup_no_newline_at_eof $target_file
+	fi
 
 	grep -q "^$MOD_ID," $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
-	fixup_no_newline_at_eof "$JENTREPRISE_CONF/models.properties"
 
-	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> $target_file
-        echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,0,0,0,1,0,0,0,0,0,SR,0,0' >> "$JENTREPRISE_CONF/models.properties"
+
+	echo update  '$target_file with '$MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0'
+	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0' >> $target_file
 
 }
 
@@ -121,7 +243,7 @@ update_sdExtendedInfo_properties() {
 	keyname="${MAN_NAME}${MOD_NAME}"
 	deviceid="${MAN_ID}-${MOD_ID}"
 
-	grep -q "$keyname" $target_file && return 0
+	grep -q -i "$keyname" $target_file && return 0
 
 	fixup_no_newline_at_eof $target_file
 
@@ -137,13 +259,13 @@ update_manageLinks_properties() {
 
 	keyname="${MAN_NAME}${MOD_NAME}"
 
-	grep -q "$keyname" $target_file && return 0
+	grep -q -i "$keyname" $target_file && return 0
 
 	dafile="$DA_DIR/$CONF_DIR/features.properties"
 	cat $dafile | grep -e "= *yes" | while read line; do
 		prop=$(sed 's: *=.*::g' <<< "$line")
 		grep -q "$prop" $target_file || \
-			echo "$prop.models = " >> $target_file
+		echo "$prop.models = " >> $target_file
 		sed -i "s:^\($prop.models.*\):\1 $keyname:"  $target_file
 	done
 
@@ -168,25 +290,26 @@ update_repository_properties() {
 	keyname=$(toupper $MAN_NAME)
 
 	grep -q "^repository.manufacturer *= *.* $keyname" $target_file || \
-		sed -i 's/^\(repository.manufacturer.*\)/\1'" $keyname/"  $target_file
+	sed -i 's/^\(repository.manufacturer.*\)/\1'" $keyname/"  $target_file
 
 	keyname=$(tolower $MAN_NAME)
 	deviceid="${MAN_ID}-${MOD_ID}"
 
 	grep -q "^repository.model.$keyname" $target_file || \
-		echo "repository.model.$keyname=$deviceid" >> $target_file
+	echo "repository.model.$keyname=$deviceid" >> $target_file
 
 	dafile="$DA_DIR/$CONF_DIR/repository.properties"
 	props="|$(cat $dafile | grep yes | awk '{printf $1 "|"}')"
 
 	grep -q "^repository.access.$keyname" $target_file || \
-		echo "repository.access.$keyname=|$props" >> $target_file
+	echo "repository.access.$keyname=|$props" >> $target_file
 }
 
 
 
 fixup_no_newline_at_eof() {
   ## ファイル末尾に改行がない場合の対処
+  [ ! -f $1 ] && echo > $1
   /bin/cat "$1" | awk '{print}' > /tmp/msa.$$
   /bin/cp -p /tmp/msa.$$ "$1"
   /bin/rm -f /tmp/msa.$$
