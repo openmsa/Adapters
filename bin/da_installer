@@ -52,7 +52,7 @@ da_install() {
 	check_sms_router_conf
 	check_create_files
 	update_files
-	update_core_engine DEV_MODE
+	update_core_engine
 }
 
 da_uninstall() {
@@ -113,6 +113,7 @@ da_deactivate() {
 }
 
 update_files() {
+	update_core_engine
 	update_manufacturers_properties
 	update_models_properties
 	update_sdExtendedInfo_properties
@@ -169,7 +170,7 @@ update_core_engine() {
     [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak
 	rm -rf /opt/sms/bin/php/$DA_SRC_PATH
     cp -r /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH .
-    chown -R ncuser.ncuser /opt/sms/bin/php/$1;
+    chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
     
 	cd /opt/sms/templates/devices/
 	[[ -d $DA_SRC_PATH ]] && rm -rf /opt/sms/templates/devices/$DA_SRC_PATH
