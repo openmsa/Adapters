@@ -182,14 +182,14 @@ update_core_engine() {
 }
 
 update_manufacturers_properties() {
-
+	echo "update manufacturers_properties config for vendor ${MAN_NAME} [${MAN_ID}]."
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
 	default_file="$JENTREPRISE_CONF/manufacturers.properties"
 
 	mkdir -p "$JENTREPRISE_CONF/custom/"
 
   	if [ ! -f $target_file ]; then
-		cp $default_file $target_file
+		cp $default_file $JENTREPRISE_CONF/custom/
 		#rm $default_file
 	fi
 
@@ -210,6 +210,7 @@ update_manufacturers_properties() {
 
 
 update_models_properties() {
+	echo "update models_properties config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
 
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 	default_file="$JENTREPRISE_CONF/models.properties"
@@ -217,7 +218,7 @@ update_models_properties() {
 	mkdir -p "$JENTREPRISE_CONF/custom/"
 
   	if [ ! -f $target_file ]; then
-		cp $default_file $target_file
+		cp $default_file $JENTREPRISE_CONF/custom/
 		#rm $default_file
 	fi
 
