@@ -188,11 +188,6 @@ update_manufacturers_properties() {
 
 	mkdir -p "$JENTREPRISE_CONF/custom/"
 
-  	if [ ! -f $target_file ]; then
-		cp $default_file $JENTREPRISE_CONF/custom/
-		#rm $default_file
-	fi
-
 	if [ ! -f $target_file ]; then
 		echo "id,name,supported" > $target_file
 		fixup_no_newline_at_eof $target_file
@@ -216,11 +211,6 @@ update_models_properties() {
 	default_file="$JENTREPRISE_CONF/models.properties"
 
 	mkdir -p "$JENTREPRISE_CONF/custom/"
-
-  	if [ ! -f $target_file ]; then
-		cp $default_file $JENTREPRISE_CONF/custom/
-		#rm $default_file
-	fi
 
     if [ ! -f $target_file ]; then
 		echo "id,manId,name,type,obsolete,familyId,managed,Utm,proxy,wizard,ztdOverPortConsole,backup,generateTemplate,restore,proxyWeb,category,detailedReportMail,detailedReportFirewall" > $target_file
