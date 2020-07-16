@@ -116,12 +116,11 @@ update_files() {
 	update_core_engine
 	update_manufacturers_properties
 	update_models_properties
-	update_sdExtendedInfo_properties
-	update_manageLinks_properties
-	update_ses_properties
-	update_repository_properties
+	#update_sdExtendedInfo_properties
+	#update_manageLinks_properties
+	#update_ses_properties
+	#update_repository_properties
 }
-
 
 JENTREPRISE_CONF="/opt/ubi-jentreprise/resources/templates/conf/device"
 SES_TEMPLATE="/opt/ses/templates/server_ALL"
