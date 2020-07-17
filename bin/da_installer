@@ -50,7 +50,6 @@ da_install() {
 	read_properties_files
 	check_create_model
 	check_sms_router_conf
-	check_create_files
 	update_files
 	update_core_engine
 }
@@ -147,18 +146,6 @@ check_create_model() {
 	fi
 }
 
-check_create_files() {
-
-	for prop_file in ses repository sdExtendedInfo manageLinks; do
-		target_file="$SES_CONF/$prop_file.properties"
-
-		[ -f "$target_file" ] && continue
-
-		echo "  Copying $target_file"
-		/bin/cp -p $SES_TEMPLATE/$prop_file.properties $target_file
-	done
-}
-
 update_core_engine() {
 	deviceid="${MAN_ID}:${MOD_ID}"
 	keyname="${MAN_NAME} ${MOD_NAME}"
@@ -201,8 +188,6 @@ update_manufacturers_properties() {
 
 }
 
-
-
 update_models_properties() {
 	echo "update models_properties config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
 
@@ -225,77 +210,6 @@ update_models_properties() {
 	echo $MOD_ID,$MAN_ID,'"'$MOD_NAME'","H",0,0,1,0,0,1,0,1,0,1,0,U,0,0' >> $target_file
 
 }
-
-update_sdExtendedInfo_properties() {
-
-	target_file="$SES_CONF/sdExtendedInfo.properties"
-
-	keyname="${MAN_NAME}${MOD_NAME}"
-	deviceid="${MAN_ID}-${MOD_ID}"
-
-	grep -q -i "$keyname" $target_file && return 0
-
-	fixup_no_newline_at_eof $target_file
-
-	echo "sdExtendedInfo.modelKey.$keyname = $keyname" >> $target_file
-	echo "sdExtendedInfo.router.$deviceid = $keyname" >> $target_file
-	echo "sdExtendedInfo.jspType.$deviceid = $keyname" >> $target_file
-
-}
-
-update_manageLinks_properties() {
-
-	target_file="$SES_CONF/manageLinks.properties"
-
-	keyname="${MAN_NAME}${MOD_NAME}"
-
-	grep -q -i "$keyname" $target_file && return 0
-
-	dafile="$DA_DIR/$CONF_DIR/features.properties"
-	cat $dafile | grep -e "= *yes" | while read line; do
-		prop=$(sed 's: *=.*::g' <<< "$line")
-		grep -q "$prop" $target_file || \
-		echo "$prop.models = " >> $target_file
-		sed -i "s:^\($prop.models.*\):\1 $keyname:"  $target_file
-	done
-
-}
-
-update_ses_properties() {
-
-	target_file="$SES_CONF/ses.properties"
-
-	keyname=$(tolower $MAN_NAME)
-
-	grep -q "^soc.device.supported.$keyname" $target_file && return 0
-
-	echo "soc.device.supported.$keyname=1" >> $target_file
-
-}
-
-update_repository_properties() {
-
-	target_file="$SES_CONF/repository.properties"
-
-	keyname=$(toupper $MAN_NAME)
-
-	grep -q "^repository.manufacturer *= *.* $keyname" $target_file || \
-	sed -i 's/^\(repository.manufacturer.*\)/\1'" $keyname/"  $target_file
-
-	keyname=$(tolower $MAN_NAME)
-	deviceid="${MAN_ID}-${MOD_ID}"
-
-	grep -q "^repository.model.$keyname" $target_file || \
-	echo "repository.model.$keyname=$deviceid" >> $target_file
-
-	dafile="$DA_DIR/$CONF_DIR/repository.properties"
-	props="|$(cat $dafile | grep yes | awk '{printf $1 "|"}')"
-
-	grep -q "^repository.access.$keyname" $target_file || \
-	echo "repository.access.$keyname=|$props" >> $target_file
-}
-
-
 
 fixup_no_newline_at_eof() {
   ## ファイル末尾に改行がない場合の対処
