@@ -158,7 +158,7 @@ update_core_engine() {
     cp -r /opt/sms/bin/php/OpenMSA_Adapters/adapters/$DA_SRC_PATH .
     chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
     
-	cd /opt/sms/templates/devices/
+	cd /opt/sms/devices/
 	[[ -d $DA_SRC_PATH ]] && rm -rf /opt/sms/devices/$DA_SRC_PATH
     mkdir -p /opt/sms/devices/$DA_SRC_PATH/conf
     cd /opt/sms/devices/$DA_SRC_PATH/conf
