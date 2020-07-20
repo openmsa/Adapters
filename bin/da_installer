@@ -159,9 +159,9 @@ update_core_engine() {
     chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
     
 	cd /opt/sms/templates/devices/
-	[[ -d $DA_SRC_PATH ]] && rm -rf /opt/sms/templates/devices/$DA_SRC_PATH
-    mkdir -p /opt/sms/templates/devices/$DA_SRC_PATH/conf
-    cd /opt/sms/templates/devices/$DA_SRC_PATH/conf
+	[[ -d $DA_SRC_PATH ]] && rm -rf /opt/sms/devices/$DA_SRC_PATH
+    mkdir -p /opt/sms/devices/$DA_SRC_PATH/conf
+    cd /opt/sms/devices/$DA_SRC_PATH/conf
 
 	cp $DA_DIR/$CONF_DIR/sms_router.conf .
 
