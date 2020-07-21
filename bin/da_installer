@@ -121,7 +121,7 @@ update_files() {
 	#update_repository_properties
 }
 
-JENTREPRISE_CONF="/opt/ubi-jentreprise/generated/conf/device/"
+JENTREPRISE_CONF="/opt/ubi-jentreprise/generated/conf/device"
 
 check_create_model() {
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
@@ -161,7 +161,7 @@ update_manufacturers_properties() {
 	echo "update manufacturers_properties config for vendor ${MAN_NAME} [${MAN_ID}]."
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
 
-	mkdir -p "$JENTREPRISE_CONF/custom/"
+	mkdir -p "$JENTREPRISE_CONF/custom"
 
 	if [ ! -f $target_file ]; then
 		echo "id,name,supported" > $target_file
@@ -183,7 +183,7 @@ update_models_properties() {
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 	="$JENTREPRISE_CONF/models.properties"
 
-	mkdir -p "$JENTREPRISE_CONF/custom/"
+	mkdir -p "$JENTREPRISE_CONF/custom"
 
     if [ ! -f $target_file ]; then
 		echo "id,manId,name,type,obsolete,familyId,managed,Utm,proxy,wizard,ztdOverPortConsole,backup,generateTemplate,restore,proxyWeb,category,detailedReportMail,detailedReportFirewall" > $target_file
