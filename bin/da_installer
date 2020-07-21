@@ -121,7 +121,7 @@ update_files() {
 	#update_repository_properties
 }
 
-JENTREPRISE_CONF="/opt/ubi-jentreprise/resources/templates/conf/device"
+JENTREPRISE_CONF="/opt/ubi-jentreprise/generated/conf/device/custom/"
 SES_TEMPLATE="/opt/ses/templates/server_ALL"
 SES_CONF="/opt/ses/properties/specifics/server_ALL"
 
