@@ -122,8 +122,6 @@ update_files() {
 }
 
 JENTREPRISE_CONF="/opt/ubi-jentreprise/generated/conf/device/custom/"
-SES_TEMPLATE="/opt/ses/templates/server_ALL"
-SES_CONF="/opt/ses/properties/specifics/server_ALL"
 
 check_create_model() {
 	default_file="$JENTREPRISE_CONF/models.properties"
