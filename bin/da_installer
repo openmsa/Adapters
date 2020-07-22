@@ -3,6 +3,7 @@
 #set -x
 
 PROG=$(basename $0)
+JENTREPRISE_CONF="/opt/ubi-jentreprise/generated/conf/device"
 
 usage() {
 	echo "usage: $PROG <install|uninstall> <device adaptor directory>"
@@ -121,7 +122,6 @@ update_files() {
 	#update_repository_properties
 }
 
-JENTREPRISE_CONF="/opt/ubi-jentreprise/generated/conf/device"
 
 check_create_model() {
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
@@ -159,6 +159,7 @@ update_core_engine() {
 
 update_manufacturers_properties() {
 	echo "update manufacturers_properties config for vendor ${MAN_NAME} [${MAN_ID}]."
+	
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
 
 	mkdir -p "$JENTREPRISE_CONF/custom"
@@ -181,7 +182,6 @@ update_models_properties() {
 	echo "update models_properties config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
 
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
-	="$JENTREPRISE_CONF/models.properties"
 
 	mkdir -p "$JENTREPRISE_CONF/custom"
 
