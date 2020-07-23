@@ -49,7 +49,7 @@ da_install() {
 	DA_SRC_PATH=`basename $DA_DIR`
 
 	read_properties_files
-	check_create_model
+	#check_create_model
 	check_sms_router_conf
 	update_files
 	update_core_engine
@@ -144,7 +144,7 @@ update_core_engine() {
 	echo "update core_engine config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
 	cd /opt/sms/bin/php 
     
-    [[ -d $DA_SRC_PATH ]] && mv $DA_SRC_PATH $DA_SRC_PATH.bak
+    [[ -d $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
     cp -r $DA_DIR .
     chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
     
