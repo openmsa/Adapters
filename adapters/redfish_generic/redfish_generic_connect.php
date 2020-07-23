@@ -22,7 +22,8 @@ class DeviceConnection extends GenericConnection {
     public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
     {
         $network = get_network_profile();
-        $port = '443';
+        //Allow use any port to connect
+        //$port = '443';
         $SD = &$network->SD;
 
         $this->sd_ip_config = empty($ip) ? $SD->SD_IP_CONFIG : $ip;
