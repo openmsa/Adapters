@@ -138,6 +138,7 @@ check_create_model() {
 }
 
 update_core_engine() {
+	set -x
 	deviceid="${MAN_ID}:${MOD_ID}"
 	keyname="${MAN_NAME} ${MOD_NAME}"
 
@@ -149,12 +150,13 @@ update_core_engine() {
     chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
     
 	cd /opt/sms/devices/
-	[[ -d $DA_SRC_PATH ]] && rm -rf /opt/sms/devices/$DA_SRC_PATH
+	[[ -d $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
     mkdir -p /opt/sms/devices/$DA_SRC_PATH/conf
     cd /opt/sms/devices/$DA_SRC_PATH/conf
 
 	cp $DA_DIR/$CONF_DIR/sms_router.conf .
-
+    chown -R ncuser.ncuser $DA_DIR/$CONF_DIR;
+	set +x
 }
 
 update_manufacturers_properties() {
