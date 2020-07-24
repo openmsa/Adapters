@@ -162,13 +162,13 @@ update_core_engine() {
 	#ls -la /opt/sms/devices/
         #ls -la /opt/sms/devices/$DA_SRC_PATH
  
-	set +x
+	#set +x
     	chown -R ncuser.ncuser /opt/sms/devices/$DA_SRC_PATH
     	chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
-	echo "code"
-	ls -la /opt/sms/bin/php/$DA_SRC_PATH/
-	echo "config"
-	ls -la /opt/sms/devices/$DA_SRC_PATH/conf/
+	#echo "code"
+	#ls -la /opt/sms/bin/php/$DA_SRC_PATH/
+	#echo "config"
+	#ls -la /opt/sms/devices/$DA_SRC_PATH/conf/
 
 }
 
