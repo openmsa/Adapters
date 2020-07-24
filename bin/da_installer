@@ -148,6 +148,7 @@ update_core_engine() {
     [[ -d $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
     cp -r $DA_DIR .
     chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
+	ls -la /opt/sms/bin/php/$DA_SRC_PATH
     
 	cd /opt/sms/devices/
 	[[ -d $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
@@ -156,6 +157,7 @@ update_core_engine() {
 
 	cp $DA_DIR/$CONF_DIR/sms_router.conf .
     chown -R ncuser.ncuser $DA_DIR/$CONF_DIR;
+	ls -la $DA_DIR/$CONF_DIR/
 	set +x
 }
 
