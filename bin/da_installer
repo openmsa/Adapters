@@ -143,20 +143,17 @@ update_core_engine() {
 	keyname="${MAN_NAME} ${MOD_NAME}"
 
 	echo "update core_engine config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
-	cd /opt/sms/bin/php 
     
-    [[ -d $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
-    cp -r $DA_DIR .
-    chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
+    [[ -d /opt/sms/bin/php/$DA_SRC_PATH ]] && rm -rf /opt/sms/bin/php/$DA_SRC_PATH
+    cp -r $DA_DIR /opt/sms/bin/php/
     
-	cd /opt/sms/devices/
-	[[ -d $DA_SRC_PATH ]] && rm -rf $DA_SRC_PATH
+	[[ -d /opt/sms/devices/$DA_SRC_PATH ]] && rm -rf /opt/sms/devices/$DA_SRC_PATH
     mkdir -p /opt/sms/devices/$DA_SRC_PATH/conf
-    cd /opt/sms/devices/$DA_SRC_PATH/conf
+	cp $DA_DIR/$CONF_DIR/sms_router.conf /opt/sms/devices/$DA_SRC_PATH/conf/
 
-	cp $DA_DIR/$CONF_DIR/sms_router.conf .
-    chown -R ncuser.ncuser /opt/sms/devices/$DA_SRC_PATH
 	set +x
+    chown -R ncuser.ncuser /opt/sms/devices/$DA_SRC_PATH
+    chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
 	echo "config"
 	ls -la /opt/sms/devices/$DA_SRC_PATH/conf
 	echo "code"
