@@ -100,15 +100,10 @@ class AWSSDKConnection extends GenericConnection
    		}
       echo "AWS Action result: \n$result\n";
 
-   		//if (!is_array($result)) {
-   		//	throw new SmsException("Call to SDK command failed : $result", ERR_SD_CMDFAILED);
-   		//}
    		$array = $result->toArray();
-    } catch (Exception $e) {
+    } catch (Exception | Error $e) {
 	    throw new SmsException("Call to SDK command failed Exception: $e", ERR_SD_CMDFAILED);
-    } catch (Error $e) {
-	    throw new SmsException("Call to SDK command failed Error: $e", ERR_SD_CMDFAILED);
-    }
+    } 
     
     // call array to xml conversion function
     $xml = arrayToXml($array, '<root></root>');
