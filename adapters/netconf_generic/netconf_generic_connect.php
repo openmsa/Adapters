@@ -43,7 +43,11 @@ class NetconfGenericsshConnection extends GenericConnection
     }
 
     unset($tab);
-    $tab[0] = 'added';
+    $tab[0] = 'assword:';
+    $tab[1] = 'passphrase';
+    $tab[2] = '(yes/no)?';
+    $tab[3] = "]]>]]>";
+    $tab[4] = 'added';
     try
     {
       $this->expect(__FILE__.':'.__LINE__, $tab, $cnx_timeout * 1000);
@@ -55,15 +59,7 @@ class NetconfGenericsshConnection extends GenericConnection
 
     $this->do_store_prompt();
 
-    unset($tab);
-    $tab[0] = 'assword:';
-    $tab[1] = 'passphrase';
-    $tab[2] = '(yes/no)?';
-    $tab[3] = "]]>]]>";
-
-    //Adding another expect to wait for one of the above prompts
-    $this->expect(__FILE__.':'.__LINE__, $tab, $cnx_timeout * 1000);
-
+    $index = 0;
     foreach ($tab as $t)
     {
       if (strpos($sendexpect_result, $t) !== false){
