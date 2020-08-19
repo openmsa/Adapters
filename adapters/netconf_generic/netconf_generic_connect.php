@@ -67,7 +67,7 @@ class NetconfGenericsshConnection extends GenericConnection
       }
       $index++;
     }
-    if ($index > 4)
+    if ($index >= 4)
     {
       $index = $this->expect(__FILE__.':'.__LINE__, $tab);
     }
@@ -96,7 +96,7 @@ class NetconfGenericsshConnection extends GenericConnection
       $this->expect(__FILE__.':'.__LINE__, $tab);
     }
 
-    if ($index == 4)
+    if ($index == 3)
     {
 			$this->sendCmd(__FILE__.':'.__LINE__, create_hello_rpc(default_hellocapabilities_rpc()));
       $this->expect(__FILE__.':'.__LINE__, $tab);
