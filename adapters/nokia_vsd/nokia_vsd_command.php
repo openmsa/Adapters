@@ -29,7 +29,7 @@ class nokia_vsd_command extends generic_command
   var $configuration;
   var $import_file_list;
 
-  function nokia_vsd_command()
+  function __construct()
   {
     parent::__construct();
     $this->parser_list = array();

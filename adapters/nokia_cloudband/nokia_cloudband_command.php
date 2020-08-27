@@ -28,7 +28,8 @@ class nokia_cloudband_command extends generic_command
   var $update_list;
   var $configuration;
   var $import_file_list;
-  function nokia_cloudband_command()
+
+  function __construct()
   {
     parent::__construct();
     $this->parser_list = array();
