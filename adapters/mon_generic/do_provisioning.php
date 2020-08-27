@@ -1,22 +1,12 @@
 <?php
-/*
- * Version: $Id$
- * Created: May 30, 2008
- * Available global variables
- *  $sms_sd_info        sd_info structure
- * 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
- *  $sms_csp            pointer to csp context to retreive usefull field(s)
- *  $sdid
- *  $sms_module         module name (for patterns)
- */
 
 // Initial provisioning
 
 require_once 'polld/common.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('mon_generic', 'provisioning_stages.php');
 require_once "$db_objects";
+require_once load_once('mon_generic', 'provisioning_stages.php');
 
 function on_error_exit($log_msg, $error_id)
 {
@@ -78,6 +68,7 @@ else
   $poll_mode |= POLL_PING;
 }
 
+
 if ($SD->SD_LOG)
 {
   // -------------------------------------------------------------------------------------
@@ -128,7 +119,7 @@ if ($SD->SD_LOG)
     $ret = exec_local(__FILE__ . ':' . __LINE__, $cmd, $output);
     if ($ret !== SMS_OK)
     {
-      sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', implode(' ', $output));
+      sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', "$cmd => " . implode(' ', $output));
     }
   }
   else
@@ -143,7 +134,7 @@ if ($SD->SD_LOG)
       $ret = exec_local(__FILE__ . ':' . __LINE__, "$cmd -v 1", $output);
       if ($ret !== SMS_OK)
       {
-        sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', implode(' ', $output));
+        sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', "$cmd -v 1 => " . implode(' ', $output));
       }
       else
       {
@@ -178,16 +169,10 @@ if ($ret != SMS_OK)
   on_error_exit(__FILE__.':'.__LINE__.": sms_bd_set_ipconfig() returned $ret\n", $ret);
 }
 
-// DNS Update
-$ret = dns_update($sdid, $sd_ip_addr);
-if ($ret != SMS_OK)
-{
-  on_error_exit(__FILE__.':'.__LINE__.": dns_update() returned $ret\n", $ret);
-}
-
 sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'E', 0, null, '');
 
 sms_sd_forceasset($sms_csp, $sms_sd_info);
 
 return 0;
 ?>
+
