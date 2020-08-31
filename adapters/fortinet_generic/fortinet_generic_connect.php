@@ -7,30 +7,101 @@ require_once 'smsd/expect.php';
 require_once 'smsd/ssh_connection.php';
 require_once "$db_objects";
 
-function init_connection($conn)
-{
-    $IS_VDOM_ENABLED=false;
+function global_do_store_prompt($conn){
 
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'get system status', '#');
-    if(strpos($buffer, 'Virtual domain configuration: enable') !== false){
-                            //If VDOM is enabled for generic commands do config global
-                    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global) #', 40000);
-                    $IS_VDOM_ENABLED=true;
+   //1) Check if it is a VDOM and get the system status
+   $IS_VDOM_ENABLED = false;
+   //$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'execute update-now', '',10000); //no output
+   $get_system_status = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'get system status', '#');
+   if (strpos($get_system_status, 'Virtual domain configuration: enable') !== false) {
+     //IT IS A VDOM, we should run at first 'config global'
+     $IS_VDOM_ENABLED = true;
+     try {  // VDOM is enabled for generic commands do config global
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global) #', 10000);
+       $config_console = 'OK';
+     } catch (SmsException $e) {
+       $config_console = 'NOK';
+     }
+   } elseif (strpos($get_system_status, 'License Status') === false) {
+     // It is a WAF (we don't have the line 'License Status'
+     // We can get license status with "diagnose debug vm license | grep 'License info' "  cf License info : Valid license.
+     $config_console = 'UNKNOWN';
+   } elseif ((strpos($get_system_status, 'License Status: Valid') !== false) || (strpos($get_system_status, 'License Status: Warning') !== false)) {
+     // It is a UTM with Valid or Warning license, so you can run 'config system console'
+     $config_console = 'OK';
+   } elseif (strpos($get_system_status, 'License Status: Pending') !== false) {
+     // It is a UTM with Pending License (after one reboot), we have to wait
+     $config_console = 'WAIT';
+   } else {
+     //  UTM with no license or invalid license, so you can run not 'config system console'
+     $config_console = 'NOK';
+   }
+   sms_log_info(__FILE__." config_console=$config_console");
+
+   if ($config_console == 'UNKNOWN') {
+     // On waf, run  'config system console' with a very short timeout 10 secondes
+     try {
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #',10000);
+       $config_console2 = 'OK';
+     } catch (SmsException $e) {
+       $config_console2 = 'NOK';
+     }
+     if ($config_console2 == 'OK') {
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+     } else {
+       //NO OK, run only blanc command to get the prompt
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, '', '#',40000);
     }
-
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', ' #', 2000);
-    if (strpos($buffer, "parse error") !== false) {
-        return;
-    }
-
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #', 40000);
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #', 40000);
+  } elseif ($config_console == 'OK') {
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #');
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+    if ($IS_VDOM_ENABLED) {
+      //If the device is a VDOM come out of global mode and enter vdom mode
+      $network  = get_network_profile();
+      $SD       = &$network->SD;
+      $dev_name = $SD->SD_HOSTNAME;
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config vdom', '(vdom) #', 40000);
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, "edit $dev_name", '#', 40000);
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, $cmd, '#', 40000);
 
-    if ($IS_VDOM_ENABLED){
-            $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
     }
+  } elseif ($config_console == 'WAIT') {
 
+    //After reboot, the UTM or WAF device check the license, and during this time we can not run the 'config system console', we have to wait a bit
+    $bad_console = true;
+    $loop_count = 0;
+    while ($bad_console && $loop_count++ < 10 ) {
+      try {
+        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #',60000);
+        $bad_console = false;
+      } catch (SmsException $e) {
+        $err      = $e->getMessage();
+        $err_code = $e->getCode();
+        sms_log_error(__FILE__." wait valid license loop $loop_count, error=$err, (err_code=$err_code)");
+        if ($err_code != ERR_SD_CMDTMOUT || $loop_count == 10) {
+          $status_message = "Connection : $err";
+          //return $err_code;
+          throw new SmsException($status_message, $err_code);
+        }
+      }
+    }
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+  } else {
+    //NO OK, run only blanc command to get the prompt
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, '', '#',40000);
+  }
+  if (empty($buffer)) {
+    $buffer = " # ";
+  }
+
+  $prompt = trim($buffer);
+  $prompt = substr(strrchr($prompt, "\n"), 1);
+  sms_log_info(__FILE__." get prompt =$prompt");
+  return $prompt;
 }
 
 
@@ -38,6 +109,8 @@ class FortinetGenericsshConnection extends SshConnection
 {
   public function do_connect() {
     global $sendexpect_result;
+    $network = get_network_profile();
+    $SD = &$network->SD;
     $cnx_timeout = 10; // seconds
 
     try {
@@ -49,15 +122,15 @@ class FortinetGenericsshConnection extends SshConnection
       try {
         $this->expect(__FILE__.':'.__LINE__, $tab, $cnx_timeout * 1000);
       } catch (SmsException $e) {
-        throw new SmsException("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
+        throw new SmsException($e->getMessage(), $e->getCode());
       }
 
-      if(!preg_match('/Permanently\sadded/', $sendexpect_result, $match)) {
+      if (!preg_match('/Permanently\sadded/', $sendexpect_result, $match)) {
         $this->connect_alt_port();
       }
     }
     catch (SmsException $e) {
-      $this->connect_alt_port();
+      $this->connect_alt_port($e);
     }
 
     // Manage password or auto connection (ssh keys)
@@ -66,13 +139,15 @@ class FortinetGenericsshConnection extends SshConnection
     $tab[1] = 'ld password:';
     $tab[2] = 'ew password:';
     $tab[3] = 'ew Password:';
-    $tab[4] = 'PASSCODE';
-    $tab[5] = '#';
-    $tab[6] = '$';
-    $tab[7] = 'Permission denied';
+    $tab[4] = 'irm Password:';
+    $tab[5] = 'PASSCODE';
+    $tab[6] = '#';
+    $tab[7] = '$';
+    $tab[8] = 'Permission denied';
 
     $loop_count =0;
     $index = 0;
+
     foreach ($tab as $t)
     {
       if (strpos($sendexpect_result, $t) !== false){
@@ -80,23 +155,26 @@ class FortinetGenericsshConnection extends SshConnection
       }
       $index++;
     }
-    if ($index > 7)
+    if ($index > 8)
     {
       $index = $this->expect(__FILE__.':'.__LINE__, $tab);
     }
-    while (($index == 0 || $index == 1 || $index == 2 || $index == 3) && $loop_count < 6) {
-      if ($index == 0 || $index == 1) {
-        $this->sendCmd(__FILE__.':'.__LINE__, "{$this->sd_passwd_entry}");
+    while (($index == 0 || $index == 1 || $index == 2 || $index == 3 || $index == 4) && $loop_count < 6) {
+      // case for regular prompt for password or prompt for old password:
+      if (($index == 0 || $index == 1)) {
+      	$this->sendCmd(__FILE__.':'.__LINE__, "$this->sd_passwd_entry");
       }
-      if ($index == 2 || $index == 3) {
-        // sd_admin_passwd_entry is used as the new password for fortinet re-newal password requirement.
-        $this->sendCmd(__FILE__.':'.__LINE__, "{$this->sd_admin_passwd_entry}");
+      if ($index == 2 || $index == 3 || $index == 4) {
+      // case for prompt for new password.
+      // this is used when automating FGT onboarding on AWS for instance
+      // sd_admin_passwd_entry is used to store the new password for fortinet re-newal password requirement.
+        $this->sendCmd(__FILE__.':'.__LINE__, "{$SD->SD_PASSWD_ADM}");
       }
       $loop_count ++;
       $index = $this->expect(__FILE__.':'.__LINE__, $tab);
     }
 
-    if ($index == 7){
+    if ($index == 8) {
       throw new SmsException("{$this->connectString} Failed", ERR_SD_CONNREFUSED);
     }
 
@@ -107,39 +185,10 @@ class FortinetGenericsshConnection extends SshConnection
 
   public function do_store_prompt()
   {
-  	$network = get_network_profile();
-
-  	$IS_VDOM_ENABLED=false;
-
-    init_connection($this);
-
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
-    if ((strpos($buffer, 'License Status') === false) || (strpos($buffer, 'License Status: Valid') !== false) || (strpos($buffer, 'License Status: Warning') !== false))
-    {
-    	if(strpos($buffer, 'Virtual domain configuration: enable') !== false){
-			//If VDOM is enabled for generic commands do config global
-	    	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config global', '(global) #', 40000);
-	    	$IS_VDOM_ENABLED=true;
-    	}
-      if ($IS_VDOM_ENABLED){
-      	//If the device is a VDOM come out of global mode and enter vdom mode
-      	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
-      	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config vdom', '(vdom) #', 40000);
-		    $cmd = "edit root";
-      	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, $cmd, '#', 40000);
-      }
-      $this->prompt = trim($buffer);
-      $this->prompt = substr(strrchr($buffer, "\n"), 1);
-    }
-    else
-    {
-    	$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, '', '#',40000);
-    	$this->prompt = trim($buffer);
-    	$this->prompt = substr(strrchr($buffer, "\n"), 1);
-    }
-
-    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+    $this->prompt = global_do_store_prompt($this);
+    echo "Prompt found FortinetGenericsshConnection: {$this->prompt} for {$this->sd_ip_config}\n";
   }
+
   public function do_start()
   {
     $this->setParam('suppress_echo', true);
@@ -151,38 +200,8 @@ class FortinetVDOMsshConnection extends FortinetGenericsshConnection
 {
   public function do_store_prompt()
   {
-    $network = get_network_profile();
-    $SD = &$network->SD;
-    $dev_name=$SD->SD_HOSTNAME;
-
-    $IS_VDOM_ENABLED=false;
-    init_connection($this);
-
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
-    if ((strpos($buffer, 'License Status') === false) || (strpos($buffer, 'License Status: Valid') !== false) || (strpos($buffer, 'License Status: Warning') !== false))
-    {
-      if(strpos($buffer, 'Virtual domain configuration: enable') !== false){
-        //If VDOM is enabled for generic commands do config global
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config global', '(global) #', 40000);
-        $IS_VDOM_ENABLED=true;
-      }
-
-      if ($IS_VDOM_ENABLED){
-        //If the device is a VDOM come out of global mode and enter vdom mode
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config vdom', '(vdom) #', 40000);
-        $cmd = "edit $dev_name";
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, $cmd, '#', 40000);
-      }
-      $this->prompt = trim($buffer);
-      $this->prompt = substr(strrchr($buffer, "\n"), 1);
-    }
-    else
-    {
-      $this->prompt = " # ";
-    }
-
-    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+    $this->prompt = global_do_store_prompt($this);
+    echo "Prompt found FortinetVDOMsshConnection: {$this->prompt} for {$this->sd_ip_config}\n";
   }
 }
 
@@ -191,36 +210,8 @@ class FortinetsshKeyConnection extends SshKeyConnection
 
   public function do_store_prompt()
   {
-    $network = get_network_profile();
-
-    $IS_VDOM_ENABLED=false;
-    init_connection($this);
-
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'get system status', '#');
-    if (strpos($buffer, 'License Status') == false || strpos($buffer, 'License Status: Valid') !== false || strpos($buffer, 'License Status: Warning') !== false)
-    {
-      if(strpos($buffer, 'Virtual domain configuration: enable') !== false){
-        //If VDOM is enabled for generic commands do config global
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config global', '(global) #', 40000);
-        $IS_VDOM_ENABLED=true;
-      }
-
-      if ($IS_VDOM_ENABLED){
-        //If the device is a VDOM come out of global mode and enter vdom mode
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'end', '#');
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, 'config vdom', '(vdom) #', 40000);
-        $cmd = "edit root";
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $this, $cmd, '#', 40000);
-      }
-      $this->prompt = trim($buffer);
-      $this->prompt = substr(strrchr($buffer, "\n"), 1);
-    }
-    else
-    {
-      $this->prompt = " # ";
-    }
-
-    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+    $this->prompt = global_do_store_prompt($this);
+    echo "Prompt found FortinetsshKeyConnection: {$this->prompt} for {$this->sd_ip_config}\n";
   }
   public function do_start()
   {
@@ -236,6 +227,7 @@ function fortinet_generic_connect($sd_ip_addr = null, $login = null, $passwd = n
   global $sms_sd_ctx;
   global $model_data;
   global $priv_key;
+  global $SMS_OUTPUT_BUF;
 
   $data = json_decode($model_data, true);
   $class = $data['class'];
@@ -244,7 +236,12 @@ function fortinet_generic_connect($sd_ip_addr = null, $login = null, $passwd = n
     $priv_key = $data['priv_key'];
   }
 
-  $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+  try {
+    $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+  } catch (SmsException $e) {
+    $SMS_OUTPUT_BUF = $e->getMessage();
+    return $e->getCode();
+  }
 
   return SMS_OK;
 }
@@ -263,3 +260,4 @@ function fortinet_generic_disconnect()
 }
 
 ?>
+
