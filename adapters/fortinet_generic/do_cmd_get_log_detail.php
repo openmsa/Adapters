@@ -69,7 +69,7 @@ if(!empty($msg_id))
 		$get_log_url = "https://$sd_ip_config/log_aggregate/getLogByID";
 		$get_log_post = "msgID=$msg_id&logType=3&is_aggregate=1&logfile=alog.log";
 		//$output_file = "/opt/sms/routerlogs/$sdid/getLogByID_" . rand(100000, 999999).".json";
-		$output_file = "/opt/sms/routerlogs/$sdid/getLogByID";
+		$output_file = "/opt/sms/routerlogs/$sdid_getLogByID";
 		
 		$get_log_cmd = "wget -d --load-cookies=$cookie_file --no-check-certificate --post-data='$get_log_post' $get_log_url 2>&1 --output-document $output_file";
 		unset($output_array);
