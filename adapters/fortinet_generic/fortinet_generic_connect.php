@@ -12,6 +12,9 @@ function global_do_store_prompt($conn){
    //1) Check if it is a VDOM and get the system status
    $IS_VDOM_ENABLED = false;
    //$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'execute update-now', '',10000); //no output
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #');
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
    $get_system_status = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'get system status', '#');
    if (strpos($get_system_status, 'Virtual domain configuration: enable') !== false) {
      //IT IS A VDOM, we should run at first 'config global'
