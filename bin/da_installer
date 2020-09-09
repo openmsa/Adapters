@@ -148,7 +148,6 @@ update_core_engine() {
 	#ls -la /opt/sms/bin/php/
 	#ls -la /opt/sms/bin/php/$DA_SRC_PATH
    	
-	rm -rf /opt/sms/devices/$DA_SRC_PATH
 	#echo "code 2"
         #ls -la /opt/sms/devices/$DA_SRC_PATH/
 	#ls -la /opt/sms/bin/php/$DA_SRC_PATH/
