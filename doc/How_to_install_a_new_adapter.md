@@ -25,7 +25,7 @@ Step 2: use a symlink to install the source code of the adaptor
 Step 3: install the Core Engine configuration file
 ------
 ```
-# cd /opt/sms/templates/devices/
+# cd /opt/sms/devices/
 # ln -s /opt/Adaptors/adapters/rest_generic rest_generic
 # chown -R ncuser.ncuser rest_generic
 # service ubi-sms restart
