@@ -62,7 +62,7 @@ class Nfvo_connection extends GenericConnection
 		// SI pas de endpoints, on prend keystone par défaut.
 		// if ($action[1] == "")
 		// {
-		$action[2] = 'http://' . $this->sd_ip_config . ':8380' . $action[2];
+		$action[2] = 'http://' . $this->sd_ip_config . ':8080' . $action[2];
 		// }
 
 		// TODO TEST validité champ ACTION[]
