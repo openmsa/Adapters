@@ -29,8 +29,12 @@ class AWSSDKConnection extends GenericConnection
     $this->secret = $this->sd_passwd_entry;
     $this->region = $sd->SD_HOSTNAME;
     
-    $cmd = "Aws\Iam\IamClient#listAccessKeys#";
+    $cmd = "Aws\Ec2\Ec2Client#describeInstances#{ \"MaxResults\" : 5 }";
     $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");    
+
+    $cmd = "Aws\Ec2\Ec2Client#describeVpcs#";
+    $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");    
+
   }
 
   // ------------------------------------------------------------------------------------------------
@@ -70,9 +74,6 @@ class AWSSDKConnection extends GenericConnection
 
     echo "AWS Client : {$action[0]}\n";
     echo "AWS Action : {$action[1]}\n";
-    if (isset($action[2])) {
-	    echo "AWS Action Params : {$action[2]}\n";
-    }
     
     $result = "";
     $array = array();
@@ -86,26 +87,23 @@ class AWSSDKConnection extends GenericConnection
    			'region' => $this->region
    		));
 
-    		$awsAction = $action[1];
-   		if (isset($action[2])) {
-   			$awsActionParams = json_decode($action[2], true);
-   			$result = $client->$awsAction($awsActionParams);
+    	$awsAction = $action[1];
+       
+      if (isset($action[2])) {
+        echo "AWS Action Params : {$action[2]}\n";
+        $awsActionParams = json_decode($action[2], true);
+        echo "AWS Action Params (after json_decode) : $awsActionParams\n";
+        $result = $client->$awsAction($awsActionParams);
    		}
    		else {
    			$result = $client->$awsAction();
    		}
-                echo "AWS action params : $action[2]\n";
-                echo "AWS awsActionParam jsondecode : $awsActionParams\n";
-                echo "AWS Action result: $result\n";
+      echo "AWS Action result: \n$result\n";
 
-   		//if (!is_array($result)) {
-   		//	throw new SmsException("Call to SDK command failed : $result", ERR_SD_CMDFAILED);
-   		//}
    		$array = $result->toArray();
-    }
-    catch (Exception | Error $e) {
-	throw new SmsException("Call to SDK command failed : $e", ERR_SD_CMDFAILED);
-    }
+    } catch (Exception | Error $e) {
+	    throw new SmsException("Call to SDK command failed Exception: $e", ERR_SD_CMDFAILED);
+    } 
     
     // call array to xml conversion function
     $xml = arrayToXml($array, '<root></root>');
