@@ -227,12 +227,12 @@ function activate_scp($login, $passwd = "")
   	$passwd = "Xy" . mt_rand(10000, 99999) . "Y";
   }
   else {
-  	$ret = exec_local(__FILE__ . ':' . __LINE__, "/opt/configurator/script/encp.sh '$passwd'", $output);
+  	$ret = exec_local(__FILE__ . ':' . __LINE__, "/opt/configurator/script/encp.sh -c '$passwd'", $output);
   	if ($ret !== SMS_OK)
   	{
   		return false;
   	}
-  	$passwd = trim($output[0]);
+  	$passwd = substr(trim($output[0]), 0, 10);
   }
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
