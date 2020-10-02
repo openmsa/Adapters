@@ -165,6 +165,9 @@ class DeviceConnection extends GenericConnection {
 					$value = $nminus2.$nminus1.$value;
                         	}
 			}
+			if (strpos($value, '<!-') === 0) {
+			   unset($output_array[$key]);
+			}
 		}
 		$result = '';
 		foreach ( $output_array as $line ) {
@@ -174,6 +177,7 @@ class DeviceConnection extends GenericConnection {
 					The IF block is proposed to remove any namespaces and attributes from tags and lines without tags (The lines sometimes happen in case multiapplication output)
 					*/
 					if (strpos($curl_cmd, 'application/xml') !== false) {
+						$line = trim($line);
                                                 if (strpos($line, '<') === 0) {
                                                         if ((preg_match('/<[^<>]+?\s[^<>]+?>/', $line) === 1) and (strpos($a, 'xml version=') === false)) {
                                                             $line = preg_replace('/^<([^<>]+?) [^<>]+?>/', '<\1>', $line);
@@ -203,7 +207,6 @@ class DeviceConnection extends GenericConnection {
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
 			}
-
 			// call array to xml conversion function
 			$xml = arrayToXml ( $array, '<root></root>' );
 		} else {
@@ -222,7 +225,6 @@ class DeviceConnection extends GenericConnection {
 		$this->raw_json = $result;
 
 		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
 	}
 
 }
@@ -268,12 +270,10 @@ class TokenConnection extends DeviceConnection {
 			$data = json_encode ( $data );
 			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
-		debug_dump($this->token_xpath, "do_connect result: \n");
 			// extract token
 			$this->key = (string)($result->xpath($this->token_xpath)[0]);
 
         }
-		debug_dump($this->key, "TOKEN\n");
 	}
 }
 
