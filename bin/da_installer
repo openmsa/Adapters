@@ -52,7 +52,6 @@ da_install() {
 	#check_create_model
 	check_sms_router_conf
 	update_files
-	update_core_engine
 }
 
 da_uninstall() {
@@ -133,24 +132,6 @@ check_create_model() {
 		exit 0
 		fi
 	fi
-
-}
-
-update_core_engine() {
-	
-	deviceid="${MAN_ID}:${MOD_ID}"
-	keyname="${MAN_NAME} ${MOD_NAME}"
-
-	echo "update core_engine config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}], path $DA_SRC_PATH."
-
-	rm -rf /opt/sms/bin/php/$DA_SRC_PATH
-	ln -fs $DA_DIR /opt/sms/bin/php/$DA_SRC_PATH
- 
- 	rm -rf /opt/sms/devices/$DA_SRC_PATH
-	ln -fs $DA_DIR /opt/sms/devices/$DA_SRC_PATH
-
-   	chown -R ncuser.ncuser /opt/sms/devices/$DA_SRC_PATH
-   	chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
 
 }
 
