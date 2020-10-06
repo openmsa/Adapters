@@ -244,7 +244,11 @@ class TokenConnection extends DeviceConnection {
                             "_SYSTEM" => array(
                                                 "uri" => "/redfish/v1/Systems",
                                                 "id" => "NULL"
-                                                )
+                                               ),
+                            "_MANAGER" => array(
+						"uri" => "/redfish/v1/Managers",
+						"id"  => "NULL"
+					       )
                             );
 
     public function do_connect() {
