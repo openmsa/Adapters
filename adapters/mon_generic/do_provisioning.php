@@ -178,13 +178,6 @@ if ($ret != SMS_OK)
   on_error_exit(__FILE__.':'.__LINE__.": sms_bd_set_ipconfig() returned $ret\n", $ret);
 }
 
-// DNS Update
-$ret = dns_update($sdid, $sd_ip_addr);
-if ($ret != SMS_OK)
-{
-  on_error_exit(__FILE__.':'.__LINE__.": dns_update() returned $ret\n", $ret);
-}
-
 sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'E', 0, null, '');
 
 sms_sd_forceasset($sms_csp, $sms_sd_info);
