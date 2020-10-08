@@ -5,8 +5,8 @@
 require_once 'polld/common.php';
 require_once 'smsd/sms_common.php';
 
-require_once "$db_objects";
 require_once load_once('mon_generic', 'provisioning_stages.php');
+require_once "$db_objects";
 
 function on_error_exit($log_msg, $error_id)
 {
@@ -68,14 +68,12 @@ else
   $poll_mode |= POLL_PING;
 }
 
-
-$stage += 1;
-
 if ($SD->SD_LOG)
 {
   // -------------------------------------------------------------------------------------
   // SNMP TEST
   // -------------------------------------------------------------------------------------
+  $stage += 1;
 
   $snmp_oid = "1.3.6.1.2.1.1.3.0"; // sysUpTime
 
@@ -156,11 +154,6 @@ if ($SD->SD_LOG)
   {
     on_error_exit(__FILE__ . ':' . __LINE__ . ": sms_bd_set_poll_mode() returned $ret\n", $ret);
   }
-}
-else
-{
-  // Set this step to "Not run"
-  sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'N', 0, 'W', '');
 }
 
 // -------------------------------------------------------------------------------------

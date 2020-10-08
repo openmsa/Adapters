@@ -1,21 +1,11 @@
 <?php
-/*
- * Version: $Id: do_provisioning.php 105696 2016-02-03 16:38:12Z ydu $
- * Created: May 30, 2008
- * Available global variables
- *  $sms_sd_info        sd_info structure
- * 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
- *  $sms_csp            pointer to csp context to retreive usefull field(s)
- *  $sdid
- *  $sms_module         module name (for patterns)
- */
 
 // Initial provisioning
 
 require_once 'polld/common.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('mon_generic', 'provisioning_stages.php');
+require_once load_once('nec_nfa', 'provisioning_stages.php');
 require_once "$db_objects";
 
 function on_error_exit($log_msg, $error_id)
@@ -78,13 +68,12 @@ else
   $poll_mode |= POLL_PING;
 }
 
-$stage += 1;
-
 if ($SD->SD_LOG)
 {
   // -------------------------------------------------------------------------------------
   // SNMP TEST
   // -------------------------------------------------------------------------------------
+  $stage += 1;
 
   $snmp_oid = "1.3.6.1.2.1.1.3.0"; // sysUpTime
 
@@ -129,7 +118,7 @@ if ($SD->SD_LOG)
     $ret = exec_local(__FILE__ . ':' . __LINE__, $cmd, $output);
     if ($ret !== SMS_OK)
     {
-      sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', implode(' ', $output));
+      sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', "$cmd => " . implode(' ', $output));
     }
   }
   else
@@ -144,7 +133,7 @@ if ($SD->SD_LOG)
       $ret = exec_local(__FILE__ . ':' . __LINE__, "$cmd -v 1", $output);
       if ($ret !== SMS_OK)
       {
-        sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', implode(' ', $output));
+        sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', "$cmd -v 1 => " . implode(' ', $output));
       }
       else
       {
@@ -166,11 +155,6 @@ if ($SD->SD_LOG)
     on_error_exit(__FILE__ . ':' . __LINE__ . ": sms_bd_set_poll_mode() returned $ret\n", $ret);
   }
 }
-else
-{
-  // Set this step to "Not run"
-  sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'N', 0, 'W', '');
-}
 
 // -------------------------------------------------------------------------------------
 // DNS & IP CONFIG UPDATE
@@ -190,3 +174,4 @@ sms_sd_forceasset($sms_csp, $sms_sd_info);
 
 return 0;
 ?>
+
