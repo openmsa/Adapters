@@ -1,9 +1,5 @@
 <?php
 
-// Enter Script description here
-require_once 'polld/common.php';
-require_once 'smsd/sms_common.php';
-
 require_once "$db_objects";
 
 $network = get_network_profile();
