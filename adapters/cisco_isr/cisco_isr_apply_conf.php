@@ -58,7 +58,7 @@ function cisco_isr_apply_conf($configuration, $push_to_startup = false)
   // SCP mode configuration (default mode)
   // ---------------------------------------------------
   $ret = SMS_OK;
-  if ($protocol === 'SSH' && $push_to_startup === false)
+  if ($protocol === 'SSH' && $push_to_startup === false && ($line_config_mode === 0 || $line_config_mode === 3))
   {
     echo "SCP mode configuration\n";
 
