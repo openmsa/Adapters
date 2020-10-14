@@ -29,7 +29,7 @@ Notes
 
 The AWS device adaptor (in ../aws) includes the aws php sdk as follows:
 
-	aws_generic_connect.php:require 'vendor/autoload.php';
+	aws_generic_connect.php:require 'autoload.php';
 
 
 Some files in here have been auto-generated.

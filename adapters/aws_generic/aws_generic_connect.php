@@ -7,7 +7,7 @@ require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
 
-require 'vendor/autoload.php';
+require 'autoload.php';
 use Aws\Iam\IamClient;
 use Aws\Ec2\Ec2Client;
 use Aws\S3\S3Client;

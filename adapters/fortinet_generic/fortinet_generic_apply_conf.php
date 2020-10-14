@@ -92,7 +92,6 @@ function fortinet_generic_apply_conf(&$configuration)
           $ERROR_BUFFER .= "\n";
           $ERROR_BUFFER .= $sendexpect_result;
           $ERROR_BUFFER .= "\n";
-          $SMS_OUTPUT_BUF = '';
         }
       }
     }
