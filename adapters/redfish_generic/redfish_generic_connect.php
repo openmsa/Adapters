@@ -199,7 +199,8 @@ class DeviceConnection extends GenericConnection {
                     }
                 }
             if ($is_it_success === False) {
-                sleep(10);
+                dedug_dump($attempt_countdown, "DEBUG: We've got wrong reply from server. Sleeping 5 sec. Attempt ");
+		sleep(5);
             }
         }
         if ($is_it_success === False and $attempt_countdown === 0) {
