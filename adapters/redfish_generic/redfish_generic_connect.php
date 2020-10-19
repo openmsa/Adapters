@@ -161,40 +161,52 @@ class DeviceConnection extends GenericConnection {
              }
         return $result_array;
     }
-
-
     protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
-        $ret = exec_local ( $origin, $curl_cmd, $output_array );
-        //The variable is used to identify response what will be processed by modify_array function
-        $pattern_modify_array = '/(Attributes)|(Actions)/';
-
-        if ($ret !== SMS_OK) {
-            throw new SmsException ( "Call to API Failed", $ret );
-        }
-
-        unset($this->header_token);
-        $result = '';
-        foreach ( $output_array as $line ) {
-            if ($line !== 'SMS_OK') {
-                if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
-                    if (strpos ( $line, '{' ) === 0) {
-                           $result .= "{$line}\n";
-                    }
-
-                    if (strpos ( $line, 'X-Auth-Token' ) === 0) {
-
-                                               $this->header_token = str_replace("X-Auth-Token:","",$line);
-                                        }
-
-
-                } else {
-                    if (preg_match('/HTTP_CODE=(2|3)0/', $line) !== 1) {
-                        $cmd_quote = str_replace ( "\"", "'", $result );
-                        $cmd_return = str_replace ( "\n", "", $cmd_quote );
-                        throw new SmsException ( "$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
+        
+        $attempt_countdown = 5;
+        $is_it_success = False;
+        
+        while ($is_it_success === False and $attempt_countdown > 0) {
+            $is_it_success = True;
+            $ret = exec_local ( $origin, $curl_cmd, $output_array );
+            //The variable is used to identify response what will be processed by modify_array function
+            $pattern_modify_array = '/(Attributes)|(Actions)/';
+    
+            if ($ret !== SMS_OK) {
+                throw new SmsException ( "Call to API Failed", $ret );
+            }
+    
+            unset($this->header_token);
+            $result = '';
+            foreach ( $output_array as $line ) {
+                 if ($line !== 'SMS_OK') {
+                    if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
+                        if (strpos ( $line, '{' ) === 0) {
+                               $result .= "{$line}\n";
+                        }
+    
+                        if (strpos ( $line, 'X-Auth-Token' ) === 0) {
+    
+                                                   $this->header_token = str_replace("X-Auth-Token:","",$line);
+                                            }
+    
+    
+                    }   else {
+                            if (preg_match('/HTTP_CODE=(4|5)0/', $line) == 1) {
+                                $is_it_success = False;
+                            }
+                        }
                     }
                 }
+            if ($is_it_success === False) {
+                dedug_dump($attempt_countdown, "DEBUG: We've got wrong reply from server. Sleeping 5 sec. Attempt ");
+		sleep(5);
             }
+        }
+        if ($is_it_success === False and $attempt_countdown === 0) {
+            $cmd_quote = str_replace ( "\"", "'", $result );
+            $cmd_return = str_replace ( "\n", "", $cmd_quote );
+            throw new SmsException ( "$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
         }
         $xml;
         if (strpos($curl_cmd, "Content-Type: application/json") or strpos($curl_cmd, "Content-Type: multipart/form-data")) {
@@ -464,3 +476,4 @@ function redfish_generic_disconnect() {
 }
 
 ?>
+

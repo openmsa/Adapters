@@ -52,7 +52,6 @@ da_install() {
 	#check_create_model
 	check_sms_router_conf
 	update_files
-	update_core_engine
 }
 
 da_uninstall() {
@@ -133,42 +132,6 @@ check_create_model() {
 		exit 0
 		fi
 	fi
-
-}
-
-update_core_engine() {
-	deviceid="${MAN_ID}:${MOD_ID}"
-	keyname="${MAN_NAME} ${MOD_NAME}"
-
-	echo "update core_engine config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}], path $DA_SRC_PATH."
-   	#set -x
-	rm -rf /opt/sms/bin/php/$DA_SRC_PATH
-	ln -fs $DA_DIR /opt/sms/bin/php/$DA_SRC_PATH
- 	#echo "code 1"
-	#ls -la /opt/sms/bin/php/
-	#ls -la /opt/sms/bin/php/$DA_SRC_PATH
-   	
-	rm -rf /opt/sms/devices/$DA_SRC_PATH
-	#echo "code 2"
-        #ls -la /opt/sms/devices/$DA_SRC_PATH/
-	#ls -la /opt/sms/bin/php/$DA_SRC_PATH/
-	
-	rm -rf /opt/sms/devices/$DA_SRC_PATH
-	ln -fs $DA_DIR /opt/sms/devices/$DA_SRC_PATH
-
-	#echo "code 3"
-	#ls -la /opt/sms/bin/php/
-	#ls -la /opt/sms/bin/php/$DA_SRC_PATH
-	#ls -la /opt/sms/devices/
-        #ls -la /opt/sms/devices/$DA_SRC_PATH
- 
-	#set +x
-    	chown -R ncuser.ncuser /opt/sms/devices/$DA_SRC_PATH
-    	chown -R ncuser.ncuser /opt/sms/bin/php/$DA_SRC_PATH;
-	#echo "code"
-	#ls -la /opt/sms/bin/php/$DA_SRC_PATH/
-	#echo "config"
-	#ls -la /opt/sms/devices/$DA_SRC_PATH/conf/
 
 }
 
