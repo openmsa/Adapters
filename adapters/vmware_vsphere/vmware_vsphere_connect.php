@@ -54,8 +54,9 @@ class VMWareVsphereRESTConnection extends GenericConnection
   {
     unset($this->xml_response);
     unset($this->raw_xml);
-
-    $delay = EXPECT_DELAY / 1000;
+//    $delay = EXPECT_DELAY / 1000;
+//Wait for maximum of 10 minutes as VMware apis are not asynchronous sometimes
+$delay=600;
 
     $action = explode("#", $cmd);
     $uri = "https://" . $this->sd_ip_config . "/rest/";

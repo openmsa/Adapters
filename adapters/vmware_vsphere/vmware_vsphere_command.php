@@ -160,11 +160,12 @@ class vmware_vsphere_command extends generic_command
         else
         {
           $i = 0;
+	  $conf = 'POST#';
           foreach ($xml_configs as $xml_conf)
           {
             if (!empty($xml_conf))
             {
-              $conf = $endpoints[$i];
+              $conf .= $endpoints[$i];
               $conf .= '#' . $xpaths[$i];
               // separate data with '#'
               $conf .= '#' . $xml_conf;
@@ -216,9 +217,11 @@ class vmware_vsphere_command extends generic_command
 
       $endpoint_str = trim($update->evaluate_operation());
       $endpoints = explode("##", $endpoint_str);
+echo "nav-ep: $endpoint_str\n";
       $xpath_str = trim($update->evaluate_xpath());
       $xpath_str = str_replace("\xE2\x80\x8B", "", $xpath_str);
       $xpaths = explode("##", $xpath_str);
+echo "nav-xp: $xpath_str\n";
 
       $xml_conf_str = trim($update->evaluate_xml());
       $xml_conf_str = str_replace("\n", '', $xml_conf_str);

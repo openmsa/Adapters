@@ -34,7 +34,7 @@ function vmware_vsphere_apply_conf($configuration)
     
     if (!empty($line))
     {
-      $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '//root');
+      $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line);
       $SMS_RETURN_BUF = json_encode($res);
     }
     $line = get_one_line($configuration);
