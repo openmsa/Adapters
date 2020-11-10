@@ -19,7 +19,7 @@ function oneaccess_lbb_apply_conf($configuration)
 	$script_file = "$sdid:".__FILE__;
 	$file_name = "$sdid.cfg";
 
-	$line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
+	$line_config_mode = $SD->SD_CONFIG_STEP;
 	$line_config_mode = 1; // Dont allow yet the TFTP mode:
 
 	if($line_config_mode === 1)
