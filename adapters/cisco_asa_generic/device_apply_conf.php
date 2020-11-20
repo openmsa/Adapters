@@ -35,6 +35,7 @@ function device_apply_conf($configuration, $push_to_startup = false)
   }
 
   $SMS_OUTPUT_BUF = '';
+  $line_config_mode = $SD->SD_CONFIG_STEP;
   $protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
   $file_name = "{$sdid}.cfg";
@@ -50,7 +51,7 @@ function device_apply_conf($configuration, $push_to_startup = false)
   // Line by line mode configuration in multi context mode
   // ---------------------------------------------------
   $ret = SMS_OK;
-  if ($sms_sd_ctx->getParam('CONTEXT_MODE') === 'MULTI')
+  if ($sms_sd_ctx->getParam('CONTEXT_MODE') === 'MULTI' || $line_config_mode === 1)
   {
     echo "Line by line mode configuration\n";
 
@@ -120,7 +121,7 @@ function device_apply_conf($configuration, $push_to_startup = false)
   // SCP mode configuration (default mode)
   // ---------------------------------------------------
   $ret = SMS_OK;
-  if ($protocol === 'SSH')
+  if ($protocol === 'SSH' && ($line_config_mode === 0 || $line_config_mode === 3))
   {
     echo "SCP mode configuration\n";
 

@@ -42,7 +42,7 @@ function cisco_nexus9000_apply_conf($configuration, $push_to_startup = false)
   }
 
   $SMS_OUTPUT_BUF = '';
-  $line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
+  $line_config_mode = $SD->SD_CONFIG_STEP;
   $protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
   $file_name = "{$sdid}.cfg";
@@ -118,21 +118,13 @@ sms_log_info(__FILE__ . ':' . __LINE__ . ": passed 2\n");
   }
 
   // ---------------------------------------------------
-  // Line by line mode configuration  - Used for ZTD port console
+  // Line by line mode configuration
   // ---------------------------------------------------
   $ret = SMS_OK;
-  if ($line_config_mode === 1)
+  if ($line_config_mode === 1 || $line_config_mode === 0)
   {
     echo "Line by line mode configuration\n";
     $ERROR_BUFFER = '';
-
-    // GET FIRMWARE VERSION WITH CONFIGURATION VARIABLES
-    get_asset();
-    $bin_config_var = $SD->SD_CONFIGVAR_list['FIRMWARE']->VAR_VALUE;
-    if (!empty($bin_config_var))
-    {
-      manage_firmware_port_console($SD);
-    }
 
     sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
 
@@ -214,16 +206,10 @@ sms_log_info(__FILE__ . ':' . __LINE__ . ": passed 2\n");
       save_result_file("No error found during the application of the configuration", "conf.error");
     }
 
-    set_serial_and_hostname_in_db($SD);
     $ret = func_write();
 
     return $ret;
   }
-
-	if($SD->SD_CONF_ISIPV6)
-	{
-		$sms_ip_addr = $_SERVER['SMS_ADDRESS_IPV6'];
-	}
 
   // ---------------------------------------------------
   // TFTP mode configuration
@@ -233,6 +219,10 @@ sms_log_info(__FILE__ . ':' . __LINE__ . ": passed 2\n");
   echo "TFTP mode configuration\n";
   $ret = SMS_OK;
   $sms_ip_addr = $_SERVER['SMS_ADDRESS_IP'];
+  if($SD->SD_CONF_ISIPV6)
+  {
+    $sms_ip_addr = $_SERVER['SMS_ADDRESS_IPV6'];
+  }
 
   $is_ztd = false;
   if ($sms_sd_ctx->getIpAddress() !== $SD->SD_IP_CONFIG)
