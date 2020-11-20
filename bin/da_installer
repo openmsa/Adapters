@@ -50,7 +50,7 @@ da_install() {
 
 	read_properties_files
 	#check_create_model
-	check_sms_router_conf
+	patch_sms_router_conf
 	update_files
 }
 
@@ -69,7 +69,6 @@ da_uninstall() {
 	DA_SRC_PATH=basename $DA_DIR
 
 	read_properties_files
-	check_sms_router_conf
 
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 	default_file="$JENTREPRISE_CONF/models.properties"
@@ -97,7 +96,6 @@ da_deactivate() {
 	DA_SRC_PATH=basename $DA_DIR
 
 	read_properties_files
-	check_sms_router_conf
 
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 	default_file="$JENTREPRISE_CONF/models.properties"
@@ -201,19 +199,13 @@ read_properties_files() {
 #	fi
 }
 
-check_sms_router_conf() {
+patch_sms_router_conf() {
 	sms_router_conf="$CONF_DIR/sms_router.conf"
 	[ -f "$DA_DIR/$sms_router_conf" ] || \
 		fatal "file not found: $sms_router_conf"
 
-	spec=$(cat $DA_DIR/$sms_router_conf | egrep '^model\s' | awk '{print $2}')
-	man_id=$(cut -d : -f 1 <<< "$spec")
-	mod_id=$(cut -d : -f 2 <<< "$spec")
-
-	[ "$man_id" = "$MAN_ID" ] || \
-		fatal "inconsistent definition: man_id=$man_id MAN_ID=$MAN_ID"
-	[ "$mod_id" = "$MOD_ID" ] || \
-		fatal "inconsistent definition: mod_id=$mod_id MOD_ID=$MOD_ID"
+	sed -i "/^model[^-]/ d"			$DA_DIR/$sms_router_conf
+	sed -i "1 i model $MAN_ID:$MOD_ID"	$DA_DIR/$sms_router_conf
 }
 
 read_property() {
