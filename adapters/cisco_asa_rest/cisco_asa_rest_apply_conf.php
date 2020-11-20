@@ -39,7 +39,7 @@ function cisco_asa_rest_apply_conf($configuration, $push_to_startup = false)
 	}
 
 	$SMS_OUTPUT_BUF = '';
-	$line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
+	$line_config_mode = $SD->SD_CONFIG_STEP;
 	$protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
 	$file_name = "{$sdid}.cfg";
@@ -55,7 +55,7 @@ function cisco_asa_rest_apply_conf($configuration, $push_to_startup = false)
 	// SCP mode configuration (default mode)
 	// ---------------------------------------------------
 	$ret = SMS_OK;
-	if ($protocol === 'SSH')
+	if ($protocol === 'SSH' && ($line_config_mode === 0 || $line_config_mode === 3))
 	{
 		echo "SCP mode configuration\n";
 
@@ -107,20 +107,13 @@ function cisco_asa_rest_apply_conf($configuration, $push_to_startup = false)
 	}
 
 	// ---------------------------------------------------
-	// Line by line mode configuration  - Used for ZTD port console
+	// Line by line mode configuration
 	// ---------------------------------------------------
 	$ret = SMS_OK;
 	if ($line_config_mode === 1)
 	{
 		echo "Line by line mode configuration\n";
 		$ERROR_BUFFER ='';
-
-		// GET FIRMWARE VERSION WITH CONFIGURATION VARIABLES
-		get_asset();
-		$bin_config_var = $SD->SD_CONFIGVAR_list['FIRMWARE']->VAR_VALUE;
-		if (!empty($bin_config_var)){
-			manage_firmware_port_console($SD);
-		}
 
 		sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
 
@@ -199,7 +192,6 @@ function cisco_asa_rest_apply_conf($configuration, $push_to_startup = false)
 			save_result_file("No error found during the application of the configuration", "conf.error");
 		}
 
-		set_serial_and_hostname_in_db($SD);
 		$ret = func_write();
 
 		return $ret;

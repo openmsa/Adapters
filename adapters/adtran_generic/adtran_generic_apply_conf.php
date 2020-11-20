@@ -42,7 +42,7 @@ function adtran_generic_apply_conf($configuration, $push_to_startup = false)
   }
 
   $SMS_OUTPUT_BUF = '';
-  $line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
+  $line_config_mode = $SD->SD_CONFIG_STEP;
   $protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
   $file_name = "{$sdid}.cfg";
@@ -55,81 +55,14 @@ function adtran_generic_apply_conf($configuration, $push_to_startup = false)
   }
 
   // ---------------------------------------------------
-  // SCP mode configuration (default mode)
-  // ---------------------------------------------------
-  $ret = SMS_OK;
-  /*if ($protocol === 'SSH')
-  {
-    echo "SCP mode configuration\n";
-
-    try
-    {
-      $ret = scp_to_router($full_name, $file_name);
-      if ($ret === SMS_OK)
-      {
-        // SCP OK
-        if ($push_to_startup)
-        {
-          $SMS_OUTPUT_BUF = copy_to_running("copy flash:$file_name startup-config");
-          save_result_file($SMS_OUTPUT_BUF, "conf.error");
-        }
-        else
-        {
-          $SMS_OUTPUT_BUF = copy_to_running("copy flash:$file_name running-config");
-          save_result_file($SMS_OUTPUT_BUF, "conf.error");
-        }
-        $SMS_OUTPUT_BUF = preg_replace("~[\r\n]~", "", $SMS_OUTPUT_BUF);
-        foreach ($apply_errors as $apply_error)
-        {
-          if (preg_match($apply_error, $SMS_OUTPUT_BUF) > 0)
-          {
-            sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
-            $ret = ERR_SD_CMDFAILED;
-            break;
-          }
-        }
-
-        sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete flash:$file_name", "]?");
-        sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", "[confirm]");
-        sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "");
-
-        if ($ret === SMS_OK)
-        {
-          if (!$push_to_startup)
-          {
-            $ret = func_write();
-          }
-        }
-        return $ret;
-      }
-    }
-    catch (Exception | Error $e)
-    {
-      if (strpos($e->getMessage(), 'connection failed') !== false)
-      {
-        return ERR_SD_CONNREFUSED;
-      }
-      sms_log_error(__FILE__ . ':' . __LINE__ . ":SCP Error $ret\n");
-    }
-  }*/
-
-  // ---------------------------------------------------
-  // Line by line mode configuration  - Used for ZTD port console
+  // Line by line mode configuration
   // ---------------------------------------------------
   $ret = SMS_OK;
   //if ($line_config_mode === 1)
-  if ($protocol === 'SSH')
+  if ($protocol === 'SSH' && ($line_config_mode === 0 || $line_config_mode === 1))
   {
     echo "Line by line mode configuration\n";
     $ERROR_BUFFER = '';
-
-    // GET FIRMWARE VERSION WITH CONFIGURATION VARIABLES
-    get_asset();
-    $bin_config_var = $SD->SD_CONFIGVAR_list['FIRMWARE']->VAR_VALUE;
-    if (!empty($bin_config_var))
-    {
-      manage_firmware_port_console($SD);
-    }
 
     sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
 
@@ -211,16 +144,10 @@ function adtran_generic_apply_conf($configuration, $push_to_startup = false)
       save_result_file("No error found during the application of the configuration", "conf.error");
     }
 
-    set_serial_and_hostname_in_db($SD);
     $ret = func_write();
 
     return $ret;
   }
-
-	if($SD->SD_CONF_ISIPV6)
-	{
-		$sms_ip_addr = $_SERVER['SMS_ADDRESS_IPV6'];
-	}
 
   // ---------------------------------------------------
   // TFTP mode configuration
@@ -230,6 +157,10 @@ function adtran_generic_apply_conf($configuration, $push_to_startup = false)
   echo "TFTP mode configuration\n";
   $ret = SMS_OK;
   $sms_ip_addr = $_SERVER['SMS_ADDRESS_IP'];
+  if($SD->SD_CONF_ISIPV6)
+  {
+    $sms_ip_addr = $_SERVER['SMS_ADDRESS_IPV6'];
+  }
 
   $is_ztd = false;
   if ($sms_sd_ctx->getIpAddress() !== $SD->SD_IP_CONFIG)

@@ -839,48 +839,6 @@ function get_asset()
   }
 }
 
-function manage_firmware_port_console($SD)
-{
-  global $sms_sd_ctx;
-
-  $bin_config_var = $SD->SD_CONFIGVAR_list['FIRMWARE']->VAR_VALUE;
-
-  if ($bin_config_var !== $sms_sd_ctx->getParam('bin'))
-  {
-
-    $tftp_config_var = $SD->SD_CONFIGVAR_list['TFTP']->VAR_VALUE;
-    $wan_interface = $SD->SD_INTERFACE_list['E']->INT_NAME;
-    $wan_ip = $SD->SD_INTERFACE_list['E']->INT_IP_ADDR;
-    $wan_mask = $SD->SD_INTERFACE_list['E']->INT_IP_MASK;
-    $gateway = $SD->SD_CONFIGVAR_list['ROUTE_GW']->VAR_VALUE;
-
-    echo "Different firmware found - Get $bin_config_var via TFTP $tftp_config_var \n";
-
-    delete_force_flash();
-
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "interface $wan_interface", "(config-if)#", DELAY);
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "ip address $wan_ip $wan_mask", "(config-if)#", DELAY);
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no shut", "(config-if)#", DELAY);
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", "(config)#", DELAY);
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "ip route 0.0.0.0 0.0.0.0 $gateway", "(config)#", DELAY);
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "end", "#", DELAY);
-
-    $ret = tftp_to_router($bin_config_var, $bin_config_var, $tftp_config_var, true);
-    if ($ret == SMS_OK)
-    {
-      func_reboot('Reboot', true, true);
-      $sms_sd_ctx->do_login(true);
-      $sms_sd_ctx->do_set_terminal();
-    }
-  }
-  else
-  {
-    echo "Same firmware found - Nothing to do \n";
-  }
-  return SMS_OK;
-}
-
 function delete_file_in_flash($file)
 {
   global $sms_sd_ctx;
