@@ -330,7 +330,7 @@ class CatalystConfiguration
 
     $file_name = "$sdid.cfg";
 
-    $line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
+    $line_config_mode = $SD->SD_CONFIG_STEP;
     $line_config_mode = 1; // Dont allow yet the TFTP mode:
 
 

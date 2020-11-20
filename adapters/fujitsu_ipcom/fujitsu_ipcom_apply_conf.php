@@ -42,8 +42,6 @@ function fujitsu_ipcom_apply_conf($configuration, $push_to_startup = false)
   }
 
   $SMS_OUTPUT_BUF = '';
-  //$line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
-  $line_config_mode=1;
   $protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
   $file_name = "{$sdid}.cfg";
@@ -56,21 +54,10 @@ function fujitsu_ipcom_apply_conf($configuration, $push_to_startup = false)
   }
 
   // ---------------------------------------------------
-  // Line by line mode configuration  - Used for ZTD port console
+  // Line by line mode configuration
   // ---------------------------------------------------
-  $ret = SMS_OK;
-  if ($line_config_mode === 1)
-  {
     echo "Line by line mode configuration\n";
     $ERROR_BUFFER = '';
-
-    // GET FIRMWARE VERSION WITH CONFIGURATION VARIABLES
-    get_asset();
-    $bin_config_var = $SD->SD_CONFIGVAR_list['FIRMWARE']->VAR_VALUE;
-    if (!empty($bin_config_var))
-    {
-      manage_firmware_port_console($SD);
-    }
 
     sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
 
@@ -199,61 +186,9 @@ function fujitsu_ipcom_apply_conf($configuration, $push_to_startup = false)
      save_result_file("No error found during the application of the configuration", "conf.error");
     }
 
-    set_serial_and_hostname_in_db($SD);
    //$ret = func_write();
 
     return $ret;
-  }
-
-  // ---------------------------------------------------
-  // TFTP mode configuration
-  // NORMAL MODE : Copy config to running-conf + catch conf.error + write
-  // ZTD MODE : Copy config to startup
-  // ---------------------------------------------------
-  echo "TFTP mode configuration/n";
-  $ret = SMS_OK;
-  $sms_ip_addr = $_SERVER['SMS_ADDRESS_IP'];
-
-  $is_ztd = false;
-  if ($sms_sd_ctx->getIpAddress() !== $SD->SD_IP_CONFIG)
-  {
-    $is_ztd = true;
-  }
-
-  if ($is_ztd || $push_to_startup)
-  {
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "copy tftp://$sms_ip_addr/$file_name startup-config", "]?");
-    $SMS_OUTPUT_BUF = copy_to_running('');
-  }
-  else
-  {
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "copy tftp://$sms_ip_addr/$file_name running-config", "]?");
-
-    $SMS_OUTPUT_BUF = copy_to_running('');
-    save_result_file($SMS_OUTPUT_BUF, "conf.error");
-
-    foreach ($apply_errors as $apply_error)
-    {
-      if (preg_match($apply_error, $SMS_OUTPUT_BUF) > 0)
-      {
-        sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n");
-        return ERR_SD_CMDFAILED;
-      }
-    }
-  }
-
-  if (!strpos($SMS_OUTPUT_BUF, 'bytes copied'))
-  {
-    sms_log_error(__FILE__ . ':' . __LINE__ . ":tftp transfer failed\n");
-    return ERR_SD_TFTP;
-  }
-
-  if (!$is_ztd || !$push_to_startup)
-  {
-    $ret = func_write();
-  }
-  $SMS_OUTPUT_BUF = preg_replace("~[\r\n]~", "", $SMS_OUTPUT_BUF);
-  return $ret;
 }
 
 ?>
