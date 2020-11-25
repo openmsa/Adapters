@@ -220,7 +220,7 @@ function checkpoint_r80_disconnect()
     $publish_result =  $sms_sd_ctx->raw_json;
     echo "\nPUBLISH RESULT: \n ".$publish_result." \n";
     $array = json_decode($publish_result, true);
-    if(isset($array['tasks'][0]['task-id'])) {
+    if(isset($array['task-id'])) {
         $task_id = $array['task-id'];
         echo "\nTASK-ID :\n" . $task_id ." \n";
 
@@ -233,7 +233,7 @@ function checkpoint_r80_disconnect()
                 $showtask_result =  $sms_sd_ctx->raw_json;
                 echo "\nSHOW TASK RESULT: \n ".$showtask_result." \n";
                 $showtask_result_array = json_decode($showtask_result, true);
-                $task_status =  $showtask_result_array['status'];
+                $task_status =  $showtask_result_array['tasks'][0]['status'];
                 echo "\nSHOW TASK STATUS: \n ".$task_status." \n";
                 sleep (1);
                 $i++;
