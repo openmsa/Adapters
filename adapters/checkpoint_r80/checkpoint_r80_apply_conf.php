@@ -25,7 +25,7 @@ function checkpoint_r80_apply_conf($configuration)
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
     
-    echo (":::::::::::::::::::::::::::: APPLY2 ::::::::::::::::::::::::::::\n");
+    echo ("APPLY CONF\n");
     
     $line = get_one_line($configuration);
     $res = "";

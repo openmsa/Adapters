@@ -64,9 +64,8 @@ class DeviceConnection extends GenericConnection
     {
         unset($this->xml_response);
         unset($this->raw_xml);
-        echo "\nSENDING COMMAND: \n $cmd \n";
+        echo "SENDING COMMAND: $cmd \n";
         $delay = EXPECT_DELAY / 1000;
-        
         
         $header = "";
         
@@ -219,28 +218,32 @@ function checkpoint_r80_disconnect()
     $publish_cmd = "publish' -d '{}";
     $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
     $publish_result =  $sms_sd_ctx->raw_json;
-    echo "\nPUBLISH RESULT: \n ".$publish_result." \n";
+    echo "PUBLISH RESULT:  ".$publish_result." \n";
     $array = json_decode($publish_result, true);
     if(isset($array['task-id'])) {
         $task_id = $array['task-id'];
-        echo "\nTASK-ID :\n" . $task_id ." \n";
+        echo "TASK-ID :" . $task_id ." \n";
 
-        echo "\nWAIT FOR PUBLISH TASK TO BE FINISHED\n";
+        echo "WAIT FOR PUBLISH TASK TO BE FINISHED\n";
         $i = 0;
         $task_status = "in progress";
         do {    
                 $showtask_cmd = "show-task' -d '$publish_result";
                 $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);  
                 $showtask_result =  $sms_sd_ctx->raw_json;
-                echo "\nSHOW TASK RESULT: \n ".$showtask_result." \n";
+                echo "SHOW TASK RESULT: \n ".$showtask_result." \n";
                 $showtask_result_array = json_decode($showtask_result, true);
                 $task_status =  $showtask_result_array['tasks'][0]['status'];
-                echo "\nSHOW TASK STATUS: \n <".$task_status."> \n";
+                echo "SHOW TASK STATUS: <".$task_status."> \n";
+
+                if ($task_status == "failed") {
+                    throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED ", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
+                }
+
                 sleep (1);
                 $i++;
                 if ($i == 20) {
-                    echo "\nERROR: PUBLISH TASK FAILED TO EXECUTE WITHIN 20 sec. \n ";
-                    throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, $origin);
+                    throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, __FILE__ . ':' . __LINE__);
                 }
         } while ($task_status == "in progress");
     }

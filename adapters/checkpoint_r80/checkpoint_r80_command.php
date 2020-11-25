@@ -43,18 +43,6 @@ class checkpoint_r80_command extends generic_command
     $this->import_file_list = array();
   }
 
-  /*
-   * #####################################################################################
-  * IMPORT
-  * #####################################################################################
-  */
-
-  /*
-   * #####################################################################################
-  * IMPORT
-  * #####################################################################################
-  */
-
   function decode_IMPORT($object, $json_params, $element)
   {
     $parser = new cmd_import($object, $element, $json_params);
@@ -94,13 +82,13 @@ class checkpoint_r80_command extends generic_command
           {                           
               $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
               foreach ($path_list as $xpth) {
-                  $cmd = trim($op_eval). "' -d'{".$xpth."}";
+                  $cmd = trim($op_eval). "' -d '{".$xpth."}";
                   $parser_list[$cmd][] = $parser;
               }
           }
           else
           {
-              $cmd = trim($op_eval) . "' -d'{}";
+              $cmd = trim($op_eval) . "' -d '{}";
               // Group parsers into evaluated operations
               $parser_list[$cmd][] = $parser;
           }
