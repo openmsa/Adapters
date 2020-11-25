@@ -217,6 +217,7 @@ function checkpoint_r80_disconnect()
     $publish_cmd = "publish' -d '{}";
     sleep(3);
     $publish = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
+    echo "\nPUBLISH RESULT: \n $publish \n";
     sleep(8);
     $result =  $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     $sms_sd_ctx = null;
