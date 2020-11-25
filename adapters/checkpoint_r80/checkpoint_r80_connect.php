@@ -234,10 +234,10 @@ function checkpoint_r80_disconnect()
                 echo "\nSHOW TASK RESULT: \n ".$showtask_result." \n";
                 $showtask_result_array = json_decode($showtask_result, true);
                 $task_status =  $showtask_result_array['tasks'][0]['status'];
-                echo "\nSHOW TASK STATUS: \n ".$task_status." \n";
+                echo "\nSHOW TASK STATUS: \n <".$task_status."> \n";
                 sleep (1);
                 $i++;
-                if ($i = 20) {
+                if ($i == 20) {
                     echo "\nERROR: PUBLISH TASK FAILED TO EXECUTE WITHIN 20 sec. \n ";
                     throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, $origin);
                 }
