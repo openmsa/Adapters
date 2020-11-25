@@ -220,6 +220,12 @@ function checkpoint_r80_disconnect()
     $publish = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
     $raw_json =  $sms_sd_ctx->raw_json;
     echo "\nPUBLISH RESULT: \n ".$raw_json." \n";
+    $array = json_decode($raw_json, true);
+    if(isset($array['sid']))
+    {
+        $task_id = $array['task-id'];
+        echo "\nTASK-ID :\n" . $task_id ." \n";
+    }
     sleep(8);
     $result =  $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     $sms_sd_ctx = null;
