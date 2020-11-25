@@ -31,7 +31,7 @@ class DeviceConnection extends GenericConnection
         $data = json_encode($data);
         
         $cmd = "login' -d '".$data;
-        $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
+        $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     }
     
     // ------------------------------------------------------------------------------------------------
@@ -213,6 +213,7 @@ function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = nul
 function checkpoint_r80_disconnect()
 {
     global $sms_sd_ctx;
+    global $SMS_RETURN_BUF;
 
     // PUBLISH
     $publish_cmd = "publish' -d '{}";
@@ -247,6 +248,7 @@ function checkpoint_r80_disconnect()
     $logout_cmd = "logout' -d'{}";
     $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $logout_cmd);
     $sms_sd_ctx = null;
+    $SMS_RETURN_BUF=null;
     return SMS_OK;
 }
 
