@@ -221,7 +221,7 @@ function checkpoint_r80_disconnect()
     $raw_json =  $sms_sd_ctx->raw_json;
     echo "\nPUBLISH RESULT: \n ".$raw_json." \n";
     $array = json_decode($raw_json, true);
-    if(isset($array['sid']))
+    if(isset($array['task-id']))
     {
         $task_id = $array['task-id'];
         echo "\nTASK-ID :\n" . $task_id ." \n";
