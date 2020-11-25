@@ -212,28 +212,40 @@ function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = nul
 // Disconnect
 function checkpoint_r80_disconnect()
 {
-    $cmd = "logout' -d'{}";
-    
     global $sms_sd_ctx;
+
+    // PUBLISH
     $publish_cmd = "publish' -d '{}";
-    sleep(3);
-    $publish = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
+    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
     $publish_result =  $sms_sd_ctx->raw_json;
     echo "\nPUBLISH RESULT: \n ".$publish_result." \n";
     $array = json_decode($publish_result, true);
-    if(isset($array['task-id']))
-    {
+    if(isset($array['task-id'])) {     
         $task_id = $array['task-id'];
         echo "\nTASK-ID :\n" . $task_id ." \n";
 
-        $showtask_cmd = "show-task' -d '$publish_result";
-        $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);  
-        $showtask_result =  $sms_sd_ctx->raw_json;
-        echo "\nSHOW TASK RESULT: \n ".$showtask_result." \n";
-
+        // WAIT FOR PUBLISH TASK TO BE FINISHED
+        $i = 0;
+        $task_status = "in progress";
+        do {    
+                $showtask_cmd = "show-task' -d '$publish_result";
+                $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);  
+                $showtask_result =  $sms_sd_ctx->raw_json;
+                echo "\nSHOW TASK RESULT: \n ".$showtask_result." \n";
+                $showtask_result_array = json_decode($showtask_result, true);
+                $task_status =  $showtask_result_array['status'];
+                echo "\nSHOW TASK STATUS: \n ".$task_status." \n";
+                sleep (1);
+                $i++;
+                if ($i = 20) {
+                    echo "\nERROR: PUBLISH TASK FAILED TO EXECUTE WITHIN 20 sec. \n ";
+                    throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, $origin);
+                }
+        } while ($task_status == "in progress");
     }
-    sleep(8);
-    $result =  $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
+    // LOGOUT
+    $logout_cmd = "logout' -d'{}";
+    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $logout_cmd);
     $sms_sd_ctx = null;
     return SMS_OK;
 }
