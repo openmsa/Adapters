@@ -214,45 +214,52 @@ function checkpoint_r80_disconnect()
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
-    // PUBLISH
-    $publish_cmd = "publish' -d '{}";
-    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
-    $publish_result =  $sms_sd_ctx->raw_json;
-    echo "PUBLISH RESULT:  ".$publish_result." \n";
-    $array = json_decode($publish_result, true);
-    if(isset($array['task-id'])) {
-        $task_id = $array['task-id'];
-        echo "TASK-ID :" . $task_id ." \n";
-
-        echo "WAIT FOR PUBLISH TASK TO BE FINISHED\n";
-        $i = 0;
-        $task_status = "in progress";
-        do {    
-                $showtask_cmd = "show-task' -d '$publish_result";
-                $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);  
-                $showtask_result =  $sms_sd_ctx->raw_json;
-                echo "SHOW TASK RESULT: \n ".$showtask_result." \n";
-                $showtask_result_array = json_decode($showtask_result, true);
-                $task_status =  $showtask_result_array['tasks'][0]['status'];
-                echo "SHOW TASK STATUS: <".$task_status."> \n";
-
-                if ($task_status == "failed") {
-                    throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED ", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
-                }
-
-                sleep (1);
-                $i++;
-                if ($i == 20) {
-                    throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, __FILE__ . ':' . __LINE__);
-                }
-        } while ($task_status == "in progress");
-    }
+ 
     // LOGOUT
     $logout_cmd = "logout' -d'{}";
     $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $logout_cmd);
     $sms_sd_ctx = null;
     $SMS_RETURN_BUF="";
     return SMS_OK;
+}
+
+
+function publish() {
+    
+       global $sms_sd_ctx;
+
+       $publish_cmd = "publish' -d '{}";
+       $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
+       $publish_result =  $sms_sd_ctx->raw_json;
+       echo "PUBLISH RESULT:  ".$publish_result." \n";
+       $array = json_decode($publish_result, true);
+       if(isset($array['task-id'])) {
+           $task_id = $array['task-id'];
+           echo "TASK-ID :" . $task_id ." \n";
+   
+           echo "WAIT FOR PUBLISH TASK TO BE FINISHED\n";
+           $i = 0;
+           $task_status = "in progress";
+           do {    
+                   $showtask_cmd = "show-task' -d '$publish_result";
+                   $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);  
+                   $showtask_result =  $sms_sd_ctx->raw_json;
+                   echo "SHOW TASK RESULT: \n ".$showtask_result." \n";
+                   $showtask_result_array = json_decode($showtask_result, true);
+                   $task_status =  $showtask_result_array['tasks'][0]['status'];
+                   echo "SHOW TASK STATUS: <".$task_status."> \n";
+   
+                   if ($task_status == "failed") {
+                       throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED ", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
+                   }
+   
+                   sleep (1);
+                   $i++;
+                   if ($i == 20) {
+                       throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, __FILE__ . ':' . __LINE__);
+                   }
+           } while ($task_status == "in progress");
+       }
 }
 
 ?>

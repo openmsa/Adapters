@@ -41,8 +41,9 @@ function checkpoint_r80_apply_conf($configuration)
         $line = get_one_line($configuration);
     }
     $SMS_RETURN_BUF = json_encode($res);
-    $publish_cmd = "publish' -d '{}";
-    $publish = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $publish_cmd, '//root');  
+   // $publish_cmd = "publish' -d '{}";
+    //$publish = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $publish_cmd, '//root');  
+    publish();
     return SMS_OK;
 }
 
