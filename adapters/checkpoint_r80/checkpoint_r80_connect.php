@@ -98,7 +98,7 @@ class DeviceConnection extends GenericConnection
                     if (strpos($line, 'HTTP_CODE=20') !== 0)
                     {
                         $cmd_quote = str_replace("\"", "'", $result);
-                        $cmd_return = str_replace("\n", "", $cmd_quote);
+                       // $cmd_return = str_replace("\n", "", $cmd_quote);
                         throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
                     }
                 }
@@ -124,6 +124,7 @@ class DeviceConnection extends GenericConnection
     }
     
     // ------------------------------------------------------------------------------------------------
+   /*
     function execute_curl_cmd ($origin, $curl_cmd) {
         
         unset($this->xml_response);
@@ -147,7 +148,7 @@ class DeviceConnection extends GenericConnection
         $this->raw_xml = $this->xml_response->asXML();
         debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
     }
-    
+    */
     
     
     // ------------------------------------------------------------------------------------------------
@@ -217,7 +218,8 @@ function checkpoint_r80_disconnect()
     $publish_cmd = "publish' -d '{}";
     sleep(3);
     $publish = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
-    echo "\nPUBLISH RESULT: \n $publish \n";
+    $raw_json =  $sms_sd_ctx->raw_json;
+    echo "\nPUBLISH RESULT: \n ".$raw_json." \n";
     sleep(8);
     $result =  $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     $sms_sd_ctx = null;
