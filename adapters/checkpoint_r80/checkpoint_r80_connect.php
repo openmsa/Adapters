@@ -248,7 +248,7 @@ function checkpoint_r80_disconnect()
     $logout_cmd = "logout' -d'{}";
     $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $logout_cmd);
     $sms_sd_ctx = null;
-    $SMS_RETURN_BUF=null;
+    $SMS_RETURN_BUF="";
     return SMS_OK;
 }
 
