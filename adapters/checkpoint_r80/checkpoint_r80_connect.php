@@ -220,11 +220,11 @@ function checkpoint_r80_disconnect()
     $publish_result =  $sms_sd_ctx->raw_json;
     echo "\nPUBLISH RESULT: \n ".$publish_result." \n";
     $array = json_decode($publish_result, true);
-    if(isset($array[tasks][0]['task-id'])) {     
+    if(isset($array[tasks][0]['task-id'])) {
         $task_id = $array['task-id'];
         echo "\nTASK-ID :\n" . $task_id ." \n";
 
-        echo "\nWAIT FOR PUBLISH TASK TO BE FINISHED\n;
+        echo "\nWAIT FOR PUBLISH TASK TO BE FINISHED\n";
         $i = 0;
         $task_status = "in progress";
         do {    
