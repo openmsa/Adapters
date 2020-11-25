@@ -18,9 +18,9 @@ class DeviceConnection extends GenericConnection
     {
         unset($this->key);
         $data = array( 
-	    'user'=> $this->sd_login_entry,
+	        'user'=> $this->sd_login_entry,
             'password'=> $this->sd_passwd_entry,
-	'continue-last-session' => 'true'
+	        'continue-last-session' => 'true'
         );
         
         $data = json_encode($data);
@@ -59,7 +59,7 @@ class DeviceConnection extends GenericConnection
     {
         unset($this->xml_response);
         unset($this->raw_xml);
-        echo "\n**************".$cmd."****************************\n";
+        echo "\nSENDING COMMAND: \n $cmd \n";
         $delay = EXPECT_DELAY / 1000;
         
         
@@ -103,9 +103,8 @@ class DeviceConnection extends GenericConnection
         $array = json_decode($result, true);
         if(isset($array['sid']))
         {
-            
-            echo "\n!!!!!!!!!!!!!!KEY :".$array['sid']."!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
             $this->key = $array['sid'];
+            echo "\nKEY :\n". $this->key." \n";
         }
         
         // call array to xml conversion function
