@@ -16,11 +16,16 @@ class DeviceConnection extends GenericConnection
     // ------------------------------------------------------------------------------------------------
     public function do_connect()
     {
+        $network = get_network_profile();
+        $SD = &$network->SD;
+        $ref = $SD->SD_EXTERNAL_REFERENCE;
         unset($this->key);
         $data = array( 
 	        'user'=> $this->sd_login_entry,
             'password'=> $this->sd_passwd_entry,
-	        'continue-last-session' => 'true'
+            'continue-last-session' => 'false',
+            'session-description' => 'session initiated by MSA adapter',
+            'session-name' => date("Y-m-d").' - '.$ref
         );
         
         $data = json_encode($data);
