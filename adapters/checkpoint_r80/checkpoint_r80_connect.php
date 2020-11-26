@@ -108,7 +108,7 @@ class DeviceConnection extends GenericConnection
         if(isset($array['sid']))
         {
             $this->key = $array['sid'];
-            echo "KEY :\n". $this->key." \n";
+            echo "KEY: ". $this->key." \n";
         }
         
         // call array to xml conversion function
