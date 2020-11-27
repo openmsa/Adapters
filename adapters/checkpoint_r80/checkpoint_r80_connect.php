@@ -19,9 +19,9 @@ class DeviceConnection extends GenericConnection
         $network = get_network_profile();
         $SD = &$network->SD;
         $ref = $SD->SD_EXTERNAL_REFERENCE;
-        unset($this->key);
+	unset($this->key);
         $data = array( 
-	        'user'=> $this->sd_login_entry,
+            'user'=> $this->sd_login_entry,
             'password'=> $this->sd_passwd_entry,
             'continue-last-session' => 'false',
             'session-description' => 'session initiated by MSA adapter',
@@ -214,6 +214,7 @@ function checkpoint_r80_disconnect()
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
+    publish();
  
     // LOGOUT
     $logout_cmd = "logout' -d '{}";
