@@ -116,7 +116,13 @@ class KubernetesGenericRESTConnection extends GenericConnection
         $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} --header \"Authorization: Bearer {$token}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
     }
 
-    if (isset($action[3]) && ($kube_auth_method != "KUBERNETES")) {
+    /*
+    * if (isset($action[3]) && ($kube_auth_method != "KUBERNETES")) {
+    *   $curl_cmd .= " -d '{$action[3]}'";
+    * }
+    */
+
+    if (isset($action[3]) && ($kube_auth_method == "KUBERNETES")) {
       $curl_cmd .= " -d '{$action[3]}'";
     }
       

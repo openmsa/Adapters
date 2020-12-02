@@ -37,7 +37,7 @@ function catalyst_ios_apply_conf($configuration)
 	}
 
 	$SMS_OUTPUT_BUF = '';
-	$line_config_mode = sms_sd_get_config_mode_from_sdinfo($sms_sd_info);
+	$line_config_mode = $SD->SD_CONFIG_STEP;
 	$protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
 	$file_name = "{$sdid}.cfg";
@@ -53,7 +53,7 @@ function catalyst_ios_apply_conf($configuration)
 	// SCP mode configuration (default mode)
 	// ---------------------------------------------------
 	$ret = SMS_OK;
-	if ($protocol === 'SSH')
+	if ($protocol === 'SSH' && ($line_config_mode === 0 || $line_config_mode === 3))
 	{
 		echo "SCP mode configuration\n";
 
