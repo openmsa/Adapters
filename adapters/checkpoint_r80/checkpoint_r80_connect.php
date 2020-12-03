@@ -212,7 +212,7 @@ function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = nul
 function checkpoint_r80_disconnect()
 {
     global $sms_sd_ctx;
-    global $SMS_RETURN_BUF;
+    //global $SMS_RETURN_BUF;
 
     publish();
  
@@ -220,7 +220,6 @@ function checkpoint_r80_disconnect()
     $logout_cmd = "logout' -d '{}";
     $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $logout_cmd);
     $sms_sd_ctx = null;
-    //$SMS_RETURN_BUF="";
     return SMS_OK;
 }
 
