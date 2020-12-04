@@ -86,6 +86,7 @@ class DeviceConnection extends GenericConnection
         $result = '';
         foreach ($output_array as $line)
         {
+            echo "CURL RES LINE: $line \n";
             if ($line !== 'SMS_OK')
             {
                 if (strpos($line, 'HTTP_CODE') !== 0)
