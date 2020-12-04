@@ -99,10 +99,8 @@ class DeviceConnection extends GenericConnection
                     {
                         $cmd_quote = str_replace("\"", "'", $result);
                         // $cmd_return = str_replace("\n", "", $cmd_quote);
-                        if (strpos($line, 'HTTP_CODE=503') == 0) {
-                            if (isset($output_array['uid'])) {
-                                $this->discard($output_array['uid']);
-                            }
+                        if (isset($output_array['uid'])) {
+                            $this->discard($output_array['uid']);
                         }
                         throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
                     }
