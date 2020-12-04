@@ -98,7 +98,7 @@ class DeviceConnection extends GenericConnection
                     {
                         $cmd_quote = str_replace("\"", "'", $result);
                         // $cmd_return = str_replace("\n", "", $cmd_quote);
-                        if (strpos($line, 'HTTP_CODE=503') !== 0) {
+                        if (strpos($line, 'HTTP_CODE=503') == 0) {
                             $this->discard();
                         }
                         throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
@@ -174,7 +174,7 @@ class DeviceConnection extends GenericConnection
     
         $discard_cmd = "discard' -d '{}";
         $this->sendexpectone(__FILE__ . ':' . __LINE__, $discard_cmd);  
-        $discard_cmd =  $sms_sd_ctx->raw_json;
+        $discard_cmd =  $this->raw_json;
         echo "DISCARD RESULT:  ".$discard_cmd." \n";
         //$array = json_decode($publish_result, true);
     }
