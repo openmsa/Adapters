@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------------------
 function prov_init_conf($sms_csp, $sdid, $sms_sd_info, &$err)
 {
-  $conf = new ipmi_generic_configuration($sdid, true);
+  $conf = new lanner_ipmi_configuration($sdid, true);
 
   $ret = $conf->provisioning();
   if ($ret !== SMS_OK)
@@ -13,7 +13,7 @@ function prov_init_conf($sms_csp, $sdid, $sms_sd_info, &$err)
     return $ret;
   }
 
-  ipmi_generic_disconnect();
+  lanner_ipmi_disconnect();
   return SMS_OK;
 }
 

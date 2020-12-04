@@ -20,7 +20,7 @@ require_once load_once('linux_generic', 'common.php');
 require_once "$db_objects";
 
 // return false if error, true if ok
-function ipmi_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
+function lanner_ipmi_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
   echo 'DUBIG: TRY';
@@ -39,7 +39,7 @@ function ipmi_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 // Disconnect
 // return false if error, true if ok
-function ipmi_generic_disconnect()
+function lanner_ipmi_disconnect()
 {
   $sms_sd_ctx = null;
   return SMS_OK;

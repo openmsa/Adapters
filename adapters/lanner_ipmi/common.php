@@ -7,7 +7,7 @@
 require_once 'smsd/net_common.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('ipmi_generic', 'ipmi_generic_connect.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_connect.php');
 
 function func__bash_reboot($msg = '')
 {

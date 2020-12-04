@@ -14,9 +14,9 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('ipmi_generic', 'ipmi_generic_connect.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_configuration.php');
-require_once load_once('ipmi_generic', 'apply_errors.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_connect.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_configuration.php');
+require_once load_once('lanner_ipmi', 'apply_errors.php');
 require_once "$db_objects";
 
 try {
@@ -36,21 +36,21 @@ try {
     sms_close_user_socket($sms_csp);
 
     // Connect to the device
-    $ret = ipmi_generic_connect();
+    $ret = lanner_ipmi_connect();
     if ($ret !== SMS_OK)
     {
       sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
       sms_sd_unlock($sms_csp, $sms_sd_info);
-      ipmi_generic_disconnect();
+      lanner_ipmi_disconnect();
       return SMS_OK;
     }
-    $conf = new ipmi_generic_configuration($sdid);
+    $conf = new lanner_ipmi_configuration($sdid);
     $ret = $conf->reboot($status_type);
-    ipmi_generic_disconnect(true);
+    lanner_ipmi_disconnect(true);
 } catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
-    ipmi_generic_disconnect();
+    lanner_ipmi_disconnect();
     return SMS_OK;
 }
 

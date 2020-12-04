@@ -1,17 +1,17 @@
 <?php
 /*
- * Version: $Id: ipmi_generic_configuration.php 58927 2012-06-11 15:15:18Z abr $
+ * Version: $Id: lanner_ipmi_configuration.php 58927 2012-06-11 15:15:18Z abr $
  * Created: Feb 12, 2009
  */
 require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 require_once 'smsd/expect.php';
 
-require_once load_once('ipmi_generic', 'common.php');
-require_once load_once('ipmi_generic', 'adaptor.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_apply_conf.php');
+require_once load_once('lanner_ipmi', 'common.php');
+require_once load_once('lanner_ipmi', 'adaptor.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_apply_conf.php');
 require_once "$db_objects";
-class ipmi_generic_configuration
+class lanner_ipmi_configuration
 {
   var $conf_path; // Path for previous stored configuration files
   var $sdid; // ID of the SD to update
@@ -148,7 +148,7 @@ class ipmi_generic_configuration
 
     if (!empty($generated_configuration))
     {
-      $ret = ipmi_generic_apply_conf($generated_configuration, $this->is_ztd);
+      $ret = lanner_ipmi_apply_conf($generated_configuration, $this->is_ztd);
     }
     return $ret;
   }
@@ -193,7 +193,7 @@ class ipmi_generic_configuration
     while ($loop > 0)
     {
       sleep(10); // wait for ssh to come up
-      $ret = ipmi_generic_connect();
+      $ret = lanner_ipmi_connect();
       if ($ret == SMS_OK)
       {
         break;

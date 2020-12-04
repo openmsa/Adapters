@@ -18,10 +18,10 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('ipmi_generic', 'adaptor.php');
-require_once load_once('ipmi_generic', 'common.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_configuration.php');
-require_once load_once('ipmi_generic', 'provisioning_stages.php');
+require_once load_once('lanner_ipmi', 'adaptor.php');
+require_once load_once('lanner_ipmi', 'common.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_configuration.php');
+require_once load_once('lanner_ipmi', 'provisioning_stages.php');
 require_once "$db_objects";
 
 

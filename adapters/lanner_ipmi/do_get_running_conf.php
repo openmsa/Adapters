@@ -14,11 +14,11 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('ipmi_generic', 'ipmi_generic_connect.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_configuration.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_connect.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_configuration.php');
 
 try {
-  $ret = ipmi_generic_connect();
+  $ret = lanner_ipmi_connect();
   if ($ret !== SMS_OK)
   {
     sms_send_user_error($sms_csp, $sdid, "", ERR_SD_CONNREFUSED);
@@ -27,9 +27,9 @@ try {
 
 
   // Get the conf on the router
-  $conf = new ipmi_generic_configuration($sdid);
+  $conf = new lanner_ipmi_configuration($sdid);
   $running_conf = $conf->get_running_conf();
-  ipmi_generic_disconnect();
+  lanner_ipmi_disconnect();
 
   if (empty($running_conf))
   {

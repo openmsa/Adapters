@@ -15,9 +15,9 @@
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
-require_once load_once('ipmi_generic', 'ipmi_generic_connect.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_configuration.php');
-require_once load_once('ipmi_generic', 'common.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_connect.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_configuration.php');
+require_once load_once('lanner_ipmi', 'common.php');
 
 try
 {
@@ -36,14 +36,14 @@ try
   sms_close_user_socket($sms_csp);
   // Asynchronous mode, the user socket is now closed, the results are written in database
 
-  $ret = ipmi_generic_connect();
+  $ret = lanner_ipmi_connect();
 
   if ($ret != SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
-  $conf = new ipmi_generic_configuration($sdid);
+  $conf = new lanner_ipmi_configuration($sdid);
 
   $ret = $conf->update_conf();
   if ($ret !== SMS_OK)
@@ -53,13 +53,13 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'ENDED', '');
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  ipmi_generic_disconnect();
+  lanner_ipmi_disconnect();
 }
 catch (Exception | Error $e)
 {
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  ipmi_generic_disconnect();
+  lanner_ipmi_disconnect();
 }
 
 return SMS_OK;

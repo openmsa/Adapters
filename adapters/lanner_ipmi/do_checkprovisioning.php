@@ -16,7 +16,7 @@
 require_once 'smsd/sms_common.php';
 require_once "$db_objects";
 
-require_once load_once('ipmi_generic', 'provisioning_stages.php');
+require_once load_once('lanner_ipmi', 'provisioning_stages.php');
 
 
 return require_once 'smsd/do_checkprovisioning.php';

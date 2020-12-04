@@ -12,15 +12,15 @@
 // Transfer the configuration file on the router
 // First try to use SCP then TFTP
 require_once 'smsd/sms_common.php';
-require_once load_once('ipmi_generic', 'common.php');
-require_once load_once('ipmi_generic', 'apply_errors.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_configuration.php');
-require_once load_once('ipmi_generic', 'ipmi_generic_connect.php');
+require_once load_once('lanner_ipmi', 'common.php');
+require_once load_once('lanner_ipmi', 'apply_errors.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_configuration.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_connect.php');
 
 require_once "$db_objects";
 
 define('DELAY', 200000);
-function ipmi_generic_apply_conf($configuration, $is_ztd)
+function lanner_ipmi_apply_conf($configuration, $is_ztd)
 {
   global $sdid;
   global $sms_sd_ctx;

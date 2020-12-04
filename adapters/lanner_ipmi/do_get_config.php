@@ -14,12 +14,12 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('ipmi_generic', 'ipmi_generic_configuration.php');
+require_once load_once('lanner_ipmi', 'lanner_ipmi_configuration.php');
 
 try {
   $generated_configuration = '';
 
-  $conf = new ipmi_generic_configuration($sdid);
+  $conf = new lanner_ipmi_configuration($sdid);
 
   $ret = $conf->build_conf($generated_configuration);
   if ($ret !== SMS_OK)
