@@ -119,7 +119,6 @@ class DeviceConnection extends GenericConnection
         //debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
     }
     
-
     public function sendCmd($origin, $cmd)
     {
         $this->send($origin, $cmd);
