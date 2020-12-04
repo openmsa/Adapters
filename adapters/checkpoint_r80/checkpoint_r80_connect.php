@@ -153,7 +153,6 @@ class DeviceConnection extends GenericConnection
         throw new SmsException("cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin);
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function do_store_prompt()
     {
     }
