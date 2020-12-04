@@ -117,7 +117,7 @@ class DeviceConnection extends GenericConnection
         }
         if(isset($array['uid']))
         {
-            $this->key = $array['uid'];
+            $this->uid = $array['uid'];
             echo "UID: ". $this->uid." \n";
         }        
         // call array to xml conversion function
