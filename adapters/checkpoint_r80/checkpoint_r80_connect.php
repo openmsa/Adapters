@@ -18,7 +18,7 @@ class DeviceConnection extends GenericConnection
         $network = get_network_profile();
         $SD = &$network->SD;
         $ref = $SD->SD_EXTERNAL_REFERENCE;
-	unset($this->key);
+	    unset($this->key);
         $data = array( 
             'user'=> $this->sd_login_entry,
             'password'=> $this->sd_passwd_entry,
@@ -58,7 +58,7 @@ class DeviceConnection extends GenericConnection
         } catch (Exception $e) {
             throw $e;
         } finally {
-            discard();
+            $this->discard();
         }
     }
     
@@ -166,6 +166,17 @@ class DeviceConnection extends GenericConnection
     {
         return $this->raw_xml;
     }
+
+    function discard() {
+        
+        echo "---> discard";
+    
+        $discard_cmd = "discard' -d '{}";
+        $this->sendexpectone(__FILE__ . ':' . __LINE__, $discard_cmd);  
+        $discard_cmd =  $sms_sd_ctx->raw_json;
+        echo "DISCARD RESULT:  ".$discard_cmd." \n";
+        //$array = json_decode($publish_result, true);
+    }
 }
 
 // return false if error, true if ok
@@ -196,7 +207,7 @@ function checkpoint_r80_disconnect()
 function publish() {
 
     global $sms_sd_ctx;
-
+    echo "---> publish";
     $publish_cmd = "publish' -d '{}";
     $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);
     $publish_result =  $sms_sd_ctx->raw_json;
@@ -230,16 +241,5 @@ function publish() {
         } while ($task_status == "in progress");
     }
 }
-
-function discard() {
-    global $sms_sd_ctx;
-
-    $discard_cmd = "discard' -d '{}";
-    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $discard_cmd);  
-    $discard_cmd =  $sms_sd_ctx->raw_json;
-    echo "DISCARD RESULT:  ".$discard_cmd." \n";
-    //$array = json_decode($publish_result, true);
-}
-
 
 ?>
