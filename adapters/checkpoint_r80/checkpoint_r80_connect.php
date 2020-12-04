@@ -56,9 +56,8 @@ class DeviceConnection extends GenericConnection
             }
             return $sendexpect_result;
         } catch (Exception $e) {
-            throw $e;
-        } finally {
             $this->discard();
+            throw $e;
         }
     }
     
@@ -169,7 +168,7 @@ class DeviceConnection extends GenericConnection
 
     function discard() {
         
-        echo "---> discard";
+        echo "---> discard\n ";
     
         $discard_cmd = "discard' -d '{}";
         $this->sendexpectone(__FILE__ . ':' . __LINE__, $discard_cmd);  
