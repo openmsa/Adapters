@@ -13,7 +13,6 @@ class DeviceConnection extends GenericConnection
     private $xml_response;
     private $raw_xml;
     
-    // ------------------------------------------------------------------------------------------------
     public function do_connect()
     {
         $network = get_network_profile();
@@ -34,7 +33,6 @@ class DeviceConnection extends GenericConnection
         $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
     {
         global $sendexpect_result;
@@ -59,7 +57,6 @@ class DeviceConnection extends GenericConnection
         return $sendexpect_result;
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function send($origin, $cmd)
     {
         unset($this->xml_response);
@@ -122,41 +119,12 @@ class DeviceConnection extends GenericConnection
         //debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
     }
     
-    // ------------------------------------------------------------------------------------------------
-   /*
-    function execute_curl_cmd ($origin, $curl_cmd) {
-        
-        unset($this->xml_response);
-        unset($this->raw_xml);
-        
-        $ret = exec_local($origin, $curl_cmd, $output_array);
-        if ($ret !== SMS_OK)
-        {
-            throw new SmsException("Call to API Failed", $ret);
-        }
-        
-        $result = '';
-        foreach ($output_array as $line)
-        {
-            if ($line !== 'SMS_OK')
-            {
-                $result .= "{$line}\n";
-            }
-        }
-        $this->xml_response = new SimpleXMLElement($result);
-        $this->raw_xml = $this->xml_response->asXML();
-        debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
-    }
-    */
-    
-    
-    // ------------------------------------------------------------------------------------------------
+
     public function sendCmd($origin, $cmd)
     {
         $this->send($origin, $cmd);
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result')
     {
         global $$global_result_name;
@@ -197,7 +165,6 @@ class DeviceConnection extends GenericConnection
     }
 }
 
-// ------------------------------------------------------------------------------------------------
 // return false if error, true if ok
 function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
@@ -207,7 +174,6 @@ function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = nul
     return SMS_OK;
 }
 
-// ------------------------------------------------------------------------------------------------
 // Disconnect
 function checkpoint_r80_disconnect()
 {
