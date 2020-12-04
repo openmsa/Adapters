@@ -25,7 +25,7 @@ class DeviceConnection extends GenericConnection
             'password'=> $this->sd_passwd_entry,
             'continue-last-session' => 'false',
             'session-description' => 'session initiated by MSA adapter',
-            'session-name' => date("Y-m-d").' - '.$ref
+            'session-name' => date("MSA - Y-m-d H:i:s").' - ME: '.$ref
         );
         
         $data = json_encode($data);
