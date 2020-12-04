@@ -10,6 +10,7 @@ require_once "$db_objects";
 class DeviceConnection extends GenericConnection
 {
     private $key;
+    private $uid;
     private $xml_response;
     private $raw_xml;
     
@@ -114,7 +115,11 @@ class DeviceConnection extends GenericConnection
             $this->key = $array['sid'];
             echo "KEY: ". $this->key." \n";
         }
-        
+        if(isset($array['uid']))
+        {
+            $this->key = $array['uid'];
+            echo "UID: ". $this->uid." \n";
+        }        
         // call array to xml conversion function
         $xml = arrayToXml($array, '<root></root>');
         
@@ -169,12 +174,10 @@ class DeviceConnection extends GenericConnection
         return $this->raw_xml;
     }
 
-    function discard($uid) {
-        
-        echo "DISCARD UID: $uid \n ";
-    
+    function discard() {
+            
         $data = array( 
-            'user'=> $uid
+            'user'=> $this->uid
         );
         
         $data = json_encode($data);
