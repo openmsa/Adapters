@@ -98,7 +98,9 @@ class DeviceConnection extends GenericConnection
                     {
                         $cmd_quote = str_replace("\"", "'", $result);
                         // $cmd_return = str_replace("\n", "", $cmd_quote);
-                        $this->discard();
+                        if (strpos($line, 'HTTP_CODE=503') !== 0) {
+                            $this->discard();
+                        }
                         throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
                     }
                 }
