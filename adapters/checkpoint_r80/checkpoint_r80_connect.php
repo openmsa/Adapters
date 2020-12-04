@@ -100,7 +100,9 @@ class DeviceConnection extends GenericConnection
                         $cmd_quote = str_replace("\"", "'", $result);
                         // $cmd_return = str_replace("\n", "", $cmd_quote);
                         if (strpos($line, 'HTTP_CODE=503') == 0) {
-                            $this->discard();
+                            if (isset($output_array['uid'])) {
+                                $this->discard($output_array['uid']);
+                            }
                         }
                         throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
                     }
@@ -169,11 +171,18 @@ class DeviceConnection extends GenericConnection
         return $this->raw_xml;
     }
 
-    function discard() {
+    function discard($uid) {
         
-        echo "---> discard\n ";
+        echo "DISCARD UID: $uid \n ";
     
-        $discard_cmd = "discard' -d '{}";
+        $data = array( 
+            'user'=> $uid
+        );
+        
+        $data = json_encode($data);
+        
+        $discard_cmd = "discard' -d '".$data;
+
         $this->sendexpectone(__FILE__ . ':' . __LINE__, $discard_cmd);  
         $discard_cmd =  $this->raw_json;
         echo "DISCARD RESULT:  ".$discard_cmd." \n";
