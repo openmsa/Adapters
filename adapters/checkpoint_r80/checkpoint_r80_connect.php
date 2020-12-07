@@ -10,22 +10,22 @@ require_once "$db_objects";
 class DeviceConnection extends GenericConnection
 {
     private $key;
+    private $uid;
     private $xml_response;
     private $raw_xml;
     
-    // ------------------------------------------------------------------------------------------------
     public function do_connect()
     {
         $network = get_network_profile();
         $SD = &$network->SD;
         $ref = $SD->SD_EXTERNAL_REFERENCE;
-	unset($this->key);
+	    unset($this->key);
         $data = array( 
             'user'=> $this->sd_login_entry,
             'password'=> $this->sd_passwd_entry,
             'continue-last-session' => 'false',
             'session-description' => 'session initiated by MSA adapter',
-            'session-name' => date("Y-m-d").' - '.$ref
+            'session-name' => date("MSA - Y-m-d H:i:s").' - ME: '.$ref
         );
         
         $data = json_encode($data);
@@ -34,32 +34,33 @@ class DeviceConnection extends GenericConnection
         $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
     {
-        global $sendexpect_result;
-        $this->send($origin, $cmd);
-        
-        if ($prompt !== 'lire dans sdctx' && !empty($prompt))
-        {
-            $tab[0] = $prompt;
+        try {
+            global $sendexpect_result;
+            $this->send($origin, $cmd);
+            
+            if ($prompt !== 'lire dans sdctx' && !empty($prompt))
+            {
+                $tab[0] = $prompt;
+            }
+            else
+            {
+                $tab = array();
+            }
+            
+            $this->expect($origin, $tab);
+            
+            if (is_array($sendexpect_result))
+            {
+                return $sendexpect_result[0];
+            }
+            return $sendexpect_result;
+        } catch (Exception $e) {
+            throw $e;
         }
-        else
-        {
-            $tab = array();
-        }
-        
-        
-        $this->expect($origin, $tab);
-        
-        if (is_array($sendexpect_result))
-        {
-            return $sendexpect_result[0];
-        }
-        return $sendexpect_result;
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function send($origin, $cmd)
     {
         unset($this->xml_response);
@@ -86,6 +87,7 @@ class DeviceConnection extends GenericConnection
         $result = '';
         foreach ($output_array as $line)
         {
+            echo "CURL RES LINE: $line \n";
             if ($line !== 'SMS_OK')
             {
                 if (strpos($line, 'HTTP_CODE') !== 0)
@@ -97,7 +99,10 @@ class DeviceConnection extends GenericConnection
                     if (strpos($line, 'HTTP_CODE=20') !== 0)
                     {
                         $cmd_quote = str_replace("\"", "'", $result);
-                       // $cmd_return = str_replace("\n", "", $cmd_quote);
+                        // $cmd_return = str_replace("\n", "", $cmd_quote);
+                        if (isset($output_array['uid'])) {
+                            $this->discard($output_array['uid']);
+                        }
                         throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
                     }
                 }
@@ -110,7 +115,11 @@ class DeviceConnection extends GenericConnection
             $this->key = $array['sid'];
             echo "KEY: ". $this->key." \n";
         }
-        
+        if(isset($array['uid']))
+        {
+            $this->uid = $array['uid'];
+            echo "UID: ". $this->uid." \n";
+        }        
         // call array to xml conversion function
         $xml = arrayToXml($array, '<root></root>');
         
@@ -119,44 +128,14 @@ class DeviceConnection extends GenericConnection
         
         // FIN AJOUT
         $this->raw_xml = $this->xml_response->asXML();
-        //debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
-    }
-    
-    // ------------------------------------------------------------------------------------------------
-   /*
-    function execute_curl_cmd ($origin, $curl_cmd) {
-        
-        unset($this->xml_response);
-        unset($this->raw_xml);
-        
-        $ret = exec_local($origin, $curl_cmd, $output_array);
-        if ($ret !== SMS_OK)
-        {
-            throw new SmsException("Call to API Failed", $ret);
-        }
-        
-        $result = '';
-        foreach ($output_array as $line)
-        {
-            if ($line !== 'SMS_OK')
-            {
-                $result .= "{$line}\n";
-            }
-        }
-        $this->xml_response = new SimpleXMLElement($result);
-        $this->raw_xml = $this->xml_response->asXML();
         debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
     }
-    */
     
-    
-    // ------------------------------------------------------------------------------------------------
     public function sendCmd($origin, $cmd)
     {
         $this->send($origin, $cmd);
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result')
     {
         global $$global_result_name;
@@ -186,7 +165,6 @@ class DeviceConnection extends GenericConnection
         throw new SmsException("cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin);
     }
     
-    // ------------------------------------------------------------------------------------------------
     public function do_store_prompt()
     {
     }
@@ -195,9 +173,24 @@ class DeviceConnection extends GenericConnection
     {
         return $this->raw_xml;
     }
+
+    function discard() {
+            
+        $data = array( 
+            'user'=> $this->uid
+        );
+        
+        $data = json_encode($data);
+        
+        $discard_cmd = "discard' -d '".$data;
+
+        $this->sendexpectone(__FILE__ . ':' . __LINE__, $discard_cmd);  
+        $discard_cmd =  $this->raw_json;
+        echo "DISCARD RESULT:  ".$discard_cmd." \n";
+        //$array = json_decode($publish_result, true);
+    }
 }
 
-// ------------------------------------------------------------------------------------------------
 // return false if error, true if ok
 function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
@@ -207,7 +200,6 @@ function checkpoint_r80_connect($sd_ip_addr = null, $login = null, $passwd = nul
     return SMS_OK;
 }
 
-// ------------------------------------------------------------------------------------------------
 // Disconnect
 function checkpoint_r80_disconnect()
 {
@@ -225,41 +217,41 @@ function checkpoint_r80_disconnect()
 
 
 function publish() {
-    
-       global $sms_sd_ctx;
 
-       $publish_cmd = "publish' -d '{}";
-       $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);  
-       $publish_result =  $sms_sd_ctx->raw_json;
-       echo "PUBLISH RESULT:  ".$publish_result." \n";
-       $array = json_decode($publish_result, true);
-       if(isset($array['task-id'])) {
-           $task_id = $array['task-id'];
-           echo "TASK-ID :" . $task_id ." \n";
-   
-           echo "WAIT FOR PUBLISH TASK TO BE FINISHED\n";
-           $i = 0;
-           $task_status = "in progress";
-           do {    
-                   $showtask_cmd = "show-task' -d '$publish_result";
-                   $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);  
-                   $showtask_result =  $sms_sd_ctx->raw_json;
-                   echo "SHOW TASK RESULT: \n ".$showtask_result." \n";
-                   $showtask_result_array = json_decode($showtask_result, true);
-                   $task_status =  $showtask_result_array['tasks'][0]['status'];
-                   echo "SHOW TASK STATUS: <".$task_status."> \n";
-   
-                   if ($task_status == "failed") {
-                       throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED ", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
-                   }
-   
-                   sleep (1);
-                   $i++;
-                   if ($i == 20) {
-                       throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, __FILE__ . ':' . __LINE__);
-                   }
-           } while ($task_status == "in progress");
-       }
+    global $sms_sd_ctx;
+    echo "---> publish";
+    $publish_cmd = "publish' -d '{}";
+    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $publish_cmd);
+    $publish_result =  $sms_sd_ctx->raw_json;
+    echo "PUBLISH RESULT:  " . $publish_result . " \n";
+    $array = json_decode($publish_result, true);
+    if (isset($array['task-id'])) {
+        $task_id = $array['task-id'];
+        echo "TASK-ID :" . $task_id . " \n";
+
+        echo "WAIT FOR PUBLISH TASK TO BE FINISHED\n";
+        $i = 0;
+        $task_status = "in progress";
+        do {
+            $showtask_cmd = "show-task' -d '$publish_result";
+            $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, $showtask_cmd);
+            $showtask_result =  $sms_sd_ctx->raw_json;
+            echo "SHOW TASK RESULT: \n " . $showtask_result . " \n";
+            $showtask_result_array = json_decode($showtask_result, true);
+            $task_status =  $showtask_result_array['tasks'][0]['status'];
+            echo "SHOW TASK STATUS: <" . $task_status . "> \n";
+
+            if ($task_status == "failed") {
+                throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED ", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
+            }
+
+            sleep(1);
+            $i++;
+            if ($i == 20) {
+                throw new SmsException("ERROR: PUBLISH TASK $task_id FAILED TO EXECUTE WITHIN 20 sec", ERR_SD_CMDTMOUT, __FILE__ . ':' . __LINE__);
+            }
+        } while ($task_status == "in progress");
+    }
 }
 
 ?>
