@@ -26,8 +26,6 @@ The installer script performs basic compatibility checks on values provided
 for `model-id` and `manufacturer-id`, as these are currently double-defined
 in files `sms_router.conf` and `device.properties`.
 
-For installation best practice please have a look at [how to install a new adapter](How_to_install_a_new_adapter.md)
-
 Usage
 -----
 
