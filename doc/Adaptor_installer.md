@@ -39,7 +39,7 @@ This updates the MSA-global configurations files adding the adaptor's info.
 Restart of most MSA services is then required, as per product documentation:
 
 	sudo docker-compose restart msa_api
-	sudo docker-compose exec msa_sms /etc/init.d/ubi-sms restart
+	sudo docker-compose restart msa_sms
 
 Defining adaptor properties
 ---------------------------
