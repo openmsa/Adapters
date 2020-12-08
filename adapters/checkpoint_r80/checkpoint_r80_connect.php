@@ -23,7 +23,7 @@ class DeviceConnection extends GenericConnection
         $data = array( 
             'user'=> $this->sd_login_entry,
             'password'=> $this->sd_passwd_entry,
-            'continue-last-session' => 'false',
+            'continue-last-session' => 'true',
             'session-description' => 'session initiated by MSA adapter',
             'session-name' => date("MSA - Y-m-d H:i:s").' - ME: '.$ref
         );
@@ -75,7 +75,7 @@ class DeviceConnection extends GenericConnection
             $header = "-H 'X-chkp-sid: ".$this->key."'";
         }
         
-        $curl_cmd = "curl -XPOST -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} -H 'Content-Type: application/json' {$header} --max-time {$delay} -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/web_api/{$cmd}";
+        $curl_cmd = "curl -XPOST -sw '\nHTTP_CODE=%{http_code}' --connect-timeout 300 -H 'Content-Type: application/json' {$header} --max-time 300 -k 'https://{$this->sd_ip_config}:{$this->sd_management_port}/web_api/{$cmd}";
         
         $curl_cmd .= "' && echo";
         $ret = exec_local($origin, $curl_cmd, $output_array);
