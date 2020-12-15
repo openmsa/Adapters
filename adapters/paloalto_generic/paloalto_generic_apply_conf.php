@@ -123,7 +123,7 @@ function commit()
     $palo_retry_configured_limit = $sd->SD_CONFIGVAR_list['palo_retry_show_limit']->VAR_VALUE;
     $palo_retry_show_limit = $palo_retry_configured_limit;
     if(empty($palo_retry_show_limit)) {
-      $palo_retry_show_limit = 5; //default
+      $palo_retry_show_limit = 30; //default
     }
     sms_log_info("palo_retry_show_limit: " . $palo_retry_show_limit);
     $last_result = null;
