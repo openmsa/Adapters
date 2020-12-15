@@ -15,7 +15,6 @@
 */
 
 // Initial provisioning
-
 require_once 'smsd/sms_common.php';
 
 require_once load_once('lanner_ipmi', 'adaptor.php');
@@ -31,9 +30,9 @@ if (!empty($ipaddr))
 {
   $is_ztd = true;
 }
-
 $network = get_network_profile();
 $SD = &$network->SD;
+
 
 if($SD->SD_MANAGEMENT_PORT !== 0)
 {
@@ -52,7 +51,6 @@ if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port))
   sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
   return SMS_OK;
 }
-
 return require_once 'smsd/do_provisioning.php';
 
 ?>
