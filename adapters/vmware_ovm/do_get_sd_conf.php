@@ -15,25 +15,25 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('linux_generic', 'linux_generic_connect.php');
-require_once load_once('linux_generic', 'linux_generic_configuration.php');
+require_once load_once('vmware_ovm', 'vmware_ovm_connect.php');
+require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
 
 try
 {
-  $ret = linux_generic_connect();
+  $ret = vmware_ovm_connect();
   if ($ret !== SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
   // Get the conf on the router
-  $conf = new linux_generic_configuration($sdid);
+  $conf = new vmware_ovm_configuration($sdid);
   $SMS_RETURN_BUF = $conf->get_running_conf();
-  linux_generic_disconnect();
+  vmware_ovm_disconnect();
 }
 catch(Exception | Error $e)
 {
-  linux_generic_disconnect();
+  vmware_ovm_disconnect();
   return $e->getCode();
 }
 
