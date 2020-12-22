@@ -24,16 +24,22 @@ require_once "$db_objects";
 function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
+  global $model_data;
 
   try
   {
-    $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    if (isset( $data['class'])) {
+      $class = $data['class'];
+      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    } else {
+      $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    }
     $sms_sd_ctx->setParam("PROTOCOL", "SSH");
   }
   catch (SmsException $e)
   {
     debug_dump($e);
-    return ERR_SD_CONNREFUSED;
+    return $e->getCode();
   }
   return SMS_OK;
 }

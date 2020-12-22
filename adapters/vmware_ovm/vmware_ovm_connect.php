@@ -43,6 +43,7 @@ class VmwareOVMsshConnection  extends LinuxGenericsshConnection
 {
   public function do_store_prompt()
   {
+    echo "***** VmwareOVMsshConnection.do_store_prompt\n";
     global $sendexpect_result;
 
     $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -echo");
