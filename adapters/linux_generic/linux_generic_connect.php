@@ -25,6 +25,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 {
   global $sms_sd_ctx;
   global $model_data;
+  $data = json_decode($model_data, true);
 
   try
   {

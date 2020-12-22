@@ -18,6 +18,7 @@ require_once 'smsd/expect.php';
 require_once 'smsd/ssh_connection.php';
 require_once 'smsd/telnet_connection.php';
 require_once load_once('linux_generic', 'common.php');
+require_once load_once('linux_generic', 'linux_generic_connect.php');
 require_once "$db_objects";
 
 // return false if error, true if ok
@@ -46,8 +47,7 @@ class VmwareOVMsshConnection  extends LinuxGenericsshConnection
     echo "***** VmwareOVMsshConnection.do_store_prompt\n";
     global $sendexpect_result;
 
-    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -echo");
-    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -onlcr ocrnl -echoctl -echoe -opost rows 0 columns 0 line 0");
+    $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
     $tab[0] = '#';
     $tab[1] = '$';
     $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
