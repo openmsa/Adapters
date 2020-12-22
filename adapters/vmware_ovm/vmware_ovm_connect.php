@@ -24,17 +24,10 @@ require_once "$db_objects";
 function vmware_ovm_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
-  global $model_data;
-  $data = json_decode($model_data, true);
 
   try
   {
-    if (isset( $data['class'])) {
-      $class = $data['class'];
-      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    } else {
-      $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    }
+    $sms_sd_ctx = new OVMSSHConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
     $sms_sd_ctx->setParam("PROTOCOL", "SSH");
   }
   catch (SmsException $e)
@@ -59,19 +52,19 @@ function vmware_ovm_synchro_prompt()
 
   $msg = 'UBISyncro' . mt_rand(10000, 99999);
   $prompt = $sms_sd_ctx->getPrompt();
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "echo -n {$msg}", "{$msg}{$prompt}");
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "showversion");
 }
 
-class LinuxGenericsshConnection extends SshConnection
+class OVMSSHConnection extends SshConnection
 {
   public function do_store_prompt()
   {
     global $sendexpect_result;
 
-    $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
+    //$this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
     $tab[0] = '>';
 
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'showversion', $tab);
 
     $this->prompt = trim($sendexpect_result);
     if (strrchr($this->prompt, "\n") !== false)
