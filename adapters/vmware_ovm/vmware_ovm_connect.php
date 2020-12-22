@@ -69,17 +69,9 @@ class LinuxGenericsshConnection extends SshConnection
     global $sendexpect_result;
 
     $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
-    $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
-    $tab[0] = '#';
-    $tab[1] = '$';
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
+    $tab[0] = '>';
 
-    sendexpectone(__FILE__ . ':' . __LINE__, $this, 'echo -n UBISynchroForPrompt', 'UBISynchroForPrompt');
-
-    $tab[0] = '#';
-    $tab[1] = '$';
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'echo', $tab);
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
 
     $this->prompt = trim($sendexpect_result);
     if (strrchr($this->prompt, "\n") !== false)
@@ -90,10 +82,8 @@ class LinuxGenericsshConnection extends SshConnection
     echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
 
     // synchronize again
-
-    $msg = 'UBISyncro' . mt_rand(10000, 99999);
     $prompt = $this->prompt;
-    sendexpectone(__FILE__ . ':' . __LINE__, $this, "echo -n {$msg}", "{$msg}{$prompt}");
+    sendexpectone(__FILE__ . ':' . __LINE__, $this, "showversion");
 
   }
 
