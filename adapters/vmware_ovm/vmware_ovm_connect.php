@@ -61,11 +61,12 @@ class OVMSSHConnection extends SshConnection
   {
     global $sendexpect_result;
     echo "OVMSSHConnection.do_store_prompt\n";
-    //$this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
-    
+    $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
+    echo " 1 sendexpect\n";
+ 
     $tab[0] = '>';
     $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'showversion', $tab);
-    echo " 1 sendexpect\n";
+    echo " 2 sendexpect\n";
 
     $this->prompt = trim($sendexpect_result);
     if (strrchr($this->prompt, "\n") !== false)
