@@ -21,7 +21,7 @@ require_once 'smsd/sms_common.php';
 require_once load_once('linux_generic', 'adaptor.php');
 require_once load_once('linux_generic', 'common.php');
 require_once load_once('linux_generic', 'linux_generic_configuration.php');
-require_once load_once('vmwa_ovm', 'provisioning_stages.php');
+require_once load_once('vmware_ovm', 'provisioning_stages.php');
 
 require_once "$db_objects";
 
