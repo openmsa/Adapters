@@ -7,7 +7,7 @@ Overview
 
 OpenMSA comes with an adaptor installer script: `../bin/da_installer`.
 
-The script updates the following MSA-global configuration files:
+The script updates the following MSA global configuration files:
 
 - manufacturers.properties
 - models.properties
