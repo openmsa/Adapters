@@ -15,25 +15,25 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('vmware_ovm', 'vmware_ovm_connect.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
+require_once load_once('ovm_manager', 'ovm_manager_connect.php');
+require_once load_once('ovm_manager', 'ovm_manager_configuration.php');
 
 try
 {
-  $ret = vmware_ovm_connect();
+  $ret = ovm_manager_connect();
   if ($ret !== SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
   // Get the conf on the router
-  $conf = new vmware_ovm_configuration($sdid);
+  $conf = new ovm_manager_configuration($sdid);
   $SMS_RETURN_BUF = $conf->get_running_conf();
-  vmware_ovm_disconnect();
+  ovm_manager_disconnect();
 }
 catch(Exception | Error $e)
 {
-  vmware_ovm_disconnect();
+  ovm_manager_disconnect();
   return $e->getCode();
 }
 

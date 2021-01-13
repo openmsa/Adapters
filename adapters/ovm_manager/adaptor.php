@@ -14,9 +14,9 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('vmware_ovm', 'vmware_ovm_connect.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_apply_conf.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
+require_once load_once('ovm_manager', 'ovm_manager_connect.php');
+require_once load_once('ovm_manager', 'ovm_manager_apply_conf.php');
+require_once load_once('ovm_manager', 'ovm_manager_configuration.php');
 
 require_once "$db_objects";
 
@@ -28,7 +28,7 @@ require_once "$db_objects";
  */
 function sd_connect($login = null, $passwd = null)
 {
-  return vmware_ovm_connect($login, $passwd);
+  return ovm_manager_connect($login, $passwd);
 }
 
 /**
@@ -37,7 +37,7 @@ function sd_connect($login = null, $passwd = null)
  */
 function sd_disconnect()
 {
-  return  vmware_ovm_disconnect();
+  return  ovm_manager_disconnect();
 }
 
 /**
@@ -53,14 +53,14 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
   }
   else
   {
-    vmware_ovm_synchro_prompt();
+    ovm_manager_synchro_prompt();
   }
   if ($ret != SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CMDTMOUT);
   }
 
-  $ret = vmware_ovm_apply_conf($configuration, false);
+  $ret = ovm_manager_apply_conf($configuration, false);
 
   $output = $SMS_OUTPUT_BUF;
 
@@ -83,7 +83,7 @@ function sd_save_conf()
   global $sms_sd_ctx;
   $running_conf = "";
   //get and save running conf
-  $conf = new vmware_ovm_configuration($sdid);
+  $conf = new ovm_manager_configuration($sdid);
 
   $running_conf = $conf->get_running_conf();
 

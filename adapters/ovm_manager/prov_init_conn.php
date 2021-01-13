@@ -10,7 +10,7 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
   global $passwd;
   global $port;
 
-  return vmware_ovm_connect($ipaddr, $login, $passwd,  $port);
+  return ovm_manager_connect($ipaddr, $login, $passwd,  $port);
 }
 
 ?>

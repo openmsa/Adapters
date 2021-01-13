@@ -7,7 +7,7 @@
 require_once 'smsd/net_common.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('vmware_ovm', 'vmware_ovm_connect.php');
+require_once load_once('ovm_manager', 'ovm_manager_connect.php');
 
 function func_reboot($msg = '')
 {

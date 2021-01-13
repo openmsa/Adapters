@@ -14,12 +14,12 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
+require_once load_once('ovm_manager', 'ovm_manager_configuration.php');
 
 try {
   $generated_configuration = '';
 
-  $conf = new vmware_ovm_configuration($sdid);
+  $conf = new ovm_manager_configuration($sdid);
 
   $ret = $conf->build_conf($generated_configuration);
   if ($ret !== SMS_OK)

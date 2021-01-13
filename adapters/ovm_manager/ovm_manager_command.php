@@ -15,10 +15,10 @@ require_once load_once('smsd', 'cmd_update.php');
 require_once load_once('smsd', 'cmd_delete.php');
 require_once load_once('smsd', 'cmd_import.php');
 require_once load_once('smsd', 'cmd_list.php');
-require_once load_once('vmware_ovm', 'adaptor.php');
+require_once load_once('ovm_manager', 'adaptor.php');
 
 require_once load_once('smsd', 'generic_command.php');
-class vmware_ovm_command extends generic_command
+class ovm_manager_command extends generic_command
 {
   var $parser_list;
   var $parsed_objects;

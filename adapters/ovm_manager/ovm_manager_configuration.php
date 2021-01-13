@@ -1,17 +1,17 @@
 <?php
 /*
- * Version: $Id: vmware_ovm_configuration.php 58927 2012-06-11 15:15:18Z abr $
+ * Version: $Id: ovm_manager_configuration.php 58927 2012-06-11 15:15:18Z abr $
  * Created: Feb 12, 2009
  */
 require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 require_once 'smsd/expect.php';
 
-require_once load_once('vmware_ovm', 'common.php');
-require_once load_once('vmware_ovm', 'adaptor.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_apply_conf.php');
+require_once load_once('ovm_manager', 'common.php');
+require_once load_once('ovm_manager', 'adaptor.php');
+require_once load_once('ovm_manager', 'ovm_manager_apply_conf.php');
 require_once "$db_objects";
-class vmware_ovm_configuration
+class ovm_manager_configuration
 {
   var $conf_path; // Path for previous stored configuration files
   var $sdid; // ID of the SD to update
@@ -148,7 +148,7 @@ class vmware_ovm_configuration
 
     if (!empty($generated_configuration))
     {
-      $ret = vmware_ovm_apply_conf($generated_configuration, $this->is_ztd);
+      $ret = ovm_manager_apply_conf($generated_configuration, $this->is_ztd);
     }
     return $ret;
   }
@@ -193,7 +193,7 @@ class vmware_ovm_configuration
     while ($loop > 0)
     {
       sleep(10); // wait for ssh to come up
-      $ret = vmware_ovm_connect();
+      $ret = ovm_manager_connect();
       if ($ret == SMS_OK)
       {
         break;

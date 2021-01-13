@@ -14,9 +14,9 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('vmware_ovm', 'vmware_ovm_connect.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
-require_once load_once('vmware_ovm', 'apply_errors.php');
+require_once load_once('ovm_manager', 'ovm_manager_connect.php');
+require_once load_once('ovm_manager', 'ovm_manager_configuration.php');
+require_once load_once('ovm_manager', 'apply_errors.php');
 require_once "$db_objects";
 
 try {
@@ -36,21 +36,21 @@ try {
     sms_close_user_socket($sms_csp);
 
     // Connect to the device
-    $ret = vmware_ovm_connect();
+    $ret = ovm_manager_connect();
     if ($ret !== SMS_OK)
     {
       sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
       sms_sd_unlock($sms_csp, $sms_sd_info);
-      vmware_ovm_disconnect();
+      ovm_manager_disconnect();
       return SMS_OK;
     }
-    $conf = new vmware_ovm_configuration($sdid);
+    $conf = new ovm_manager_configuration($sdid);
     $ret = $conf->reboot($status_type);
-    vmware_ovm_disconnect(true);
+    ovm_manager_disconnect(true);
 } catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
-    vmware_ovm_disconnect();
+    ovm_manager_disconnect();
     return SMS_OK;
 }
 

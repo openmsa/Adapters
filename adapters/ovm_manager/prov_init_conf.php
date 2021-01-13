@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------------------
 function prov_init_conf($sms_csp, $sdid, $sms_sd_info, &$err)
 {
-  $conf = new vmware_ovm_configuration($sdid, true);
+  $conf = new ovm_manager_configuration($sdid, true);
 
   $ret = $conf->provisioning();
   if ($ret !== SMS_OK)
@@ -13,7 +13,7 @@ function prov_init_conf($sms_csp, $sdid, $sms_sd_info, &$err)
     return $ret;
   }
 
-  vmware_ovm_disconnect();
+  ovm_manager_disconnect();
   return SMS_OK;
 }
 

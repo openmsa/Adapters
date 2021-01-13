@@ -18,10 +18,10 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('vmware_ovm', 'adaptor.php');
-require_once load_once('vmware_ovm', 'common.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
-require_once load_once('vmware_ovm', 'provisioning_stages.php');
+require_once load_once('ovm_manager', 'adaptor.php');
+require_once load_once('ovm_manager', 'common.php');
+require_once load_once('ovm_manager', 'ovm_manager_configuration.php');
+require_once load_once('ovm_manager', 'provisioning_stages.php');
 require_once "$db_objects";
 
 

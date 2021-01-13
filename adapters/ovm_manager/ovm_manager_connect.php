@@ -1,6 +1,6 @@
 <?php
 /*
- * 	Version: 0.1: vmware_ovm_connect.php
+ * 	Version: 0.1: ovm_manager_connect.php
  *  	Created: Jun 7, 2012
  *  	Available global variables
  *  	$sms_sd_ctx        	pointer to sd_ctx context to retreive usefull field(s)
@@ -17,17 +17,17 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/ssh_connection.php';
 require_once 'smsd/telnet_connection.php';
-require_once load_once('vmware_ovm', 'common.php');
+require_once load_once('ovm_manager', 'common.php');
 require_once "$db_objects";
 
 // return false if error, true if ok
-function vmware_ovm_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
+function ovm_manager_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
 
   try
   {
-    $sms_sd_ctx = new OVMSSHConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    $sms_sd_ctx = new OVMManagerSSHConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
     $sms_sd_ctx->setParam("PROTOCOL", "SSH");
   }
   catch (SmsException $e)
@@ -40,13 +40,13 @@ function vmware_ovm_connect($sd_ip_addr = null, $login = null, $passwd = null, $
 
 // Disconnect
 // return false if error, true if ok
-function vmware_ovm_disconnect()
+function ovm_manager_disconnect()
 {
   $sms_sd_ctx = null;
   return SMS_OK;
 }
 
-function vmware_ovm_synchro_prompt()
+function ovm_manager_synchro_prompt()
 {
   global $sms_sd_ctx;
 
@@ -55,12 +55,12 @@ function vmware_ovm_synchro_prompt()
   sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "showversion");
 }
 
-class OVMSSHConnection extends SshConnection
+class OVMManagerSSHConnection extends SshConnection
 {
   public function do_store_prompt()
   {
     global $sendexpect_result;
-    echo "OVMSSHConnection.do_store_prompt\n";
+    echo "OVMManagerSSHConnection.do_store_prompt\n";
     $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
     echo " 1 sendexpect\n";
  

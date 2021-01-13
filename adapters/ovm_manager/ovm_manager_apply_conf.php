@@ -12,15 +12,15 @@
 // Transfer the configuration file on the router
 // First try to use SCP then TFTP
 require_once 'smsd/sms_common.php';
-require_once load_once('vmware_ovm', 'common.php');
-require_once load_once('vmware_ovm', 'apply_errors.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_configuration.php');
-require_once load_once('vmware_ovm', 'vmware_ovm_connect.php');
+require_once load_once('ovm_manager', 'common.php');
+require_once load_once('ovm_manager', 'apply_errors.php');
+require_once load_once('ovm_manager', 'ovm_manager_configuration.php');
+require_once load_once('ovm_manager', 'ovm_manager_connect.php');
 
 require_once "$db_objects";
 
 define('DELAY', 200000);
-function vmware_ovm_apply_conf($configuration, $is_ztd)
+function ovm_manager_apply_conf($configuration, $is_ztd)
 {
   global $sdid;
   global $sms_sd_ctx;

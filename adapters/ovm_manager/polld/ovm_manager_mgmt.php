@@ -11,7 +11,7 @@
 
 // Script description
 require_once 'smsd/sms_common.php';
-require_once load_once('linux_generic', 'adaptor.php');
+require_once load_once('ovm_manager', 'adaptor.php');
 require_once "$db_objects";
 
 function exit_error($line, $error)
