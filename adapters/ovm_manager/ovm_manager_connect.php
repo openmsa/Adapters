@@ -59,6 +59,8 @@ class OVMManagerSSHConnection extends SshConnection
 {
   public function do_store_prompt()
   {
+    $this->setParam("newline_dos", true);
+
     global $sendexpect_result;
     echo "OVMManagerSSHConnection.do_store_prompt\n";
     $this->sendCmd(__FILE__ . ':' . __LINE__, "showversion");
