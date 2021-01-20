@@ -71,9 +71,9 @@ class dell_redfish_command extends generic_command {
 					$xpath_eval = $parser->evaluate_internal ( 'IMPORT', 'xpath' );
 					
 					if (strlen ( $xpath_eval ) > 0) {
-						$path_list = preg_split ( '@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
+						$path_list = preg_split ( '@#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
 						foreach ( $path_list as $xpth ) {
-							$cmd = trim ( $op_eval ) . "##" . trim ( $xpth );
+							$cmd = trim ( $op_eval ) . "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#" . trim ( $xpth );
 							$parser_list [$cmd] [] = $parser;
 						}
 					} else {
@@ -143,14 +143,14 @@ class dell_redfish_command extends generic_command {
 		foreach ( $list as $name ) {
 			
 			$endpoint_str = trim ( $name->evaluate_operation () );
-			$endpoints = explode ( "##", $endpoint_str );
+			$endpoints = explode ( "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#", $endpoint_str );
 			$xpath_str = trim ( $name->evaluate_xpath () );
-			$xpaths = explode ( "##", $xpath_str );
+			$xpaths = explode ( "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#", $xpath_str );
 			
 			$xml_conf_str = trim ( $name->evaluate_xml () );
 			$xml_conf_str = str_replace ( "\n", '', $xml_conf_str );
 			
-			$xml_configs = explode ( "##", $xml_conf_str );
+			$xml_configs = explode ( "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#", $xml_conf_str );
 			if (! empty ( $endpoint_str )) {
 				
 				if (count ( $xpaths ) != count ( $endpoints )) {
@@ -160,9 +160,9 @@ class dell_redfish_command extends generic_command {
 					foreach ( $xml_configs as $xml_conf ) {
 						if (! empty ( $xml_conf )) {
 							$conf = $endpoints [$i];
-							$conf .= '#' . $xpaths [$i];
-							// separate data with '#'
-							$conf .= '#' . $xml_conf;
+							$conf .= '#UBIQUBE_MSA_DELIMITER#' . $xpaths [$i];
+							// separate data with '#UBIQUBE_MSA_DELIMITER#'
+							$conf .= '#UBIQUBE_MSA_DELIMITER#' . $xml_conf;
 							
 							$this->configuration .= "{$conf}\n";
 							$SMS_RETURN_BUF .= "{$conf}\n";
@@ -187,7 +187,7 @@ class dell_redfish_command extends generic_command {
 			debug_dump ( $xpath, "DELETE XPATH\n" );
 		
 			if (! empty ( $operation )) {                             
-                             $conf = $operation . '##' . $xpath;
+                             $conf = $operation . '#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#' . $xpath;
                              $xml_conf = trim($delete->evaluate_xml());
                              $xml_conf_str = str_replace("\n", '', $xml_conf);
                              $conf .= "' -d'".$xml_conf_str;

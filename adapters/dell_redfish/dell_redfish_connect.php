@@ -92,7 +92,7 @@ class DeviceConnection extends GenericConnection {
     public function send($origin, $rest_cmd) {
         unset ( $this->xml_response );
         unset ( $this->raw_xml );
-        $cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
+        $cmd_list = preg_split('@#UBIQUBE_MSA_DELIMITER#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
         $http_op = $cmd_list[0];
         $rest_path = "";
         if (count($cmd_list) >1 ) {
@@ -279,7 +279,7 @@ class TokenConnection extends DeviceConnection {
 
         $data = json_encode ( $data );
 
-        $cmd = "POST#{$this->sign_in_req_path}#{$data}";
+        $cmd = "POST#UBIQUBE_MSA_DELIMITER#{$this->sign_in_req_path}#UBIQUBE_MSA_DELIMITER#{$data}";
         $result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
         //debug_dump($result, "do_connect result: \n");
         // extract token
@@ -294,7 +294,7 @@ class TokenConnection extends DeviceConnection {
     {
         foreach ($this->id_list as $id => &$properties) {
             $uri = $properties["uri"];
-            $cmd = "GET#{$uri}";
+            $cmd = "GET#UBIQUBE_MSA_DELIMITER#{$uri}";
             $result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
             $temp = (string)($result->Members[0]->row->ATodataDOTid[0]);
             if (strpos($temp, $uri) === False) {
@@ -318,7 +318,7 @@ class TokenConnection extends DeviceConnection {
                 $instance_id = $this->instance_id;
             }
 
-        $cmd = "DELETE#/redfish/v1/SessionService/Sessions/".$instance_id ;
+        $cmd = "DELETE#UBIQUBE_MSA_DELIMITER#/redfish/v1/SessionService/Sessions/".$instance_id ;
          debug_dump($cmd, "**********CMD DISCONNECTED***********");
 
         $result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
