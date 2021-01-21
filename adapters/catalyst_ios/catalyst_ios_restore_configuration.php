@@ -107,8 +107,19 @@ class catalyst_ios_restore_configuration
 	    $ret = scp_to_router($full_name, $file_name);
 	    if ($ret === SMS_OK)
 	    {
+	      // CHECK if 'flash:' disk type exists in the Catalyst IOS device.
+              $tab[0] = $sms_sd_ctx->getPrompt();
+              $tab[1] = "#";
+              $index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, 'copy ?', $tab, DELAY);
+              $SMS_OUTPUT_BUF_HELP = $sendexpect_result;
+
+              $disk_type = '';
+              if (preg_match('/\s+flash:/', $SMS_OUTPUT_BUF_HELP)) {
+                $disk_type = 'flash:';
+              }
+	
 	      // SCP OK
-	      $SMS_OUTPUT_BUF = copy_to_running("copy flash:$file_name startup-config");
+	      $SMS_OUTPUT_BUF = copy_to_running("copy " . $disk_type . $file_name . " running-config");
 	      save_result_file($SMS_OUTPUT_BUF, "conf.error");
 
 	      foreach ($apply_errors as $apply_error)
@@ -124,7 +135,7 @@ class catalyst_ios_restore_configuration
 	      $tab[0] = $sms_sd_ctx->getPrompt();
 	      $tab[1] = "]?";
 	      $tab[2] = "[confirm]";
-	      $index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, "delete flash:$file_name", $tab);
+	      $index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, "delete " . $disk_type . $file_name, $tab);
 	      while ($index !== 0)
 	      {
 	        $index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, "", $tab);
