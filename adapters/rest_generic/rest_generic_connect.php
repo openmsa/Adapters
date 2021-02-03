@@ -114,6 +114,9 @@ class DeviceConnection extends GenericConnection {
 		} else if (($this->auth_mode == "jns_api_v2") && isset($this->key)) {
                         $H = trim($this->auth_header);
                         $headers .= " -H '{$H} {$this->key}'";
+		}else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
+                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+
                 }
 
 		foreach($this->http_header_list as $header) {
@@ -166,6 +169,7 @@ class DeviceConnection extends GenericConnection {
 		}
 		$xml;
 		if (strpos($curl_cmd, "Content-Type: application/json")) {
+			$result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
