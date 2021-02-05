@@ -73,7 +73,7 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'WORKING', "Backup of the restored configuration (restore revision: $revision_id)");
 
-  require_once load_once('netasq', 'do_backup_conf.php');
+  require_once load_once('stormshield', 'do_backup_conf.php');
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'ENDED', "Restore done (restore revision: $revision_id)");
 }
