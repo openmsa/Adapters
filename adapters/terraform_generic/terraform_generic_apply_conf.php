@@ -47,6 +47,7 @@ function terraform_generic_apply_conf($configuration, $is_ztd)
   $tab[1] = "Password:";
   $tab[2] = "#";
   $tab[3] = "$";
+  $tab[4] = "value:";
 
   $buffer = $configuration;
   $line = get_one_line($buffer);
@@ -66,6 +67,11 @@ function terraform_generic_apply_conf($configuration, $is_ztd)
       if ($index === 1)
       {
         $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $SD->SD_PASSWD_ENTRY, $tab);
+        $SMS_OUTPUT_BUF .= $sendexpect_result;
+      }
+
+      if ($index == 4) {
+	$index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "yes", $tab);
         $SMS_OUTPUT_BUF .= $sendexpect_result;
       }
 

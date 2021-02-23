@@ -52,19 +52,21 @@ function terraform_generic_synchro_prompt()
 
   $msg = 'UBISyncro' . mt_rand(10000, 99999);
   $prompt = $sms_sd_ctx->getPrompt();
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "showversion");
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "terraform version");
 }
 
 class TerraformSSHConnection extends SshConnection
 {
   public function do_store_prompt()
   {
-    $this->setParam("newline_dos", true);
+#    $this->setParam("newline_dos", true);
 
     global $sendexpect_result;
     echo "TerraformSSHConnection.do_store_prompt\n";
     $tab[0] = '>';
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'showversion', $tab);
+    $tab[1] = '#';
+    $tab[2] = '$';
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'terraform version', $tab);
     echo " 1 sendexpect\n";
 
     $this->prompt = trim($sendexpect_result);
@@ -77,7 +79,7 @@ class TerraformSSHConnection extends SshConnection
 
     // synchronize again
     $prompt = $this->prompt;
-    sendexpectone(__FILE__ . ':' . __LINE__, $this, "showversion");
+    sendexpectone(__FILE__ . ':' . __LINE__, $this, "terraform version");
 
   }
 
