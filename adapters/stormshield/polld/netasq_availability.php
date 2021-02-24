@@ -12,7 +12,7 @@
 // Connection to the device
 
 require_once 'smsd/sms_common.php';
-require_once load_once('netasq', 'netasq_connect.php');
+require_once load_once('stormshield', 'netasq_connect.php');
 
 try
 {
