@@ -114,8 +114,13 @@ class DeviceConnection extends GenericConnection {
                         $headers .= " -H '{$H} {$this->key}'";
 		}else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
                         $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-
                 }
+
+		foreach($this->http_header_list as $header) {
+			$H = trim($header);
+			$headers .= " -H '{$H}'";
+		}
+
 
 		if(isset($this->fqdn))
 		{
@@ -231,6 +236,9 @@ function fortinet_fortimanager_connect($sd_ip_addr = null, $login = null, $passw
 	$sms_sd_ctx->protocol = "https";
 	$sms_sd_ctx->auth_mode = "token";
 	$sms_sd_ctx->conn_timeout = EXPECT_DELAY / 1000;
+	$http_header_str ="Content-Type: application/json | Accept: application/json";
+	$sms_sd_ctx->http_header_list = explode("|", $http_header_str);
+	echo "rest_generic_connect: setting HTTP header to: ".print_r($sms_sd_ctx->http_header_list, true)."\n";
 	if (isset($sd->SD_CONFIGVAR_list['PROTOCOL'])) {
 		$sms_sd_ctx->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
 	}
