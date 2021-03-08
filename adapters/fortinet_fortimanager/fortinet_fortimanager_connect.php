@@ -117,14 +117,6 @@ class DeviceConnection extends GenericConnection {
 
                 }
 
-		foreach($this->http_header_list as $header) {
-			$H = trim($header);
-			$headers .= " -H '{$H}'";
-		}
-
-
-
-
 		if(isset($this->fqdn))
 		{
 			$ip_address = $this->fqdn;
@@ -207,13 +199,13 @@ class TokenConnection extends DeviceConnection {
 		unset ( $this->key );
 				
 		$data = array (
-				"username" => $this->sd_login_entry,
-				"password" => $this->sd_passwd_entry
+				"user" => $this->sd_login_entry,
+				"passwd" => $this->sd_passwd_entry
 		);
-		$url = array("url" => "/sys/login/user");
-		$params = array("data"=>$data, "url"=>$url);
+		$params = array("data"=>$data, "url"=>"/sys/login/user");
 		$params=array($params);
-		$data=array("id"=>"", "method"=>"exec", "params"=>$params);
+		$id = posix_getpid();
+		$data=array("id"=>$id, "method"=>"exec", "params"=>$params);
 		$data = json_encode ( $data );
 		$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 		$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
@@ -237,7 +229,8 @@ function fortinet_fortimanager_connect($sd_ip_addr = null, $login = null, $passw
 	$sms_sd_ctx->sign_in_req_path = "/jsonrpc";
 	$sms_sd_ctx->auth_header ="";
 	$sms_sd_ctx->protocol = "https";
-	$this->auth_mode = "token";
+	$sms_sd_ctx->auth_mode = "token";
+	$sms_sd_ctx->conn_timeout = EXPECT_DELAY / 1000;
 	if (isset($sd->SD_CONFIGVAR_list['PROTOCOL'])) {
 		$sms_sd_ctx->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
 	}
