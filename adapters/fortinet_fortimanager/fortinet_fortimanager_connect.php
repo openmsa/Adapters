@@ -102,21 +102,17 @@ class DeviceConnection extends GenericConnection {
                 echo("auth_header= ".$this->auth_header."\n");
 		if (isset($this->key)) {
 	                echo("key= ".$this->key."\n");
+			 if (count($cmd_list) >2 ) {
+                                $rest_payload = $cmd_list[2];
+                                $payload=json_decode($rest_payload,true);
+                                $payload['session']=$this->key;
+                                $cmd_list[2]=json_encode($payload);
+
+                        }
+
 		}
 
-		if ($this->auth_mode == "BASIC") {
-			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
-			$H = trim($this->auth_header);
-			$headers .= " -H '{$H}: {$this->key}'";
-		} else if (($this->auth_mode == "jns_api_v2") && isset($this->key)) {
-                        $H = trim($this->auth_header);
-                        $headers .= " -H '{$H} {$this->key}'";
-		}else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
-                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-                }
-
-		foreach($this->http_header_list as $header) {
+	 	foreach($this->http_header_list as $header) {
 			$H = trim($header);
 			$headers .= " -H '{$H}'";
 		}
