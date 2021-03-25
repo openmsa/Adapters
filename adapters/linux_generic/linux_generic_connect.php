@@ -44,6 +44,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
     if (isset( $data['class'])) {
       $class = $data['class'];
+      echo("found class name: ".$class);
       $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
     } else {
       $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
