@@ -25,10 +25,23 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 {
   global $sms_sd_ctx;
   global $model_data;
+  global $priv_key;
+
   $data = json_decode($model_data, true);
 
   try
   {
+    // default private key name can be set in adapter config file sms_router.conf
+    if (isset($data['priv_key']))
+    {
+      $priv_key = $data['priv_key'];
+    }
+    // check if the default private key name was overridden by a configuration variable
+    if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
+      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+    }
+    echo("found key name: ".$priv_key);
+
     if (isset( $data['class'])) {
       $class = $data['class'];
       $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
@@ -101,6 +114,47 @@ class LinuxGenericsshConnection extends SshConnection
       $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
   }
 
+}
+
+class LinuxsshKeyConnection extends SshKeyConnection
+{
+
+  public function do_store_prompt()
+  {
+    global $sendexpect_result;
+
+    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -echo");
+    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -onlcr ocrnl -echoctl -echoe -opost rows 0 columns 0 line 0");
+    $tab[0] = '#';
+    $tab[1] = '$';
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
+
+    sendexpectone(__FILE__ . ':' . __LINE__, $this, 'echo -n UBISynchroForPrompt', 'UBISynchroForPrompt');
+
+    $tab[0] = '#';
+    $tab[1] = '$';
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'echo', $tab);
+
+    $this->prompt = trim($sendexpect_result);
+    if (strrchr($this->prompt, "\n") !== false)
+    {
+       $this->prompt = substr(strrchr($this->prompt, "\n"), 1);
+    }
+
+    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+
+    // synchronize again
+
+    $msg = 'UBISyncro' . mt_rand(10000, 99999);
+    $prompt = $this->prompt;
+    sendexpectone(__FILE__ . ':' . __LINE__, $this, "echo -n {$msg}", "{$msg}{$prompt}");
+
+  }
+
+  public function do_start() {
+      $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
+  }
 }
 
 
