@@ -44,7 +44,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
       // default private key name can be set in adapter config file sms_router.conf
         $priv_key = $data['priv_key'];
         echo("found default key name: ".$priv_key."\n");
-      }
+    }
  
     if (isset( $data['class'])) {
       $class = $data['class'];
