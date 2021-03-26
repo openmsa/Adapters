@@ -29,18 +29,22 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
   $data = json_decode($model_data, true);
   debug_dump($data, "DATA\n");
+  debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+
+
+
   try
   {
-   if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
-    // check if the default private key name was overridden by a configuration variable
-    $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
-  } elseif (isset($data['priv_key'])) {
-     // default private key name can be set in adapter config file sms_router.conf
-      $priv_key = $data['priv_key'];
-  }
+    if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
+      // check if the default private key name was overridden by a configuration variable
+      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+      echo("found custom key name: ".$priv_key."\n");
+    } elseif (isset($data['priv_key'])) {
+      // default private key name can be set in adapter config file sms_router.conf
+        $priv_key = $data['priv_key'];
+        echo("found default key name: ".$priv_key."\n");
+      }
  
-    echo("found key name: ".$priv_key."\n");
-
     if (isset( $data['class'])) {
       $class = $data['class'];
       echo("found class name: ".$class."\n");
