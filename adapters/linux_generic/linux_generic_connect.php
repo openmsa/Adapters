@@ -29,9 +29,10 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
   $data = json_decode($model_data, true);
   debug_dump($data, "DATA\n");
+  
+  $network = get_network_profile();
+	$sd = &$network->SD;
   debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
-
-
 
   try
   {
