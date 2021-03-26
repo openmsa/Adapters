@@ -31,20 +31,19 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
   debug_dump($data, "DATA\n");
   try
   {
-    // default private key name can be set in adapter config file sms_router.conf
-    if (isset($data['priv_key']))
-    {
-      $priv_key = $data['priv_key'];
-    }
+   if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
     // check if the default private key name was overridden by a configuration variable
-    if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
-      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
-    }
-    echo("found key name: ".$priv_key);
+    $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+  } elseif (isset($data['priv_key'])) {
+     // default private key name can be set in adapter config file sms_router.conf
+      $priv_key = $data['priv_key'];
+  }
+ 
+    echo("found key name: ".$priv_key."\n");
 
     if (isset( $data['class'])) {
       $class = $data['class'];
-      echo("found class name: ".$class);
+      echo("found class name: ".$class."\n");
       $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
     } else {
       $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
@@ -157,7 +156,3 @@ class LinuxsshKeyConnection extends SshKeyConnection
       $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
   }
 }
-
-
-
-?>
