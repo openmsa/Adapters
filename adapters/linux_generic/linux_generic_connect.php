@@ -46,7 +46,12 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
         echo("found default key name: ".$priv_key."\n");
     }
  
-    if (isset( $data['class'])) {
+    if (isset($sd->SD_CONFIGVAR_list['CONN_CLASS'])) {
+      // check if the default private key name was overridden by a configuration variable
+      $class = trim($sd->SD_CONFIGVAR_list['CONN_CLASS']->VAR_VALUE);  
+      echo("found class name: ".$class."\n");
+      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    } elseif (isset( $data['class'])) {
       $class = $data['class'];
       echo("found class name: ".$class."\n");
       $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
