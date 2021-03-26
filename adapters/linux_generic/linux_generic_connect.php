@@ -28,7 +28,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
   global $priv_key;
 
   $data = json_decode($model_data, true);
-
+  debug_dump($data, "DATA\n");
   try
   {
     // default private key name can be set in adapter config file sms_router.conf
