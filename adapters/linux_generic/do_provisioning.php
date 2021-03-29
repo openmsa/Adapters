@@ -55,7 +55,7 @@ else
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
 
-if (isset($sd->SD_CONFIGVAR_list['SSH_KEY']) || isset($data['priv_key'])) {
+if (isset($SD->SD_CONFIGVAR_list['SSH_KEY']) || isset($data['priv_key'])) {
   // password is not mandatory if an SSH key was defined
   echo("found SSH key\n");
   if (empty($ipaddr) || empty($login) || empty($port))
