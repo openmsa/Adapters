@@ -23,7 +23,6 @@ require_once "$db_objects";
 
 class LinuxsshKeyConnection extends SshKeyConnection
 {
-
 }
 
 class LinuxGenericsshConnection extends SshConnection
@@ -134,3 +133,4 @@ function do_store_prompt()
       $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
   }
 
+  ?>

@@ -4,14 +4,14 @@
 * 	Created: May 30, 2008
 * 	Available global variables
 *  	$sms_sd_info        sd_info structure
-* 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
+* 	$sms_sd_ctx         pointer to sd_ctx context to retrieve useful field(s)
 *  	$sms_csp            pointer to csp context to send response to user
 *  	$sdid
 *  	$sms_module         module name (for patterns)
 *  	$ipaddr             ip address of the router
 *  	$login              current login
 *  	$passwd             current password
-*  	$adminpasswd        current administation **PORT**
+*  	$adminpasswd        current administration **PORT**
 */
 
 // Initial provisioning
@@ -24,14 +24,13 @@ require_once load_once('linux_generic', 'linux_generic_configuration.php');
 require_once load_once('linux_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
-echo ("**********\n\n");
-/*
+
 global $model_data;
 debug_dump($model_data, "MODEL DATA\n");
 
 $data = json_decode($model_data, true);
 debug_dump($data, "DATA\n");
-*/
+
 $is_ztd = false;
 
 if (!empty($ipaddr))
