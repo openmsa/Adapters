@@ -20,6 +20,16 @@ require_once 'smsd/telnet_connection.php';
 require_once load_once('linux_generic', 'common.php');
 require_once "$db_objects";
 
+
+class LinuxsshKeyConnection extends SshKeyConnection
+{
+
+}
+
+class LinuxGenericsshConnection extends SshConnection
+{
+}
+
 // return false if error, true if ok
 function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
@@ -85,9 +95,9 @@ function linux_generic_synchro_prompt()
   sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "echo -n {$msg}", "{$msg}{$prompt}");
 }
 
-class LinuxGenericsshConnection extends SshConnection
-{
-  public function do_store_prompt()
+
+
+function do_store_prompt()
   {
     global $sendexpect_result;
 
@@ -124,45 +134,3 @@ class LinuxGenericsshConnection extends SshConnection
       $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
   }
 
-}
-
-class LinuxsshKeyConnection extends SshKeyConnection
-{
-
-  public function do_store_prompt()
-  {
-    global $sendexpect_result;
-
-    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -echo");
-    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -onlcr ocrnl -echoctl -echoe -opost rows 0 columns 0 line 0");
-    $tab[0] = '#';
-    $tab[1] = '$';
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
-
-    sendexpectone(__FILE__ . ':' . __LINE__, $this, 'echo -n UBISynchroForPrompt', 'UBISynchroForPrompt');
-
-    $tab[0] = '#';
-    $tab[1] = '$';
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'echo', $tab);
-
-    $this->prompt = trim($sendexpect_result);
-    if (strrchr($this->prompt, "\n") !== false)
-    {
-       $this->prompt = substr(strrchr($this->prompt, "\n"), 1);
-    }
-
-    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
-
-    // synchronize again
-
-    $msg = 'UBISyncro' . mt_rand(10000, 99999);
-    $prompt = $this->prompt;
-    sendexpectone(__FILE__ . ':' . __LINE__, $this, "echo -n {$msg}", "{$msg}{$prompt}");
-
-  }
-
-  public function do_start() {
-      $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
-  }
-}
