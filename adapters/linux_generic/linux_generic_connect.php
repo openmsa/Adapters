@@ -28,7 +28,6 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
   global $priv_key;
 
   $data = json_decode($model_data, true);
-  debug_dump($data, "DATA\n");
   
   $network = get_network_profile();
 	$sd = &$network->SD;
@@ -36,29 +35,24 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
   try
   {
+    $class = "LinuxGenericsshConnection";
+
     if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
       // check if the default private key name was overridden by a configuration variable
       $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
       echo("found custom key name in config variable: ".$priv_key."\n");
+      $class = "LinuxsshKeyConnection";
+
     } elseif (isset($data['priv_key'])) {
       // default private key name can be set in adapter config file sms_router.conf
         $priv_key = $data['priv_key'];
-    echo("found default key name in sms_router.conf: ".$priv_key."\n");
+      echo("found default key name in sms_router.conf: ".$priv_key."\n");
+      $class = "LinuxsshKeyConnection";
     }
  
-    if (isset($sd->SD_CONFIGVAR_list['CONN_CLASS'])) {
-      // check if the default private key name was overridden by a configuration variable
-      $class = trim($sd->SD_CONFIGVAR_list['CONN_CLASS']->VAR_VALUE);  
-      echo("found class name: ".$class."\n");
-      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    } elseif (isset( $data['class'])) {
-      $class = $data['class'];
-      echo("found class name: ".$class."\n");
-      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    } else {
-      $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    }
+    $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
     $sms_sd_ctx->setParam("PROTOCOL", "SSH");
+  
   }
   catch (SmsException $e)
   {
