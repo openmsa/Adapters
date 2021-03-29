@@ -54,6 +54,7 @@ else
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
 
+debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
 
 if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
   // check if the default private key name was overridden by a configuration variable
