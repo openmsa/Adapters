@@ -54,16 +54,28 @@ else
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
 
-if (isset($SD->SD_CONFIGVAR_list['SSH_KEY']) || isset($data['priv_key'])) {
-  // password is not mandatory if an SSH key was defined
-  echo("found SSH key\n");
+
+if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
+  // check if the default private key name was overridden by a configuration variable
+  $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+  echo("found custom key name in config variable SSH_KEY: ".$priv_key."\n");
   if (empty($ipaddr) || empty($login) || empty($port))
   {
     sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
     return SMS_OK;
   }
-} else {
-  if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port))
+} elseif (isset($data['priv_key'])) {
+  // default private key name can be set in adapter config file sms_router.conf
+    $priv_key = $data['priv_key'];
+    echo("found default key name in sms_router.conf: priv_key:".$priv_key."\n");
+    if (empty($ipaddr) || empty($login) || empty($port))
+    {
+      sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+      return SMS_OK;
+    }
+}
+
+if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port)) {
   {
     sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
     return SMS_OK;
