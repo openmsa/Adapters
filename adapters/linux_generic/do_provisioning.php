@@ -4,14 +4,14 @@
 * 	Created: May 30, 2008
 * 	Available global variables
 *  	$sms_sd_info        sd_info structure
-* 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
+* 	$sms_sd_ctx         pointer to sd_ctx context to retrieve useful field(s)
 *  	$sms_csp            pointer to csp context to send response to user
 *  	$sdid
 *  	$sms_module         module name (for patterns)
 *  	$ipaddr             ip address of the router
 *  	$login              current login
 *  	$passwd             current password
-*  	$adminpasswd        current administation **PORT**
+*  	$adminpasswd        current administration **PORT**
 */
 
 // Initial provisioning
@@ -24,6 +24,12 @@ require_once load_once('linux_generic', 'linux_generic_configuration.php');
 require_once load_once('linux_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
+
+global $model_data;
+debug_dump($model_data, "MODEL DATA\n");
+
+$data = json_decode($model_data, true);
+debug_dump($data, "DATA\n");
 
 $is_ztd = false;
 
@@ -47,10 +53,32 @@ else
 // -------------------------------------------------------------------------------------
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
-if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port))
-{
-  sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
-  return SMS_OK;
+
+debug_dump($SD->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+
+if (isset($SD->SD_CONFIGVAR_list['SSH_KEY'])) {
+  // check if the default private key name was overridden by a configuration variable
+  $priv_key = trim($SD->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+  echo("found custom key name in config variable SSH_KEY: ".$priv_key."\n");
+  if (empty($ipaddr) || empty($login) || empty($port))
+  {
+    sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login port=$port", ERR_VERB_BAD_PARAM);
+    return SMS_OK;
+  }
+} elseif (isset($data['priv_key'])) {
+  // default private key name can be set in adapter config file sms_router.conf
+    $priv_key = $data['priv_key'];
+    echo("found default key name in sms_router.conf: priv_key:".$priv_key."\n");
+    if (empty($ipaddr) || empty($login) || empty($port))
+    {
+      sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login  port=$port", ERR_VERB_BAD_PARAM);
+      return SMS_OK;
+    }
+} elseif (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port)) {
+  {
+    sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+    return SMS_OK;
+  }
 }
 
 return require_once 'smsd/do_provisioning.php';
