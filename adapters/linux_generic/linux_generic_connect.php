@@ -20,6 +20,71 @@ require_once 'smsd/telnet_connection.php';
 require_once load_once('linux_generic', 'common.php');
 require_once "$db_objects";
 
+// return false if error, true if ok
+function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
+{
+  global $sms_sd_ctx;
+  global $model_data;
+  global $priv_key;
+
+  $data = json_decode($model_data, true);
+  debug_dump($data, "DATA\n");
+  
+  $network = get_network_profile();
+	$sd = &$network->SD;
+  debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+
+  try
+  {
+    if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
+      // check if the default private key name was overridden by a configuration variable
+      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+      echo("found custom key name: ".$priv_key."\n");
+    } elseif (isset($data['priv_key'])) {
+      // default private key name can be set in adapter config file sms_router.conf
+        $priv_key = $data['priv_key'];
+        echo("found default key name: ".$priv_key."\n");
+    }
+ 
+    if (isset($sd->SD_CONFIGVAR_list['CONN_CLASS'])) {
+      // check if the default private key name was overridden by a configuration variable
+      $class = trim($sd->SD_CONFIGVAR_list['CONN_CLASS']->VAR_VALUE);  
+      echo("found class name: ".$class."\n");
+      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    } elseif (isset( $data['class'])) {
+      $class = $data['class'];
+      echo("found class name: ".$class."\n");
+      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    } else {
+      $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+    }
+    $sms_sd_ctx->setParam("PROTOCOL", "SSH");
+  }
+  catch (SmsException $e)
+  {
+    debug_dump($e);
+    return $e->getCode();
+  }
+  return SMS_OK;
+}
+
+// Disconnect
+// return false if error, true if ok
+function linux_generic_disconnect()
+{
+  $sms_sd_ctx = null;
+  return SMS_OK;
+}
+
+function linux_generic_synchro_prompt()
+{
+  global $sms_sd_ctx;
+
+  $msg = 'UBISyncro' . mt_rand(10000, 99999);
+  $prompt = $sms_sd_ctx->getPrompt();
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "echo -n {$msg}", "{$msg}{$prompt}");
+}
+
 
 class LinuxsshKeyConnection extends SshKeyConnection
 {
@@ -101,71 +166,6 @@ class LinuxGenericsshConnection extends SshConnection
       $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
   }
 
-}
-
-// return false if error, true if ok
-function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
-{
-  global $sms_sd_ctx;
-  global $model_data;
-  global $priv_key;
-
-  $data = json_decode($model_data, true);
-  debug_dump($data, "DATA\n");
-  
-  $network = get_network_profile();
-	$sd = &$network->SD;
-  debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
-
-  try
-  {
-    if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
-      // check if the default private key name was overridden by a configuration variable
-      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
-      echo("found custom key name: ".$priv_key."\n");
-    } elseif (isset($data['priv_key'])) {
-      // default private key name can be set in adapter config file sms_router.conf
-        $priv_key = $data['priv_key'];
-        echo("found default key name: ".$priv_key."\n");
-    }
- 
-    if (isset($sd->SD_CONFIGVAR_list['CONN_CLASS'])) {
-      // check if the default private key name was overridden by a configuration variable
-      $class = trim($sd->SD_CONFIGVAR_list['CONN_CLASS']->VAR_VALUE);  
-      echo("found class name: ".$class."\n");
-      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    } elseif (isset( $data['class'])) {
-      $class = $data['class'];
-      echo("found class name: ".$class."\n");
-      $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    } else {
-      $sms_sd_ctx = new LinuxGenericsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-    }
-    $sms_sd_ctx->setParam("PROTOCOL", "SSH");
-  }
-  catch (SmsException $e)
-  {
-    debug_dump($e);
-    return $e->getCode();
-  }
-  return SMS_OK;
-}
-
-// Disconnect
-// return false if error, true if ok
-function linux_generic_disconnect()
-{
-  $sms_sd_ctx = null;
-  return SMS_OK;
-}
-
-function linux_generic_synchro_prompt()
-{
-  global $sms_sd_ctx;
-
-  $msg = 'UBISyncro' . mt_rand(10000, 99999);
-  $prompt = $sms_sd_ctx->getPrompt();
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "echo -n {$msg}", "{$msg}{$prompt}");
 }
 
 ?>
