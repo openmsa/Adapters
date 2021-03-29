@@ -54,11 +54,11 @@ else
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
 
-debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+debug_dump($SD->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
 
-if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
+if (isset($SD->SD_CONFIGVAR_list['SSH_KEY'])) {
   // check if the default private key name was overridden by a configuration variable
-  $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+  $priv_key = trim($SD->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
   echo("found custom key name in config variable SSH_KEY: ".$priv_key."\n");
   if (empty($ipaddr) || empty($login) || empty($port))
   {
