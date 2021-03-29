@@ -74,9 +74,7 @@ if (isset($SD->SD_CONFIGVAR_list['SSH_KEY'])) {
       sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login  port=$port", ERR_VERB_BAD_PARAM);
       return SMS_OK;
     }
-}
-
-if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port)) {
+} elseif (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port)) {
   {
     sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
     return SMS_OK;
