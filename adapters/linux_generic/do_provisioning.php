@@ -61,7 +61,7 @@ if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
   echo("found custom key name in config variable SSH_KEY: ".$priv_key."\n");
   if (empty($ipaddr) || empty($login) || empty($port))
   {
-    sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+    sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login port=$port", ERR_VERB_BAD_PARAM);
     return SMS_OK;
   }
 } elseif (isset($data['priv_key'])) {
@@ -70,7 +70,7 @@ if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
     echo("found default key name in sms_router.conf: priv_key:".$priv_key."\n");
     if (empty($ipaddr) || empty($login) || empty($port))
     {
-      sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+      sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login  port=$port", ERR_VERB_BAD_PARAM);
       return SMS_OK;
     }
 }
