@@ -25,6 +25,8 @@ require_once load_once('linux_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
 global $model_data;
+debug_dump($model_data, "MODEL DATA\n");
+
 $data = json_decode($model_data, true);
 debug_dump($data, "DATA\n");
 
