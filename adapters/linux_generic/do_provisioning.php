@@ -24,6 +24,9 @@ require_once load_once('linux_generic', 'linux_generic_configuration.php');
 require_once load_once('linux_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
+global $model_data;
+$data = json_decode($model_data, true);
+debug_dump($data, "DATA\n");
 
 $is_ztd = false;
 
@@ -47,10 +50,21 @@ else
 // -------------------------------------------------------------------------------------
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
-if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port))
-{
-  sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
-  return SMS_OK;
+
+if (isset($sd->SD_CONFIGVAR_list['SSH_KEY']) || isset($data['priv_key'])) {
+  // password is not mandatory if an SSH key was defined
+  echo("found SSH key\n");
+  if (empty($ipaddr) || empty($login) || empty($port))
+  {
+    sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+    return SMS_OK;
+  }
+} else {
+  if (empty($ipaddr) || empty($login) || empty($passwd)  || empty($port))
+  {
+    sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+    return SMS_OK;
+  }
 }
 
 return require_once 'smsd/do_provisioning.php';
