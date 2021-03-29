@@ -24,6 +24,7 @@ require_once load_once('linux_generic', 'linux_generic_configuration.php');
 require_once load_once('linux_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
+echo ("**********\n\n");
 global $model_data;
 debug_dump($model_data, "MODEL DATA\n");
 
