@@ -15,16 +15,19 @@ The adapter will use the credentials for activation, configuration and asset man
 The adapter will use a SSH key for every connection to the managed entity. The ssh CLI command will use the option "-i" to specify the SSH key to use.
 
 ### Install the SSH key in the MSActivator
-To enable this mode you'll first have to install the SSH key in the MSactivator.
+To enable this mode you'll first have to install the SSH key in the MSActivator.
 
 From the directory where the docker-compose file is installed, run:
 
 ```
-docker-compose exec msa_sms mkdir -p /home/ncuser/.ssh/
+docker-compose exec msa_sms mkdir -p /opt/devops/ssh/
+docker-compose exec msa_sms chown -R ncuser. /opt/devops/ssh/
+
 MSA_SMS=`docker ps -aqf "name=msa_sms"` 
-docker cp <SSH KEY FILE> $MSA_SMS:/home/ncuser/.ssh/
-docker-compose exec msa_sms  chown ncuser. /home/ncuser/.ssh/<SSH KEY FILE>
-docker-compose exec msa_sms chmod 400 /home/ncuser/.ssh/<SSH KEY FILE>
+docker cp <SSH KEY FILE> $MSA_SMS:/opt/devops/ssh/
+
+docker-compose exec msa_sms  chown ncuser. /opt/devops/ssh/<SSH KEY FILE>
+docker-compose exec msa_sms chmod 400 /opt/devops/ssh/<SSH KEY FILE>
 ```
 
 ### Enable the SSH key mode
@@ -45,7 +48,7 @@ Edit the linux_generic adapter configuration file
 
 Uncomment the last line and set the name of the SSH key you want to use
 
-> model-data    {"priv_key":"/home/ncuser/.ssh/<SSH KEY FILE>"}
+> model-data    {"priv_key":"/opt/devops/ssh/<SSH KEY FILE>"}
 
 Save the file, fix the user and exit the container
 
