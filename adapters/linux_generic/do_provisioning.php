@@ -25,12 +25,6 @@ require_once load_once('linux_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
 
-global $model_data;
-debug_dump($model_data, "MODEL DATA\n");
-
-$data = json_decode($model_data, true);
-debug_dump($data, "DATA\n");
-
 $is_ztd = false;
 
 if (!empty($ipaddr))
@@ -53,8 +47,6 @@ else
 // -------------------------------------------------------------------------------------
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
-
-debug_dump($SD->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
 
 if (isset($SD->SD_CONFIGVAR_list['SSH_KEY'])) {
   // check if the default private key name was overridden by a configuration variable
