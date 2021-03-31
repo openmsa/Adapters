@@ -33,6 +33,7 @@ Contributing
 
 - [CONTRIBUTING](../master/CONTRIBUTING.md)
 - [Creating new adapters](../master/doc/Manufacturer_and_Model_ID_Convention.md)
+- [Updating the adapter code](../master/doc/Update_Adater_Code.md)
 - [changelog](../master/CHANGELOG.md) -
   [pull requests](../../pulls) -
   [issues](../../issues) -
