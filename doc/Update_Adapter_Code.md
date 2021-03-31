@@ -55,6 +55,9 @@ From the directory where the docker-compose file is installed, run the command b
 
 ```
 docker-compose exec msa_dev /usr/bin/install_libraries.sh da
+docker-compose restart msa_sms
+docker-compose restart msa_api
+
 ```
 
 The script will take care of updating your local git repository and will attempt to merge the code from the remote master branch into your code.
@@ -64,22 +67,35 @@ If there are conflicting modification, you will have to update the repository ma
 Manual update
 -------------
 
-From the directory where the docker-compose file is installed, connect to the `msa_dev` container:
+1 - From the directory where the docker-compose file is installed, connect to the `msa_dev` container:
 
 ```
 docker-compose exec msa_dev bash
 ```
 
-Go to the adapter git repository:
+2 - Go to the adapter git repository:
 
 ```
  cd /opt/devops/OpenMSA_Adapters/
  ```
 
- The latest code of the adapter is always available on the master branch
+ 3 - Pull the latest code of the adapter which is always available on the master branch
 
  ```
  git pull origin master
  ```
 
 Git may raise conflict related errors if you have some uncommited local changes. You need to either commit your changes (`git add ...` and `git commit ...`) or stash them (`git stash`)
+
+4 - Set the user to `ncuser`
+
+```
+chown -R ncuser. *
+```
+
+5 - Exit the container and restart msa_api and msa_sms for the changes to be applied
+
+```
+docker-compose restart msa_sms
+docker-compose restart msa_api
+```
