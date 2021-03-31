@@ -57,7 +57,6 @@ From the directory where the docker-compose file is installed, run the command b
 docker-compose exec msa_dev /usr/bin/install_libraries.sh da
 docker-compose restart msa_sms
 docker-compose restart msa_api
-
 ```
 
 The script will take care of updating your local git repository and will attempt to merge the code from the remote master branch into your code.
