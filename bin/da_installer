@@ -197,8 +197,9 @@ read_properties_files() {
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
 	MAN_CAT=$(read_property "$device_properties" "manufacturer.category")
 	if [ ! -z "$MAN_CAT" ]; then
-		$MAN_CAT=$MAN_CAT" / "
-	fi}
+		$MAN_CAT="$MAN_CAT / "
+	fi
+}
 
 check_sms_router_conf() {
 	sms_router_conf="$CONF_DIR/sms_router.conf"
