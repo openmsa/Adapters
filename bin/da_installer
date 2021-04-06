@@ -136,7 +136,7 @@ check_create_model() {
 }
 
 update_manufacturers_properties() {
-	echo "update manufacturers_properties config for vendor ${MAN_NAME} [${MAN_ID}]."
+	echo "update manufacturers_properties config for vendor ${MAN_CAT}${MAN_NAME} [${MAN_ID}]."
 	
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
 
