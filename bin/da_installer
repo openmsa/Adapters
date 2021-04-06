@@ -136,7 +136,7 @@ check_create_model() {
 }
 
 update_manufacturers_properties() {
-	echo "update manufacturers_properties config for vendor ${MAN_CAT}${MAN_NAME} [${MAN_ID}]."
+	echo "update manufacturers_properties config for vendor ${MAN_NAME} [${MAN_ID}]."
 	
 	target_file="$JENTREPRISE_CONF/custom/manufacturers.properties"
 
@@ -152,7 +152,7 @@ update_manufacturers_properties() {
 	fixup_no_newline_at_eof $target_file
 
 	echo '>> update  '$target_file' with '$MAN_ID',"'$MAN_NAME'",1'
-	echo $MAN_ID',"'$MAN_CAT$MAN_NAME'",1' >> $target_file
+	echo $MAN_ID',"'$MAN_NAME'",1' >> $target_file
 
 }
 
@@ -196,9 +196,9 @@ read_properties_files() {
 	MOD_NAME=$(read_property "$device_properties" "model.name")
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
 	MAN_CAT=$(read_property "$device_properties" "manufacturer.category")
-	if [ $MAN_CAT != "" ]; then
-		MAN_CAT="$MAN_CAT-"
-	fi
+#	if [ $MAN_CAT != "" ]; then
+#		MAN_CAT="$MAN_CAT-"
+#	fi
 }
 
 check_sms_router_conf() {
