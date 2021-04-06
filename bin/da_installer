@@ -196,7 +196,7 @@ read_properties_files() {
 	MOD_NAME=$(read_property "$device_properties" "model.name")
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
 	MAN_CAT=$(read_property "$device_properties" "manufacturer.category")
-	if [ ! -z "$MAN_CAT" ]; then
+	if [ $MAN_CAT != "" ]; then
 		$MAN_CAT="$MAN_CAT / "
 	fi
 }
