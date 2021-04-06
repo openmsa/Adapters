@@ -127,7 +127,7 @@ check_create_model() {
 
 	if [ -f $target_file ]; then
 		if grep  "$keyname" $target_file; then 
-		echo "Vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $target_file. "
+		echo "Vendor ${MAN_CAT} / ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}] found in $target_file. "
 		echo "Exit intall"
 		exit 0
 		fi
@@ -195,7 +195,10 @@ read_properties_files() {
 	MOD_ID=$(read_property "$device_properties" "model.id")
 	MOD_NAME=$(read_property "$device_properties" "model.name")
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
-}
+	MAN_CAT=$(read_property "$device_properties" "manufacturer.category")
+	if [ ! -z "$MAN_CAT" ]; then
+		$MAN_CAT=$MAN_CAT" / "
+	fi}
 
 check_sms_router_conf() {
 	sms_router_conf="$CONF_DIR/sms_router.conf"
