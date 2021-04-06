@@ -197,6 +197,7 @@ read_properties_files() {
 	MAN_NAME=$(read_property "$device_properties" "manufacturer.name")
 	MAN_CAT=$(read_property "$device_properties" "manufacturer.category")
 	if [ $MAN_CAT != "" ]; then
+		echo $MAN_CAT"\n"
 		$MAN_CAT = $MAN_CAT" - "
 	fi
 }
