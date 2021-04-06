@@ -157,7 +157,7 @@ update_manufacturers_properties() {
 }
 
 update_models_properties() {
-	echo "update models_properties config for vendor ${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
+	echo "update models_properties config for vendor ${MAN_CAT}${MAN_NAME} [${MAN_ID}], model ${MOD_NAME} [${MOD_ID}]."
 
 	target_file="$JENTREPRISE_CONF/custom/models.properties"
 
