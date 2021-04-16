@@ -57,14 +57,12 @@ function nec_ipasolink_synchro_prompt()
 
 class NeciPasolinkSshConnection extends SshConnection
 {
-
   public function do_connect() {
     global $sendexpect_result;
     $cnx_timeout = 10; // seconds
 
     try {
-      parent::connect("stty cols 1024; stty lines 1024;ssh -p {$this->sd_management_port} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PreferredAuthentications=password -o NumberOfPasswordPrompts=1 -o ConnectTimeout={$
-cnx_timeout} '{$this->sd_login_entry}@{$this->sd_ip_config}'");
+      parent::connect("stty cols 1024; stty lines 1024;ssh -p {$this->sd_management_port} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PreferredAuthentications=password -o NumberOfPasswordPrompts=1 -o ConnectTimeout={$cnx_timeout} '{$this->sd_login_entry}@{$this->sd_ip_config}'");
 
       unset($tab);
       $tab[0] = 'added';
@@ -115,7 +113,6 @@ cnx_timeout} '{$this->sd_login_entry}@{$this->sd_ip_config}'");
     $this->do_store_prompt();
     $this->do_start();
   }
-
 
   public function do_post_connect()
   {
