@@ -90,7 +90,7 @@ class f5_rest_command extends generic_command {
 							$parser->parse ( $running_conf, $objects );
 						}
 					} catch ( Exception $e ) {
-						echo "API ERROR. CHECK RESPONSE ABOVE.\n";
+						sms_send_user_error($sms_csp, $sdid, 'API ERROR. CHECK RESPONSE ABOVE', $e->getCode());
 					}
 				}
 				
