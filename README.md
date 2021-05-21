@@ -10,7 +10,7 @@ OpenMSA comes as 3 separate components:
 
 - Runtime platform -
   [docker image](https://hub.docker.com/r/openmsa/openmsa/tags)
-  or  [VM image](https://www.openmsa.co/downloads)
+  or  [VM image](https://www.openmsa.co/free-trial)
 - Adapters source code (this repository)
 - Workflows & Microservices [samples](../../../Workflows-Microservices)
 
@@ -33,7 +33,7 @@ Contributing
 
 - [CONTRIBUTING](../master/CONTRIBUTING.md)
 - [Creating new adapters](../master/doc/Manufacturer_and_Model_ID_Convention.md)
-- [Updating the adapter code](../master/doc/Update_Adater_Code.md)
+- [Updating the adapter code](../master/doc/Update_Adapter_Code.md)
 - [changelog](../master/CHANGELOG.md) -
   [pull requests](../../pulls) -
   [issues](../../issues) -
