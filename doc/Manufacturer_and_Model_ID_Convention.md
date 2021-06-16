@@ -14,3 +14,9 @@ YYMMDDNN:
 -DD day of the month
 
 -NN number in case you need to develop more than one adaptor on the same day.
+
+This is to make sure that there is no conflict with existing adapters.
+
+If you need to add a new adapter with an existing manufacturer but a new model, make sur that you use the same ID and name as used by the existing adapter.
+
+There are many similar examples with Cisco or Fortinet manufacturer and various models.
