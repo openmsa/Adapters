@@ -5,39 +5,24 @@ Adapter Installer
 Overview
 --------
 
-MSActivator comes with an adapter installer script: `../bin/da_installer`.
+By default, the adapters are installed in the MSActivator container msa_dev under `/opt/devops/Openmsa_Adapters` which is a git repository linked to this github repository
 
-The script updates the following MSA global configuration files:
-
-- manufacturers.properties
-- models.properties
-
-using per-adapter properties files found in `<adapter dir>/conf/`:
+using per-adapter properties files found in `/opt/devops/Openmsa_Adapters/adapters/<adapter dir>/conf/`:
 
 - device.properties
+This file defines the properties that will be used an adapter avalable on the UI
 
-The insertion of adapter info into the global configuration files
-is described in `./Configuration_plug_for_adapters.md`.
+- sms_router.conf
+This file defines the properties that are used by the CoreEngine to define the adapter implementation that will be used.
 
-The per-adapter properties files must be placed in the adapter's directory
-into sub-directory `conf/` along with the Core Engine adapter configuration file: `sms_router.conf`.
+These 2 properties files must be placed in the adapter's directory into sub-directory `conf/`.
 
-The installer script performs basic compatibility checks on values provided
-for `model-id` and `manufacturer-id`, as these are currently double-defined
-in files `sms_router.conf` and `device.properties`.
-
-Usage
------
-
-The installer script is run as follows:
-
-	da_installer -i <adapter dir>
-
-This updates the MSA global configurations files adding the adapter's info.
-Restart of most MSA services is then required, as per product documentation:
+Whenever a change is done to one of the files `sms_router.conf` or `device.properties` msa_api and msa_sms containers have to be restarted
 
 	sudo docker-compose restart msa_api
 	sudo docker-compose restart msa_sms
+	
+Changes on the adapter code (PHP scripts) do not require any restart.	
 
 Defining adapter properties
 ---------------------------
@@ -71,7 +56,8 @@ To update the UI, you need to restart the container msa_api
 Un-installing
 -------------
 
-There is currently no support for un-installing an adapter's definition.
+To deactivate an adapter, edit the file device.properties and set the flag obsolete to true
 
+To completely un-intall an adapter, simply remove the addapter files from `/opt/devops/Openmsa_Adapters/adapters`
 
 
