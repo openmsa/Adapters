@@ -119,7 +119,8 @@ class catalyst_ios_restore_configuration
               }
 	
 	      // SCP OK
-        $SMS_OUTPUT_BUF = copy_to_running("copy " . $disk_type . $file_name . " startup-config");	      save_result_file($SMS_OUTPUT_BUF, "conf.error");
+        $SMS_OUTPUT_BUF = copy_to_running("copy " . $disk_type . $file_name . " startup-config");
+	      save_result_file($SMS_OUTPUT_BUF, "conf.error");
 
 	      foreach ($apply_errors as $apply_error)
 	      {
