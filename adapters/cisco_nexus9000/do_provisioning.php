@@ -40,9 +40,9 @@ else
 // -------------------------------------------------------------------------------------
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
-if (empty($ipaddr) || empty($login) || empty($passwd) || empty($adminpasswd) || empty($port))
+if (empty($ipaddr) || empty($login) || empty($passwd) || empty($port))
 {
-  sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd adminpass=$adminpasswd port=$port", ERR_VERB_BAD_PARAM);
+  sms_send_user_error($sms_csp, $sdid, "addr=$ipaddr login=$login pass=$passwd port=$port", ERR_VERB_BAD_PARAM);
   return SMS_OK;
 }
 
