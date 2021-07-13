@@ -226,7 +226,16 @@ class linux_generic_configuration
     $pattern = preg_replace($patterns, $replacements, $file_pattern);
     $pattern = "@^(?<file>{$pattern})\s*$@m";
     echo "PATTERN [$pattern]\n";
-    #2021/07/12:15:51:33:(D):smsd:RAB133:JSACMD:: PATTERN [@^ .* (?<file>test\.txt)\s*$@m]
+    // 2021/07/12:15:51:33:(D):smsd:RAB133:JSACMD:: PATTERN [@^ .* (?<file>test\.txt)\s*$@m]
+
+    // #test if destination directori exist, else create it :
+    $full_dest_dir = "{$repo_dir}/{$dst_dir}";
+    // Create $base_path if it does not exist
+    if (!file_exists($full_dest_dir))
+    {
+     status_progress("Creating directory $full_dest_dir", $event);
+     mkdir_recursive($full_dest_dir, 0755);
+    }
 
     if (preg_match_all($pattern, $file_list, $matches) > 0)
     {
