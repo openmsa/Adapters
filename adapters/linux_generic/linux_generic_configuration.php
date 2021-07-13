@@ -203,6 +203,112 @@ class linux_generic_configuration
 
     return $ret;
   }
+
+  function get_data_files($event, $src_dir, $file_pattern, $dst_dir)
+  {
+    global $sms_sd_ctx;
+    global $status_message;
+
+    $ret = SMS_OK;
+    $repo_dir = $_SERVER['FMC_REPOSITORY'].'/Datafiles';
+
+    status_progress('Reading files on device', $event);
+
+    $file_list = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "dir -1 {$src_dir}");
+    $patterns = array();
+    $patterns[0] = '@\.@';
+    $patterns[1] = '@\*@';
+    $patterns[2] = '@\?@';
+    $replacements = array();
+    $replacements[0] = '\.';
+    $replacements[1] = '\S*';
+    $replacements[2] = '.?';
+    $pattern = preg_replace($patterns, $replacements, $file_pattern);
+    $pattern = "@^(?<file>{$pattern})\s*$@m";
+    echo "PATTERN [$pattern]\n";
+    #2021/07/12:15:51:33:(D):smsd:RAB133:JSACMD:: PATTERN [@^ .* (?<file>test\.txt)\s*$@m]
+
+    if (preg_match_all($pattern, $file_list, $matches) > 0)
+    {
+      foreach ($matches['file'] as $file_line)
+      {
+        status_progress("{$status_message}Transfering file {$src_dir}{$file_line} to {$repo_dir}/{$dst_dir}/{$file_line}", $event);
+        try
+        {
+          scp_from_router("{$src_dir}{$file_line}", "{$repo_dir}/{$dst_dir}/{$file_line}");
+          // Check file size
+          check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false, str_replace(':', '', $src_dir));
+          $status_message .= "{$src_dir}{$file_line} OK\n | ";
+          // create the .meta file
+          $tmp = preg_split("@/@", $dst_dir);
+          $repo = $tmp[0];
+          $gtod = gettimeofday();
+          $date_modif = floor($gtod['sec'] * 1000 + $gtod['usec'] / 1000);
+          $meta_file = "{$repo_dir}/{$dst_dir}/.meta_{$file_line}";
+          $meta_content = <<< EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metadata>
+    <map>
+        <entry>
+            <key>FILE_TYPE</key>
+            <value>binary</value>
+        </entry>
+        <entry>
+            <key>DATE_MODIFICATION</key>
+            <value>{$date_modif}</value>
+        </entry>
+        <entry>
+            <key>COMMENT</key>
+            <value>Uploaded from {$this->sdid}</value>
+        </entry>
+        <entry>
+            <key>REPOSITORY</key>
+            <value>{$repo}</value>
+        </entry>
+        <entry>
+            <key>DATE_CREATION</key>
+            <value>{$date_modif}</value>
+        </entry>
+        <entry>
+            <key>CONFIGURATION_FILTER</key>
+            <value></value>
+        </entry>
+        <entry>
+            <key>TYPE</key>
+            <value>UPLOAD</value>
+        </entry>
+        <entry>
+            <key>TAG</key>
+            <value>{$src_dir}{$file_line}</value>
+        </entry>
+    </map>
+</metadata>
+EOF;
+          file_put_contents($meta_file, $meta_content);
+        }
+        catch (SmsException $e)
+        {
+          unlink("{$repo_dir}/{$dst_dir}/{$file_line}");
+          $ret = $e->getCode();
+          $status_message .= $e->getMessage();
+          $status_message .= "\n | ";
+          if ($sms_sd_ctx === null)
+          {
+            // connection lost, try a last time
+            $res = cisco_isr_connect();
+            if ($res !== SMS_OK)
+            {
+              // give up
+              $status_message .= "Connection lost with the device, stopping the transfer";
+              return $ret;
+            }
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+
 }
 
 ?>
