@@ -1,13 +1,17 @@
 <?php
 /*
  * Version: $Id$
- * Created: Nov 03, 2011
+ * Created: Jul 09, 2021 by LED
+ * Description: It will get files from the given device and copy the file into the MSA into /opt/fmc_repository/Datafiles directorie
+ *
  * Available global variables
- *  $sms_sd_info     sd_info structure
- *  $sms_csp         pointer to csp context to send response to user
- *  $sdid            id of the device
- *  $optional_params optional parameters
- *  $sms_module      module name (for patterns)
+ * $src_dir  : source directorie on the device
+ * $file_pattern  : file_name (it could be "test*" to copy all files test1, test2, testsxxx at the same times 
+ * $dst_dir  : destination directorie on the MSA after /opt/fmc_repository/Datafiles
+
+ * Example to get the file /tmp/test.txt from the device_id 133  and copy the file into the MSA into /opt/fmc_repository/Datafiles/test2
+ * curl -v --insecure  --header 'Accept: application/json' --header 'Authorization: Bearer eyJhbGciOiJIUzU..................' -X POST 'https://127.0.0.1/ubi-api-rest/sms/cmd/get_files/133/?params=src_dir=/tmp/,file_pattern=test.txt,dest_dir=test2'
+
  */
 
 // Verb JSACMD SDID GETDATAFILES source_dir file_pattern destination
