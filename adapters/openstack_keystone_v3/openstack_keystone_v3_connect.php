@@ -14,7 +14,6 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
   private $raw_xml;
   private $raw_json;
 
-  // ------------------------------------------------------------------------------------------------
   public function do_connect()
   {
     unset($this->key);
@@ -38,7 +37,6 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     $this->endPointsURL = $endPointsURL_table[0];
   }
 
-  // ------------------------------------------------------------------------------------------------
   public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
   {
     global $sendexpect_result;
@@ -62,7 +60,6 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     return $sendexpect_result;
   }
 
-  // ------------------------------------------------------------------------------------------------
   public function send($origin, $cmd)
   {
     unset($this->xml_response);
@@ -76,29 +73,32 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     if (empty($http_protocol)) {
        $http_protocol = "http";
     }
+    echo("send: using http protocol: " . $http_protocol . "\n");
 
     if (empty($endpoints_interface)) {
        $endpoints_interface = "public";
     }
 
+    echo("send: using endpoint interface: " . $endpoints_interface . "\n");
+
+
     $delay = EXPECT_DELAY / 1000;
-    // MODIF LO
 
-
-    // MODIF LO : la commande $cmd est décomposée en quatre  parties pour Openstack : GET#:endpoint (nova,keystone...)#/tenants...#parametres creation
+    // MODIF LO : the command $cmd is split into 4 parts for Openstack : GET#:endpoint (nova,keystone...)#/tenants...#parameters creation
+    echo("send: split command: " . $cmd . "\n");
     $action = explode("#", $cmd);
 
-    // SI pas de endpoints, on prend keystone par défaut.
+    // If no endpoint, use keystone as the default
     if ($action[1] == "")
     {
       $action[2] = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
     }
     else
     {
-      // récupérer le endpoint en fonction du composant OpenStack à appeler (nova, keystone, glance...)
+      // fetch the endpoint based on the Openstack component to use (nova, keystone, glance...)
       #$url_endpoint = $this->endPointsURL->xpath("./row[name='" . $action[1] . "']/endpoints/row/adminURL");
       $url_endpoint = $this->endPointsURL->xpath("./row[name='" . $action[1] . "']/endpoints/row[interface='" . $endpoints_interface . "']/url");
-      // Bricole pour ne conserver que l'URL du endPoint en enlevant l'UUID du tenant si jamais il est présent.
+      // keep only the endpoint URL by removing the tenant UUID if it's present 
       $action[2] = preg_replace("/\/(AUTH_)?[a-f0-9]+$/", "/", $url_endpoint[0]) . $action[2];
     }
 
@@ -107,7 +107,7 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
       $token = "-H \"X-Auth-Token: {$this->key}\"";
     }
       
-    // TODO TEST validité champ ACTION[]
+    // TODO TEST ACTION[] field validation
     $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} {$token} -H \"Content-Type: application/json\" -k '{$action[2]}'";
     if (isset($action[3])) {
       $curl_cmd .= " -d '{$action[3]}'";
@@ -168,18 +168,15 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     $this->xml_response = $xml; // new SimpleXMLElement($result);
     $this->raw_json = $response_body;
 
-    // FIN AJOUT
     $this->raw_xml = $this->xml_response->asXML();
     debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
   }
 
-  // ------------------------------------------------------------------------------------------------
   public function sendCmd($origin, $cmd)
   {
     $this->send($origin, $cmd);
   }
 
-  // ------------------------------------------------------------------------------------------------
   public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result')
   {
     global $$global_result_name;
@@ -220,7 +217,6 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
   }
 }
 
-// ------------------------------------------------------------------------------------------------
 // return false if error, true if ok
 function openstack_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
@@ -230,8 +226,6 @@ function openstack_connect($sd_ip_addr = null, $login = null, $passwd = null, $p
   return SMS_OK;
 }
 
-// ------------------------------------------------------------------------------------------------
-// Disconnect
 function openstack_disconnect()
 {
   global $sms_sd_ctx;

@@ -4,7 +4,7 @@
  * Created: Apr 28, 2011
  * Available global variables
  * $sms_csp            pointer to csp context to send response to user
- * $sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
+ * $sms_sd_ctx         pointer to sd_ctx context to retrieve useful field(s)
  * $SMS_RETURN_BUF     string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
@@ -46,12 +46,6 @@ class openstack_keystone_v3_command extends generic_command
    * IMPORT
    * #####################################################################################
    */
-
-  /*
-   * #####################################################################################
-   * IMPORT
-   * #####################################################################################
-   */
   function decode_IMPORT($object, $json_params, $element)
   {
     $parser = new cmd_import($object, $element, $json_params);
@@ -85,7 +79,7 @@ class openstack_keystone_v3_command extends generic_command
         {
           $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
           $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-    	  $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
+    	    $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
           foreach ($path_list as $xpth) {
             $cmd = 'GET#' . trim($op_eval) . '#' . trim($xpth);
             $parser_list[$cmd][] = $parser;
