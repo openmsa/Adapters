@@ -88,7 +88,10 @@ class DeviceConnection extends GenericConnection {
 	public function send($origin, $rest_cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
+		echo ("send(): rest_cmd = ".$rest_cmd."\n");
 		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
+		debug_dump ( cmd_list, "CMD_LIST\n" );
+
 		$http_op = $cmd_list[0];
 		$rest_path = "";
 		if (count($cmd_list) >1 ) {
@@ -109,12 +112,12 @@ class DeviceConnection extends GenericConnection {
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H}: {$this->key}'";
-	//		echo ("headers= {$headers}\n");
+		//	echo ("send(): headers= {$headers}\n");
 		// https://tools.ietf.org/html/rfc6750
 		} else if (($this->auth_mode == "jns_api_v2") && isset($this->key)) {
                         $H = trim($this->auth_header);
                         $headers .= " -H '{$H} {$this->key}'";
-		}else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
+		} else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
                         $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 
                 }
@@ -123,9 +126,6 @@ class DeviceConnection extends GenericConnection {
 			$H = trim($header);
 			$headers .= " -H '{$H}'";
 		}
-
-
-
 
 		if(isset($this->fqdn))
 		{
