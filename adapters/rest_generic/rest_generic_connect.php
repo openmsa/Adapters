@@ -31,11 +31,11 @@ class DeviceConnection extends GenericConnection {
 		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
 		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
 
-
 	}
 
 	public function do_connect() {
 	}
+
 	public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true) {
 		global $sendexpect_result;
 		$this->send ( $origin, $cmd );
@@ -90,7 +90,7 @@ class DeviceConnection extends GenericConnection {
 		unset ( $this->raw_xml );
 		echo ("send(): rest_cmd = ".$rest_cmd."\n");
 		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
-		debug_dump ( cmd_list, "CMD_LIST\n" );
+		debug_dump ( $cmd_list, "CMD_LIST\n" );
 
 		$http_op = $cmd_list[0];
 		$rest_path = "";
