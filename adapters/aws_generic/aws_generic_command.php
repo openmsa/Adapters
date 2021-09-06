@@ -46,12 +46,6 @@ class aws_generic_command extends generic_command
    * IMPORT
    * #####################################################################################
    */
-
-  /*
-   * #####################################################################################
-   * IMPORT
-   * #####################################################################################
-   */
   function decode_IMPORT($object, $json_params, $element)
   {
     $parser = new cmd_import($object, $element, $json_params);
