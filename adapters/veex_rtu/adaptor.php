@@ -64,8 +64,6 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 
   $output = $SMS_OUTPUT_BUF;
 
-  sd_save_conf();
-
   if ($need_sd_connection)
   {
     sd_disconnect();
