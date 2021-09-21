@@ -62,7 +62,6 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
   $ret = nec_ipasolink_apply_conf($configuration, false);
 
   $output = $SMS_OUTPUT_BUF;
-  sd_save_conf();
 
   if ($need_sd_connection)
   {
@@ -71,21 +70,6 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 
   $SMS_OUTPUT_BUF = str_replace("\n", "\\n", $output);
 
-  return $ret;
-}
-
-
-function sd_save_conf()
-{
-  global $sdid;
-  global $sms_sd_ctx;
-  $running_conf = "";
-  //get and save running conf
-  $conf = new nec_ipasolink_configuration($sdid);
-
-  $running_conf = $conf->get_running_conf();
-
-  $ret = save_result_file($running_conf, "running.conf");
   return $ret;
 }
 
