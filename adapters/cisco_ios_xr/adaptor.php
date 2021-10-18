@@ -4,11 +4,9 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once ( 'cisco_ios_xr', 'cisco_ios_xr_connect_port.php' );
 require_once load_once ( 'cisco_ios_xr', 'cisco_ios_xr_connect.php' );
 require_once load_once ( 'cisco_ios_xr', 'cisco_ios_xr_apply_conf.php' );
 require_once load_once ( 'cisco_ios_xr', 'cisco_ios_xr_configuration.php' );
-require_once load_once ( 'cisco_ios_xr', 'iba_configuration.php');
 
 require_once "$db_objects";
 
@@ -23,12 +21,7 @@ require_once "$db_objects";
  *        	$adminpasswd
  */
 function sd_connect($login = null, $passwd = null, $adminpasswd = null, $ts_ip = null, $ts_port = null) {
-	if (empty ( $ts_ip ) || empty ( $ts_port )) {
-		$ret = cisco_ios_xr_connect ();
-	} else {
-		$ret = cisco_ios_xr_connect_port ( $ts_ip, $ts_port, $adminpasswd );
-	}
-
+	$ret = cisco_ios_xr_connect ();
 	return $ret;
 }
 
@@ -39,12 +32,7 @@ function sd_connect($login = null, $passwd = null, $adminpasswd = null, $ts_ip =
  *        	$clean_exit
  */
 function sd_disconnect($clean_exit = false, $ts_ip = null) {
-	if (empty ( $ts_ip )) {
-		$ret = cisco_ios_xr_disconnect ( $clean_exit );
-	} else {
-		$ret = cisco_ios_xr_disconnect_port ( $clean_exit );
-	}
-
+	$ret = cisco_ios_xr_disconnect ( $clean_exit );
 	return $ret;
 }
 
@@ -113,116 +101,6 @@ function sd_execute_command($cmd, $need_sd_connection = false) {
 	if ($need_sd_connection) {
 		sd_disconnect ( true );
 	}
-
-	return $ret;
-}
-function addon_connect($addon, $need_sd_connection = false, $clear_exising_connection = false) {
-	global $sdid;
-	global $adaptor_addon;
-	global $adaptor_need_sd_connection;
-
-	$addon_prefix = strtolower ( $addon );
-	$addon_object = "{$addon_prefix}_object";
-	global $$addon_object;
-
-	$adaptor_addon = $addon;
-	$adaptor_need_sd_connection = $need_sd_connection;
-
-	if ($need_sd_connection) {
-		$ret = sd_connect ();
-		if ($ret !== SMS_OK) {
-			return $ret;
-		}
-	}
-
-	$conf = "{$addon_prefix}_configuration";
-	if (! class_exists ( $conf )) {
-		return ERR_SD_NOT_SUPPORTED;
-	}
-	$$addon_object = new $conf ( $sdid );
-	$ret = $$addon_object->connect_addon ( $clear_exising_connection );
-
-	if (($ret !== SMS_OK) && $need_sd_connection) {
-		sd_disconnect ( true );
-	}
-
-	echo "connection to the $addon OK\n";
-	return $ret;
-}
-
-/**
- * Disconnect from addon board
- */
-function addon_disconnect() {
-	global $adaptor_addon;
-	global $adaptor_need_sd_connection;
-
-	$addon_object = strtolower ( $adaptor_addon ) . '_object';
-	global $$addon_object;
-
-	$ret = $$addon_object->exit_addon ();
-
-	if ($adaptor_need_sd_connection) {
-		sd_disconnect ( true );
-	}
-
-	return $ret;
-}
-
-/**
- * Execute a command on addon board
- *
- * @param
- *        	$addon
- * @param
- *        	$cmd
- * @param
- *        	$need_addon_connection
- * @param
- *        	$need_sd_connection
- *
- */
-function addon_execute_command($addon, $cmd, $prompt, $need_addon_connection = false, $need_sd_connection = false)
-{
-  $addon_prefix = strtolower($addon);
-  $addon_ctx = "sms_{$addon_prefix}_ctx";
-  global $$addon_ctx;
-  global $sendexpect_result;
-
-  if ($need_addon_connection)
-  {
-    $ret = addon_connect($addon, $need_sd_connection);
-    if ($ret !== SMS_OK)
-    {
-      return false;
-    }
-  }
-
-  $tab[0] = "(y/n)"; // in case of confirmation
-  $tab[1] = $prompt;
-  $index = sendexpect(__FILE__.':'.__LINE__, $$addon_ctx, $cmd, $tab, 100000);
-  if ($index===0){
-    $sendexpect_result = sendexpectone(__FILE__.':'.__LINE__, $$addon_ctx, 'y', $prompt);
-  }
-
-  if ($need_addon_connection)
-  {
-    addon_disconnect();
-  }
-
-  return $sendexpect_result;
-}
-
-function addon_apply_conf($addon, &$configuration) {
-	$addon_object = strtolower ( $addon ) . '_object';
-	global $$addon_object;
-
-	$ret = addon_connect ( $addon, true, true );
-	if ($ret !== SMS_OK) {
-		return $ret;
-	}
-	$ret = $$addon_object->apply_conf ( $configuration );
-	addon_disconnect ();
 
 	return $ret;
 }
