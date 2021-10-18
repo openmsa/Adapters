@@ -28,6 +28,9 @@ try {
   // Get the conf on the router
   $conf = new cisco_ios_xr_configuration($sdid);
   $running_conf = $conf->get_running_conf();
+
+  debug_dump($running_conf, "RUNNING CONF\n");
+
   cisco_ios_xr_disconnect();
 
   if (!empty($running_conf))
