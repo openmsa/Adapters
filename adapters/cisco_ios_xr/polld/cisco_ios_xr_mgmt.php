@@ -19,12 +19,12 @@ try
   $asset_attributes = array();
 
   $show_ver_asset_patterns = array(
-  'serial' => '@Processor board ID (?<serial>\S*)@',
-  'license' => '@oftware \((?<license>[^\)]*)\)@',
-  'firmware' => '@\), Version (?<firmware>[^,]*),@',
-  'model' => '@^(?<model>[^(]*) \(.*with \d+K/\d+K bytes of memory@',
-  'cpu' => '@^.* \((?<cpu>[^\)]*)\) processor@',
-  'memory' => '@with (?<memory>\d*K/\d*K bytes) of memory@',
+  //'serial' => '@Processor board ID (?<serial>\S*)@',
+  //'license' => '@oftware \((?<license>[^\)]*)\)@',
+  'firmware' => '@\s+Version\s+:\s+(?<firmware>\S+)@',
+  'model' => '@(?<model>Cisco[^,]*)@',
+  //'cpu' => '@^.* \((?<cpu>[^\)]*)\) processor@',
+  //'memory' => '@with (?<memory>\d*K/\d*K bytes) of memory@',
   );
 
   $show_ver_asset_attributes_patterns = array(
@@ -101,79 +101,8 @@ try
   	$line = get_one_line($buffer);
   }
 
-  $show_diag_patterns = '@^\t(?<name>.*)\s+:\s+(?<value>.*)$@';
-  $buffer = $sms_sd_ctx->sendexpectone(__FILE__.':'.__LINE__, "show diag 0");
-  $line = get_one_line($buffer);
-  while ($line !== false)
-  {
-    if (preg_match('@EEPROM format version@', $line) > 0)
-    {
-      break;
-    }
-    if (preg_match($show_diag_patterns, $line, $matches) > 0)
-    {
-      $name = trim($matches['name']);
-      $value = trim($matches['value']);
-      $asset_attributes[$name] = "$value";
-    }
-
-    $line = get_one_line($buffer);
-  }
-
-
   debug_dump($asset_attributes);
 
-
-  $buffer = $sms_sd_ctx->sendexpectone(__FILE__.':'.__LINE__, "show ip ips signature | inc SDF release");
-
-  $line = strstr($buffer, "isco SDF release");
-  if ($line !== false)
-  {
-  	$asset['ips_version'] = null;
-  	if (preg_match("/[A-Z]+[0-9]+[.]+[0-9]+/", $line, $versions) > 0)
-  		$asset['ips_version'] = $versions[0];
-  	if (is_null($asset['ips_version']))
-  	{
-  		sms_log_error(__FILE__.":".__LINE__.": preg_match(\"/[A-Z]+[0-9]+[.]+[0-9]+/\", $line, $versions) Failed\n");
-  		$asset['ips_version'] = '';
-  	}
-  	$asset['ips_version'] = trim($asset['ips_version']);
-  }
-  else
-  {
-  	$line = strstr($buffer, "Another IPS operation is accessing the signatures");
-  	if ($line !== false)
-  	{
-  		sms_log_error(__FILE__.':'.__LINE__, ": waiting for current IPS operation to end...\n");
-  	}
-  	$asset['ips_version'] = '';
-  }
-
-  //EOS Specific, geting Product part number from Show ver  command if exist
-  $show_ver_patterns = '@^(?<name>.*)\s+:\s+(?<value>.*)$@';
-  $buffer =  $sms_sd_ctx->sendexpectone(__FILE__.':'.__LINE__, "show diag | inc FRU");
-  $sms_sd_ctx->sendCmd(__FILE__.':'.__LINE__, 'exit');
-  $line = get_one_line($buffer);
-  $PPN_indice=0;
-  while ($line !== false)
-  {
-    if (preg_match($show_ver_patterns, $line, $matches) > 0)
-    {
-      $name = trim($matches['name']);
-      $value = trim($matches['value']);
-      if (strpos($name,'FRU')!==false){
-        $name='Product Part Number (PPN) '.$PPN_indice;
-        $PPN_indice++;
-     }
-     $asset_attributes[$name] = strtoupper("$value");
-    }
-    $line = get_one_line($buffer);
-  }
-  # Check if Product Part Number have been found if not get the default model attribut instead
-	if (array_key_exists('Product Part Number (PPN) ',$asset_attributes)=== false){
-		$asset_attributes['Product Part Number (PPN) 0']=strtoupper($asset['model']);
-	}
-  #End of EOS Specific
 
   $ret = sms_polld_set_asset_in_sd($sd_poll_elt, $asset);
   if ($ret !== 0)
