@@ -49,7 +49,7 @@ class cisco_ios_xr_configuration
     if (!empty($running_conf))
     {
       // trimming first and last lines
-      $pos = strpos($running_conf, 'Current configuration');
+      $pos = strpos($running_conf, ' Building configuration...');
       if ($pos !== false)
       {
         $running_conf = substr($running_conf, $pos);
