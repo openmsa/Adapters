@@ -13,8 +13,8 @@ $provisioning_stages = array(
         'prog' => 'prov_init_conf'
     ),
     3 => array(
-        'name' => 'DNS Update',
-        'prog' => 'prov_dns_update'
+        'name' => 'Register Management IP',
+        'prog' => 'prov_register_ip'
     ),
     4 => array(
         'name' => 'Unlock Provisioning',
