@@ -3,7 +3,7 @@
 // -------------------------------------------------------------------------------------
 // DNS & IP CONFIG UPDATE
 // -------------------------------------------------------------------------------------
-function prov_dns_update($sms_csp, $sdid, $sms_sd_info, &$err)
+function prov_register_ip($sms_csp, $sdid, $sms_sd_info, &$err)
 {
 	global $ipaddr;
 
