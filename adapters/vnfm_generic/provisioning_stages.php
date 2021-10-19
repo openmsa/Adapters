@@ -9,8 +9,8 @@ $provisioning_stages = array(
 		'prog' => 'vnfm_generic_checkservicestatus'
 	),
 	2 => array(
-		'name' => 'DNS Update',
-		'prog' => 'prov_dns_update'
+		'name' => 'Register Management IP',
+		'prog' => 'prov_register_ip'
 	),
 	3 => array(
 		'name' => 'Unlock Provisioning',
