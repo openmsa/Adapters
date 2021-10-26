@@ -23,7 +23,7 @@ try
   //'license' => '@oftware \((?<license>[^\)]*)\)@',
   'firmware' => '@\s+Version\s+:\s+(?<firmware>\S+)@',
   'model' => '@(?<model>Cisco[^,]*)@',
-  'cpu' => '@(?<cpu>.*)\sprocessor@',
+  'cpu' => '@(?<cpu>.*)\s\(.*\)\sprocessor@',
   //'memory' => '@with (?<memory>\d*K/\d*K bytes) of memory@',
   );
 
