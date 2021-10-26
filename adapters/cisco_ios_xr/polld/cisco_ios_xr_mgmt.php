@@ -23,21 +23,8 @@ try
   //'license' => '@oftware \((?<license>[^\)]*)\)@',
   'firmware' => '@\s+Version\s+:\s+(?<firmware>\S+)@',
   'model' => '@(?<model>Cisco[^,]*)@',
-  //'cpu' => '@^.* \((?<cpu>[^\)]*)\) processor@',
+  'cpu' => '@(?<cpu>.*)\sprocessor@',
   //'memory' => '@with (?<memory>\d*K/\d*K bytes) of memory@',
-  );
-
-  $show_ver_asset_attributes_patterns = array(
-  '@^(?<value>\d*K bytes) of (?<name>[^\.]+)\.?\s$@',
-  '@^(?<value>\d*) (?<name>.* interface)(s|\(s\))?\s$@',
-  '@^(?<value>\d*) (?<name>.* line)(s|\(s\))?\s$@',
-  '@^(?<value>\d*) (?<name>.* port)(s|\(s\))?\s$@',
-  '@^(?<value>\d*) (?<name>.* Radio)(s|\(s\))?\s$@',
-  '@^(?<value>\d*) (?<name>.* service engine)(s|\(s\))?\s$@',
-  '@^(?<value>\d*) (?<name>.* Module)(s|\(s\))?\s$@',
-  '@^(?<value>\d*) (?<name>.* \(SRE\))\s$@',
-  '@with (?<value>\d*K bytes) of (?<name>.*)\.@',
-  '@^ROM: (?<name>System Bootstrap), Version (?<value>[^,]*),@'
   );
 
   $sms_sd_ctx->sendexpectone(__FILE__.':'.__LINE__, "term len 0");
@@ -63,7 +50,7 @@ try
   			unset($show_ver_asset_patterns[$name]);
   		}
   	}
-
+/*
   	foreach ($show_ver_asset_attributes_patterns as $pattern)
   	{
   		if (preg_match($pattern, $line, $matches) > 0)
@@ -71,7 +58,7 @@ try
   			$asset_attributes[trim($matches['name'])] = trim($matches['value']);
   		}
   	}
-
+*/
   	$line = get_one_line($buffer);
   }
 
@@ -84,6 +71,7 @@ try
   FastEthernet0/1.100        10.101.100.254  YES TFTP   up                    up
   NVI0                       10.100.0.7      YES unset  up                    up
   */
+  /*
   $show_ip_patterns = '@^(?<name>\S+)\s+(?<ipaddr>\S+)\s+\S+\s+\S+\s+(?<status>\S+)\s+\S+\s*$@';
 
   $buffer = $sms_sd_ctx->sendexpectone(__FILE__.':'.__LINE__, "show ip int brief | excl Interface");
@@ -100,8 +88,8 @@ try
 
   	$line = get_one_line($buffer);
   }
-
-  debug_dump($asset_attributes);
+*/
+  //debug_dump($asset_attributes);
 
 
   $ret = sms_polld_set_asset_in_sd($sd_poll_elt, $asset);
@@ -111,6 +99,7 @@ try
     throw new SmsException(" sms_polld_set_asset_in_sd Failed", ERR_DB_FAILED);
   }
 
+  /*
   foreach ($asset_attributes as $name => $value)
   {
   	$ret = sms_sd_set_asset_attribute($sd_poll_elt, 1, $name, $value);
@@ -119,7 +108,7 @@ try
       throw new SmsException(" sms_sd_set_asset_attribute($name, $value) Failed", ERR_DB_FAILED);
   	}
   }
-
+*/
   cisco_ios_xr_disconnect();
 }
 catch (Exception | Error $e)
