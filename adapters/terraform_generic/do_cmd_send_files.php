@@ -27,10 +27,10 @@ try {
     $src_dir      = $match[1];
     $file_pattern = $match[2];
     $dst_dir      = trim($match[3]);
-    sms_log_error("  LED src_dir=" . $src_dir .  ", file_pattern=". $file_pattern .",dst_dir=". $dst_dir);
+    sms_log_error(" src_dir=" . $src_dir .  ", file_pattern=". $file_pattern .",dst_dir=". $dst_dir);
 
     if (empty($src_dir) || empty($file_pattern) || empty($dst_dir)) {
-      sms_send_user_error($sms_csp, $sdid, "", ERR_VERB_BAD_PARAM . "  LED src_dir=" . $src_dir .  ", file_pattern=". $file_pattern .",dst_dir=". $dst_dir);
+      sms_send_user_error($sms_csp, $sdid, "", ERR_VERB_BAD_PARAM . " src_dir=" . $src_dir .  ", file_pattern=". $file_pattern .",dst_dir=". $dst_dir);
       sms_close_user_socket($sms_csp);
       return SMS_OK;
     }

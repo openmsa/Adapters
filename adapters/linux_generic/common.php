@@ -39,7 +39,7 @@ function create_flash_dir($path)
   global $sendexpect_result;
 
   $root = dirname($path);
-  sms_log_error("  LED PROMPT=".$sms_sd_ctx->getPrompt."; create_flash_dir path=". $path." root=".$root.";" );
+  sms_log_error(" PROMPT=".$sms_sd_ctx->getPrompt."; create_flash_dir path=". $path." root=".$root.";" );
   if (($root !== '.')&&($root != '\/')&&($root != '/'))
   {
     // Create the dest directory
@@ -130,7 +130,7 @@ function scp_to_router($src, $dst)
   if (!empty($dst))
   {
     $dst_path = dirname($dst);
-    sms_log_error("  LED scp_to_router dst=$dst, dst_path=$dst_path");
+    sms_log_error("  Scp_to_router dst=$dst, dst_path=$dst_path");
 
     if (($dst_path !== '.')&&($dst_path != '\/')&&($dst_path != '/'))
     {
@@ -194,7 +194,7 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = false)
   $filename = basename($local_file);
   $orig_size = filesize($local_file);
   $size = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "stat -c %s $remote_file");
-  sms_log_error("LED check_file_size remote_size=$size;");
+  sms_log_error(" Check_file_size remote_size=$size;");
   list($dummy,$size,$dummy) = preg_split("/\n/",$size,3);
   $size = trim($size);
 

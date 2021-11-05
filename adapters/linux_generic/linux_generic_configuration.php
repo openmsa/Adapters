@@ -356,10 +356,9 @@ EOF;
     $full_dest_dir = "{$dst_dir}";
     foreach ($file_list as $file_line)
     {
-      sms_log_error("  LED for /usr/bin/dir -1 $src_dir, file_line=" . $file_line.";");
+      sms_log_error(" For /usr/bin/dir -1 $src_dir, file_line=" . $file_line.";");
       if (preg_match_all($pattern, $file_line, $matches) > 0)
       {
-        sms_log_error("  LED file_line=" . $file_line);
         status_progress("{$status_message} Transfering file {$src_dir}/{$file_line} to {$dst_dir}/{$file_line}", $event);
         try
         {
