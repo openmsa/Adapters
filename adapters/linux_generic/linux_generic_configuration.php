@@ -246,7 +246,7 @@ class linux_generic_configuration
         {
           scp_from_router("{$src_dir}{$file_line}", "{$repo_dir}/{$dst_dir}/{$file_line}");
           // Check file size
-          check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false, str_replace(':', '', $src_dir));
+          check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false);
           $status_message .= "{$src_dir}{$file_line} OK\n | ";
           // create the .meta file
           $tmp = preg_split("@/@", $dst_dir);
@@ -304,7 +304,7 @@ EOF;
           if ($sms_sd_ctx === null)
           {
             // connection lost, try a last time
-            $res = cisco_isr_connect();
+            $res = linux_generic_connect();
             if ($res !== SMS_OK)
             {
               // give up
@@ -318,6 +318,72 @@ EOF;
     return $ret;
   }
 
+
+  function send_data_files($event, $src_dir, $file_pattern, $dst_dir)
+  {
+    global $sms_sd_ctx;
+    global $status_message;
+
+    $ret = SMS_OK;
+    $repo_dir = $_SERVER['FMC_REPOSITORY'].'/Datafiles';
+    $files=array();
+    status_progress('Reading files on device', $event);
+
+    $patterns = array();
+    $patterns[0] = '@\.@';
+    $patterns[1] = '@\*@';
+    $patterns[2] = '@\?@';
+    $replacements = array();
+    $replacements[0] = '\.';
+    $replacements[1] = '\S*';
+    $replacements[2] = '.?';
+    $pattern = preg_replace($patterns, $replacements, $file_pattern);
+    $pattern = "@^(?<file>{$pattern})\s*$@m";
+    echo "PATTERN [$pattern]\n"; # [@^(?<file>file\S*)\s*$@m]
+
+
+    $ret = exec_local(__FILE__ . ':' . __LINE__, "/usr/bin/dir -1 '{$src_dir}'", $file_list);
+    if ($ret !== SMS_OK)
+    {
+      echo ("\n Can not find '$src_dir' on MSA in docker sms \n");
+      return $ret;
+    }
+    # dir -1  /tmp/test_push
+    #   push1.txt
+    #   push2.txt
+
+    // #test if destination directori exist, else create it :
+    $full_dest_dir = "{$dst_dir}";
+    foreach ($file_list as $file_line)
+    {
+      sms_log_error("  LED for /usr/bin/dir -1 $src_dir, file_line=" . $file_line.";");
+      if (preg_match_all($pattern, $file_line, $matches) > 0)
+      {
+        sms_log_error("  LED file_line=" . $file_line);
+        status_progress("{$status_message} Transfering file {$src_dir}/{$file_line} to {$dst_dir}/{$file_line}", $event);
+        try
+        {
+          scp_to_router("{$src_dir}/{$file_line}", "{$dst_dir}/{$file_line}");
+          // Check file size
+          #TODO check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false, str_replace(':', '', $src_dir));
+          $status_message .= "'{$src_dir}/{$file_line}' OK\n | ";
+          $files[]=$file_line;
+          
+        }
+        catch (SmsException $e)
+        {
+          $status_message .= " Can not copy '{$src_dir}/{$file_line}' to device : '{$dst_dir}/{$file_line}' ";
+          return $ret;
+        }
+      }
+    }
+    if ($files){
+      return $ret;
+    }else{
+      return " No files copied ";
+    }      
+  }
+  
 }
 
 ?>

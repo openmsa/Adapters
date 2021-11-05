@@ -18,8 +18,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('linux_generic', 'linux_generic_connect.php');
-require_once load_once('linux_generic', 'linux_generic_configuration.php');
+require_once load_once('terraform_generic', 'terraform_generic_connect.php');
+require_once load_once('terraform_generic', 'terraform_generic_configuration.php');
 require_once "$db_objects";
 
 try {
@@ -50,23 +50,23 @@ try {
     sms_close_user_socket($sms_csp);
 
     // Connect to the device
-    $ret = linux_generic_connect();
+    $ret = terraform_generic_connect();
     if ($ret !== SMS_OK)
     {
       sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
       sms_sd_unlock($sms_csp, $sms_sd_info);
-      linux_generic_disconnect();
+      terraform_generic_disconnect();
       return SMS_OK;
     }
-    $conf = new linux_generic_configuration($sdid);
+    $conf = new terraform_generic_configuration($sdid);
     $ret = $conf->get_data_files($status_type, $src_dir, $file_pattern, $dst_dir);
 
-    linux_generic_disconnect(true);
+    terraform_generic_disconnect(true);
 
 } catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $status_message . $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
-    linux_generic_disconnect();
+    terraform_generic_disconnect();
     return SMS_OK;
 }
 

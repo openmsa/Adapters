@@ -203,6 +203,187 @@ class terraform_generic_configuration
 
     return $ret;
   }
+  
+    function get_data_files($event, $src_dir, $file_pattern, $dst_dir)
+  {
+    global $sms_sd_ctx;
+    global $status_message;
+
+    $ret = SMS_OK;
+    $repo_dir = $_SERVER['FMC_REPOSITORY'].'/Datafiles';
+
+    status_progress('Reading files on device', $event);
+
+    $file_list = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "dir -1 {$src_dir}");
+    $patterns = array();
+    $patterns[0] = '@\.@';
+    $patterns[1] = '@\*@';
+    $patterns[2] = '@\?@';
+    $replacements = array();
+    $replacements[0] = '\.';
+    $replacements[1] = '\S*';
+    $replacements[2] = '.?';
+    $pattern = preg_replace($patterns, $replacements, $file_pattern);
+    $pattern = "@^(?<file>{$pattern})\s*$@m";
+    echo "PATTERN [$pattern]\n";
+    // 2021/07/12:15:51:33:(D):smsd:RAB133:JSACMD:: PATTERN [@^ .* (?<file>test\.txt)\s*$@m]
+
+    // #test if destination directori exist, else create it :
+    $full_dest_dir = "{$repo_dir}/{$dst_dir}";
+    // Create $base_path if it does not exist
+    if (!file_exists($full_dest_dir))
+    {
+     status_progress("Creating directory $full_dest_dir", $event);
+     mkdir_recursive($full_dest_dir, 0755);
+    }
+
+    if (preg_match_all($pattern, $file_list, $matches) > 0)
+    {
+      foreach ($matches['file'] as $file_line)
+      {
+        status_progress("{$status_message}Transfering file {$src_dir}{$file_line} to {$repo_dir}/{$dst_dir}/{$file_line}", $event);
+        try
+        {
+          scp_from_router("{$src_dir}{$file_line}", "{$repo_dir}/{$dst_dir}/{$file_line}");
+          // Check file size
+          check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false);
+          $status_message .= "{$src_dir}{$file_line} OK\n | ";
+          // create the .meta file
+          $tmp = preg_split("@/@", $dst_dir);
+          $repo = $tmp[0];
+          $gtod = gettimeofday();
+          $date_modif = floor($gtod['sec'] * 1000 + $gtod['usec'] / 1000);
+          $meta_file = "{$repo_dir}/{$dst_dir}/.meta_{$file_line}";
+          $meta_content = <<< EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metadata>
+    <map>
+        <entry>
+            <key>FILE_TYPE</key>
+            <value>binary</value>
+        </entry>
+        <entry>
+            <key>DATE_MODIFICATION</key>
+            <value>{$date_modif}</value>
+        </entry>
+        <entry>
+            <key>COMMENT</key>
+            <value>Uploaded from {$this->sdid}</value>
+        </entry>
+        <entry>
+            <key>REPOSITORY</key>
+            <value>{$repo}</value>
+        </entry>
+        <entry>
+            <key>DATE_CREATION</key>
+            <value>{$date_modif}</value>
+        </entry>
+        <entry>
+            <key>CONFIGURATION_FILTER</key>
+            <value></value>
+        </entry>
+        <entry>
+            <key>TYPE</key>
+            <value>UPLOAD</value>
+        </entry>
+        <entry>
+            <key>TAG</key>
+            <value>{$src_dir}{$file_line}</value>
+        </entry>
+    </map>
+</metadata>
+EOF;
+          file_put_contents($meta_file, $meta_content);
+        }
+        catch (SmsException $e)
+        {
+          unlink("{$repo_dir}/{$dst_dir}/{$file_line}");
+          $ret = $e->getCode();
+          $status_message .= $e->getMessage();
+          $status_message .= "\n | ";
+          if ($sms_sd_ctx === null)
+          {
+            // connection lost, try a last time
+            $res = terraform_generic_connect();
+            if ($res !== SMS_OK)
+            {
+              // give up
+              $status_message .= "Connection lost with the device, stopping the transfer";
+              return $ret;
+            }
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+
+
+  function send_data_files($event, $src_dir, $file_pattern, $dst_dir)
+  {
+    global $sms_sd_ctx;
+    global $status_message;
+
+    $ret = SMS_OK;
+    $repo_dir = $_SERVER['FMC_REPOSITORY'].'/Datafiles';
+    $files=array();
+    status_progress('Reading files on device', $event);
+
+    $patterns = array();
+    $patterns[0] = '@\.@';
+    $patterns[1] = '@\*@';
+    $patterns[2] = '@\?@';
+    $replacements = array();
+    $replacements[0] = '\.';
+    $replacements[1] = '\S*';
+    $replacements[2] = '.?';
+    $pattern = preg_replace($patterns, $replacements, $file_pattern);
+    $pattern = "@^(?<file>{$pattern})\s*$@m";
+    echo "PATTERN [$pattern]\n"; # [@^(?<file>file\S*)\s*$@m]
+
+
+    $ret = exec_local(__FILE__ . ':' . __LINE__, "/usr/bin/dir -1 '{$src_dir}'", $file_list);
+    if ($ret !== SMS_OK)
+    {
+      echo ("\n Can not find '$src_dir' on MSA in docker sms \n");
+      return $ret;
+    }
+    # dir -1  /tmp/test_push
+    #   push1.txt
+    #   push2.txt
+
+    // #test if destination directori exist, else create it :
+    $full_dest_dir = "{$dst_dir}";
+    foreach ($file_list as $file_line)
+    {
+      sms_log_error("  LED for /usr/bin/dir -1 $src_dir, file_line=" . $file_line.";");
+      if (preg_match_all($pattern, $file_line, $matches) > 0)
+      {
+        sms_log_error("  LED file_line=" . $file_line);
+        status_progress("{$status_message} Transfering file {$src_dir}/{$file_line} to {$dst_dir}/{$file_line}", $event);
+        try
+        {
+          scp_to_router("{$src_dir}/{$file_line}", "{$dst_dir}/{$file_line}");
+          // Check file size
+          #TODO check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false, str_replace(':', '', $src_dir));
+          $status_message .= "'{$src_dir}/{$file_line}' OK\n | ";
+          $files[]=$file_line;
+          
+        }
+        catch (SmsException $e)
+        {
+          $status_message .= " Can not copy '{$src_dir}/{$file_line}' to device : '{$dst_dir}/{$file_line}' ";
+          return $ret;
+        }
+      }
+    }
+    if ($files){
+      return $ret;
+    }else{
+      return " No files copied ";
+    }      
+  }
+  
 }
 
 ?>
