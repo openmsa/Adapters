@@ -101,7 +101,8 @@ class esa_configuration
                 }
                 if($index === 1)
                 {
-                        $buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "3");
+                       # $buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "3");
+                        $buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "2");
                 }
 
     $confRunFile = explode(' ', $buffer);
@@ -210,7 +211,10 @@ class esa_configuration
     global $sendexpect_result;
 
     status_progress('Checking for upgrades', 'FIRMWARE');
-    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "upgrade", "upgrade");
+    #$sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "upgrade", "upgrade");
+    $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "upgrade");
+
+    sms_log_error(__FILE__ . ':' . __LINE__ . ": Send upgrade cmd2\n");
 
     $state = 0;
     $tab[0] = '[Y]>';
@@ -228,14 +232,17 @@ class esa_configuration
 
     while ($state == 0)
     {
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": before expect\n");
       $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": upgrade cmd  index=$index.\n");
+
       switch ($index)
       {
         case 0:
         case 1:
         case 2:
         case 3:
-          $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+          $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "Y");
           break;
         case 4:
           status_progress('Failure downloading upgrade list: Failed to connect to manifest server.', 'FIRMWARE');
@@ -278,8 +285,11 @@ class esa_configuration
     if ($state == 2)
     {
       //DOWNLOADINSTALL
-      //$sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "DOWNLOADINSTALL");
-      $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "DOWNLOADINSTALL", "DOWNLOADINSTALL");
+      $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "DOWNLOADINSTALL");
+      //$sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "DOWNLOADINSTALL", "DOWNLOADINSTALL");
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": After cmd DOWNLOADINSTALL22\n");
+      #sleep(10);  #wait to get new response
+      #$index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);
 
       $state = 0;
       $tab[0] = '[Y]>';
@@ -291,13 +301,18 @@ class esa_configuration
       $tab[6] = 'No available upgrades.';
       $tab[7] = 'Failed to authenticate with manifest server';
       $tab[8] = 'Failure downloading upgrade list: DNS lookup failed.';
-      $tab[9] = 'Upgrades available.';
-      $tab[10] = '[]>';
-      $tab[11] = $sms_sd_ctx->getPrompt();
+      $tab[9] = 'Do you want to cancel the download and select a different upgrade image';
+      $tab[10] = 'Upgrades available.';
+      $tab[11] = '[]>';
+      $tab[12] = $sms_sd_ctx->getPrompt();
+
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result11=$sendexpect_result;\n");
 
       while ($state == 0)
       {
+        sms_log_error(__FILE__ . ':' . __LINE__ . ": DOWNLOADINSTALL before expect\n");
         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);
+        sms_log_error(__FILE__ . ':' . __LINE__ . ": while found index=$index\n");
         switch ($index)
         {
           case 0:
@@ -325,29 +340,37 @@ class esa_configuration
             sms_log_error(__FILE__ . ':' . __LINE__ . ": Failure downloading upgrade list: DNS lookup failed\n");
             return ERR_SD_DNS_ERROR;
             break;
-
           case 9:
+            // Download of  upgrade image (AsyncOS ...is in progress (7% complete).
+            // Do you want to cancel the download and select a different upgrade image ? [Y]>
+            $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "N");
+            break;
+          case 10:
             $state = 1;
             break;
           /* -- C000V Version -- */
-          case 10:
+          case 11:
             $state = 2;
             break;
           /* -- END CASE -- */
-          case 11:
+          case 12:
             status_progress('Error occured', 'FIRMWARE');
             sms_log_error(__FILE__ . ':' . __LINE__ . ": Error occured\n");
             return ERR_SD_CMDFAILED;
             break;
         }
       }
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result22=$sendexpect_result;\n");
 
       if (strpos($sendexpect_result, ']>') === false)
       {
         unset($tab);
         $tab[0] = ']>';
+        sms_log_error(__FILE__ . ':' . __LINE__ . " expect2 ]>\n");
         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
       }
+      
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": bufData sendexpect_resul=$sendexpect_result;\n");
 
       $bufData = explode("\n", $sendexpect_result);
       $firmList = array();
@@ -365,58 +388,101 @@ class esa_configuration
       $tab[0] = '[Y]>';
       $tab[1] = $sms_sd_ctx->getPrompt();
       $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, $recentFirm);
+      //Would you like to save the current configuration to the configuration directory before upgrading? [Y]>
       $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
-
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result33=$sendexpect_result;\n");
+            
       if ($index == 0)
       {
+        $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
         unset($tab);
         $tab[0] = '[N]>';
         $tab[1] = $sms_sd_ctx->getPrompt();
-        $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
+        //Would you like to email the current configuration before upgrading? [N]>
         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+        sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result44=$sendexpect_result;\n");
+
         if ($index == 0)
         {
-          unset($tab);
-          $tab[0] = '[Y]>';
-          $tab[1] = $sms_sd_ctx->getPrompt();
           $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
+          unset($tab);
+          $tab[0] = '2. Encrypt passwords';
+          $tab[1] = $sms_sd_ctx->getPrompt();
+          // Choose the password option:
+           // 1. Mask passwords (Files with masked passwords cannot be loaded using loadconfig command)
+           // 2. Encrypt passwords
+          // [1]>
           $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
-
+          sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result55=$sendexpect_result;\n");
           if ($index == 0)
           {
+            $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '2');
+            
             unset($tab);
             $tab[0] = '[Y]>';
             $tab[1] = $sms_sd_ctx->getPrompt();
-            $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
+            //From AsyncOS 13.0 onwards,...Do you want to proceed with the upgrade? [Y]>
             $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+            sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result66=$sendexpect_result;\n");
+            $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
 
-            if ($index == 0)
+            unset($tab);
+            $tab[0] = 'Upgrade failure: Upgrade already in progress';
+            $tab[1] = 'Upgrade already in progress';
+            $tab[2] = $sms_sd_ctx->getPrompt();
+            $tab[3] = '[]>';
+            $tab[4] = 'Downloading application...';
+
+            $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);  #takes longtimes
+
+            sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result77=$sendexpect_result;\n");
+            if ($index == 0 || $index == 1)
+            {
+              sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure: Upgrade already in progress.\n");
+              return ERR_SD_CMDFAILED;
+            }
+            elseif ($index == 4 )
             {
               // Change the status for the GUI
               status_progress('Firmware upgrade in progress...', 'FIRMWARE');
-
-              $tab[0] = '[30]>';
-              $tab[1] = $sms_sd_ctx->getPrompt();
-
-              $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
-              $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);
-
-              if ($index == 0)
+              unset($tab);
+              $tab[0] = '[]>';
+              $tab[1] = '[30]>';
+              #Downloading Sophos Anti-Virus...
+              #......................
+              #Enter the number of seconds to wait before forcibly closing connections.
+              #[30]>
+              $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);  #takes longtimes
+              sms_log_error(__FILE__ . ':' . __LINE__ . ": sendexpect_result88=$sendexpect_result;\n");
+              if ($index == 1 )
               {
-                $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
-                // Update Firmware Upgrade Successful
-                status_progress("Wait for the asset update", 'FIRMWARE');
-                return SMS_OK;
-              }
-              else
-              {
-                // Error occur
-                status_progress('Upgrade failure', 'FIRMWARE');
-                sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure\n");
-                return ERR_SD_CMDFAILED;
+                  $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+                  // Update Firmware Upgrade Successful
+                  status_progress("Wait for the asset update", 'FIRMWARE');
+                  return SMS_OK;
               }
             }
-          }
+            if ($index == 0 || $index == 1)
+            {
+              sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure: Upgrade already in progress.\n");
+              return ERR_SD_CMDFAILED;
+            }
+            elseif ($index == 2 )
+            {  
+              
+              $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+              // Update Firmware Upgrade Successful
+              status_progress("Wait for the asset update", 'FIRMWARE');
+              return SMS_OK;
+            }
+            else
+            {
+              // Error occur
+              status_progress('Upgrade failure', 'FIRMWARE');
+              sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure\n");
+              return ERR_SD_CMDFAILED;
+            }
+          }  
         }
       }
 
@@ -443,36 +509,54 @@ class esa_configuration
       }
       $recentFirm = count($firmList);
 
+      $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, $recentFirm);
+
       unset($tab);
       $tab[0] = 'upgrade? [Y]>';
-      $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, $recentFirm);
+      $tab[1] = 'upgrade? [N]>';
       $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
-
-      if ($index == 0)
-      {
-        // Change the status for the GUI
-        status_progress('Firmware upgrade in progress...', 'FIRMWARE');
-
-        $tab[0] = '[30]>';
-        $tab[1] = $sms_sd_ctx->getPrompt();
-
-        $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+      if ($index == 1)
+      {     
+        $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, 'Y');
+        # DOWNLOADINSTALL - Downloads and installs the upgrade image (needs reboot).
+        unset($tab);
+        $tab[0] = 'DOWNLOADINSTALL - Downloads and installs the upgrade image (needs reboot).';
+        $tab[1] = 'DOWNLOADINSTALL - Downloads and installs the upgrade image (needs reboot).';
+        $tab[2] = 'DOWNLOAD - Downloads the upgrade image.';
         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+        if ($index == 0 || $index == 1)
+        {
+          $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, 'DOWNLOADINSTALL');
+          unset($tab);
+          $tab[0] = $sms_sd_ctx->getPrompt();
+          $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+          if ($index == 0)
+          {
+            // Change the status for the GUI
+            status_progress('Firmware upgrade in progress...', 'FIRMWARE');
 
-        if ($index == 0)
-        {
-          // Update Firmware Upgrade Successful
-          status_progress("Wait for the asset update", 'FIRMWARE');
-          return SMS_OK;
+            $tab[0] = '[30]>';
+            $tab[1] = $sms_sd_ctx->getPrompt();
+
+            $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+            $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+
+            if ($index == 0)
+            {
+              // Update Firmware Upgrade Successful
+              status_progress("Wait for the asset update", 'FIRMWARE');
+              return SMS_OK;
+            }
+            else
+            {
+              // Error occur
+              status_progress('Upgrade failure', 'FIRMWARE');
+              sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure\n");
+              return ERR_SD_CMDFAILED;
+            }
+          }  
         }
-        else
-        {
-          // Error occur
-          status_progress('Upgrade failure', 'FIRMWARE');
-          sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure\n");
-          return ERR_SD_CMDFAILED;
-        }
-      }
+      }  
     }
 
     foreach ($apply_errors as $apply_error)
