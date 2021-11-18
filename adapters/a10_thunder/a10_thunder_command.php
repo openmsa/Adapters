@@ -14,7 +14,6 @@ require_once load_once('smsd', 'cmd_update.php');
 require_once load_once('smsd', 'cmd_delete.php');
 require_once load_once('smsd', 'cmd_list.php');
 require_once load_once('smsd', 'cmd_import.php');
-// require_once load_once('a10_thunder', 'cmd_import.php');
 require_once load_once('a10_thunder', 'adaptor.php');
 
 class a10_thunder_command extends generic_command {
