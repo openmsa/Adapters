@@ -46,6 +46,10 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 	{
 		sd_connect();
 	}
+	else
+	{
+		rest_generic_emulator_synchro_prompt();
+	}
 
 	$ret = rest_generic_apply_conf($configuration, false);
 

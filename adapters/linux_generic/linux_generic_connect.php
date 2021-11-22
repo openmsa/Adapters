@@ -66,6 +66,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 // return false if error, true if ok
 function linux_generic_disconnect()
 {
+	global $sms_sd_ctx;
   $sms_sd_ctx = null;
   return SMS_OK;
 }

@@ -422,4 +422,14 @@ function generate_auth($apiSecret, $apiKey)
 
     return $apiKey.':'.$timestamp.':'.$nonce.':'.$hash;
 }
+
+function rest_generic_emulator_synchro_prompt()
+{
+  global $sms_sd_ctx;
+
+  $msg = 'UBISyncro' . mt_rand(10000, 99999);
+  $prompt = $sms_sd_ctx->getPrompt();
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "echo -n {$msg}", "{$msg}{$prompt}");
+}
+
 ?>
