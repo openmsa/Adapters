@@ -306,7 +306,7 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		
 	}
 
-	if (isset($sd->SD_CONFIGVAR_list['EMULATION']) && $sd->SD_CONFIGVAR_list['EMULATION'] == "true") {
+	if (isset($sd->SD_CONFIGVAR_list['EMULATION']) && $sd->SD_CONFIGVAR_list['EMULATION'] == true) {
 		$emulation=true;
 		$class = "LinuxGenericsshConnection";
 		echo ("IMPORTANT: emulation mode / using $class\n");
