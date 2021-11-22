@@ -291,7 +291,7 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	$sd = &$network->SD;
 	//debug_dump($sd, "SD\n");
 
-	//debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+	debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
 	//debug_dump($sd->SD_CONFIGVAR_list['AUTH_MODE'], "AUTH_MODE\n");
 
 	$class = "GenericBASICConnection";
