@@ -296,25 +296,26 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	$class = "GenericBASICConnection";
 	$auth_mode = "BASIC";
-
-	if (isset($sd->SD_CONFIGVAR_list['EMULATION']) && $sd->SD_CONFIGVAR_list['EMULATION'] == "true") {
-		$sms_sd_ctx->emulation=true;
-		$class = "LinuxGenericsshConnection";
-		echo ("IMPORTANT: emulation mode / using $class\n");
-	} else {
-		$sms_sd_ctx->emulation=false;		
-	}
-
-
+	$emulation=false;
+	
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
 		if ($auth_mode == "token" || $auth_mode == "auth-key" || $auth_mode == "jns_api_v2") {
 			$class = "TokenConnection";
 		}
-
+		
 	}
-    echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
 
+	if (isset($sd->SD_CONFIGVAR_list['EMULATION']) && $sd->SD_CONFIGVAR_list['EMULATION'] == "true") {
+		$emulation=true;
+		$class = "LinuxGenericsshConnection";
+		echo ("IMPORTANT: emulation mode / using $class\n");
+	} else {
+		$emulation=false;		
+	}
+
+    echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
+	
 	if (isset($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT'])) {
                 $port_to_use = trim($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT']->VAR_VALUE);
                 echo "rest_generic_connect: using management port: " . $port_to_use . "\n";
@@ -323,8 +324,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, "", $port_to_use );
 
-  	$sms_sd_ctx->auth_mode = $auth_mode;
-  	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
+	$sms_sd_ctx->auth_mode = $auth_mode;
+	$sms_sd_ctx->emulation = $emulation;
+
+	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
         $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
                 $sms_sd_ctx->fqdn = $fqdn;
     }
