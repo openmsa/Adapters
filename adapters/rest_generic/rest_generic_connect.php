@@ -5,6 +5,7 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
+require_once 'smsd/ssh_connection.php';
 require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
@@ -16,12 +17,12 @@ class DeviceConnection extends GenericConnection {
 	public $auth_mode;
 	public $conn_timeout;
 	public $fqdn;
+	public $emulation;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
 		$network = get_network_profile();
 		$SD = &$network->SD;
-		echo("**** port: ".$port);
 		$this->sd_ip_config = empty($ip) ? $SD->SD_IP_CONFIG : $ip;
 		$this->sd_login_entry = empty($login) ? $SD->SD_LOGIN_ENTRY : $login;
 		$this->sd_passwd_entry = empty($passwd) ? $SD->SD_PASSWD_ENTRY : $passwd;
@@ -30,7 +31,6 @@ class DeviceConnection extends GenericConnection {
 
 		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
 		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
-
 	}
 
 	public function do_connect() {
@@ -239,6 +239,47 @@ class TokenConnection extends DeviceConnection {
 	}
 }
 
+class LinuxGenericsshConnection extends SshConnection
+{
+  public function do_store_prompt()
+  {
+    global $sendexpect_result;
+
+    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -echo");
+    $this->sendCmd(__FILE__ . ':' . __LINE__, "stty -onlcr ocrnl -echoctl -echoe -opost rows 0 columns 0 line 0");
+    $tab[0] = '#';
+    $tab[1] = '$';
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, '', $tab);
+
+    sendexpectone(__FILE__ . ':' . __LINE__, $this, 'echo -n UBISynchroForPrompt', 'UBISynchroForPrompt');
+
+    $tab[0] = '#';
+    $tab[1] = '$';
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'echo', $tab);
+
+    $this->prompt = trim($sendexpect_result);
+    if (strrchr($this->prompt, "\n") !== false)
+    {
+       $this->prompt = substr(strrchr($this->prompt, "\n"), 1);
+    }
+
+    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+
+    // synchronize again
+
+    $msg = 'UBISyncro' . mt_rand(10000, 99999);
+    $prompt = $this->prompt;
+    sendexpectone(__FILE__ . ':' . __LINE__, $this, "echo -n {$msg}", "{$msg}{$prompt}");
+
+  }
+
+  public function do_start() {
+      $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
+  }
+
+}
+
 // return false if error, true if ok
 function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null) {
 	global $sms_sd_ctx;
@@ -256,6 +297,14 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 	$class = "GenericBASICConnection";
 	$auth_mode = "BASIC";
 
+	if (isset($sd->SD_CONFIGVAR_list['EMULATION']) && $sd->SD_CONFIGVAR_list['EMULATION'] == "true") {
+		$sms_sd_ctx->emulation=true;
+		$class = "LinuxGenericsshConnection";
+	} else {
+		$sms_sd_ctx->emulation=false;		
+	}
+
+
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
 		if ($auth_mode == "token" || $auth_mode == "auth-key" || $auth_mode == "jns_api_v2") {
@@ -263,7 +312,7 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		}
 
 	}
-        echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
+    echo  "rest_generic_connect: setting authentication mode to: {$auth_mode}\n";
 
 	if (isset($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT'])) {
                 $port_to_use = trim($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT']->VAR_VALUE);
