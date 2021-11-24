@@ -94,8 +94,8 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   }
 
   // confirm we save the configuration
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', "[cancel]:");
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'yes', '#');
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'commit comment "MSA: APPLY CONF"', ")#");
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', '#');
 
   // Refetch the prompt cause it can change during the apply conf
   extract_prompt();
