@@ -14,6 +14,7 @@ class DeviceConnection extends GenericConnection {
 	public $http_header_list;
 	public $protocol;
 	public $auth_mode;
+	public $auth_header;
 	public $conn_timeout;
 	public $fqdn;
 
@@ -102,7 +103,9 @@ class DeviceConnection extends GenericConnection {
 		$auth = "";
 
 		echo("auth_mode= ".$this->auth_mode."\n");
-                echo("auth_header= ".$this->auth_header."\n");
+                if (isset($this->auth_header)) {
+                        echo("auth_header= ".$this->auth_header."\n");
+                }
 		if (isset($this->key)) {
 	                echo("key= ".$this->key."\n");
 		}
