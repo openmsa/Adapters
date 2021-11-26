@@ -115,8 +115,8 @@ class cisco_ios_xr_restore_configuration {
 		try {
 			$ret = scp_to_router ( $full_name, $file_name );
 			if ($ret === SMS_OK) {
-				// SCP OK
-				$SMS_OUTPUT_BUF = copy_to_running ( "copy flash:$file_name startup-config" );
+			    // SCP OK
+				$SMS_OUTPUT_BUF = copy_to_running ( "copy disk0:$file_name startup-config" );
 				save_result_file ( $SMS_OUTPUT_BUF, "conf.error" );
 
 				foreach ( $apply_errors as $apply_error ) {
@@ -130,7 +130,7 @@ class cisco_ios_xr_restore_configuration {
 				$tab [0] = $sms_sd_ctx->getPrompt ();
 				$tab [1] = "]?";
 				$tab [2] = "[confirm]";
-				$index = sendexpect ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete flash:$file_name", $tab );
+				$index = sendexpect ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete disk0:$file_name", $tab );
 				while ( $index !== 0 ) {
 					$index = sendexpect ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab );
 				}
@@ -148,8 +148,11 @@ class cisco_ios_xr_restore_configuration {
 				return ERR_SD_CONNREFUSED;
 			}
 			sms_log_error ( __FILE__ . ':' . __LINE__ . ":SCP Error $ret\n" );
+			// if no tftp attempt, we return
+			return ERR_SD_TFTP;
 		}
 
+		/*
 		echo "tftp mode configuration\n";
 
 		$ret = SMS_OK;
@@ -166,6 +169,7 @@ class cisco_ios_xr_restore_configuration {
 				return ERR_SD_CMDFAILED;
 			}
 		}
+		*/
 
 		if (! strpos ( $SMS_OUTPUT_BUF, 'bytes copied' )) {
 			sms_log_error ( __FILE__ . ':' . __LINE__ . ":tftp transfer failed\n" );
