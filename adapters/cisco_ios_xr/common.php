@@ -724,29 +724,6 @@ function func_reboot($msg = 'SMSEXEC', $reload_now = false, $is_port_console = f
   } while (!$end);
 }
 
-function func_write()
-{
-  global $sms_sd_ctx;
-  global $sendexpect_result;
-
-  unset($tab);
-  $tab[0] = "[no]:";
-  $tab[1] = "[confirm]";
-  $tab[2] = $sms_sd_ctx->getPrompt();
-  $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "write", $tab);
-  if ($index === 0)
-  {
-    sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $sendexpect_result !!!]]\n");
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "");
-    throw new SmsException($sendexpect_result, ERR_SD_CMDFAILED);
-  }
-
-  if ($index === 1)
-  {
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "");
-  }
-  return SMS_OK;
-}
 
 function delete_force_flash()
 {
