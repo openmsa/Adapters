@@ -141,7 +141,7 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		if (isset($this->aws_sigv4)) {
-			$this->aws_sigv4 = " --aws-sigv4 \'".$this->aws_sigv4."\' ";
+			$this->aws_sigv4 = " --aws-sigv4 '".$this->aws_sigv4."' ";
 		}
 
 		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$this->aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
