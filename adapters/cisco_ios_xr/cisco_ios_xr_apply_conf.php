@@ -43,7 +43,7 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   echo "Line by line mode configuration\n";
   $ERROR_BUFFER = '';
 
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
+  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf exclusive", "(config)#", DELAY);
 
   unset($tab);
   $tab[0] = $sms_sd_ctx->getPrompt();
@@ -94,7 +94,48 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   }
 
   // confirm we save the configuration
-  sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'commit comment "MSA: APPLY CONF"', ")#");
+  unset($tab);
+  $tab[0] = ")#";
+  $tab[1] = "Failed to commit";
+  $tab[2] = "proceed with this commit anyway? [no]:";
+
+  $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'commit comment "MSA: apply conf"', $tab, DELAY);
+  $SMS_OUTPUT_BUF = $sendexpect_result;
+
+  // if the command failed
+  if ($index !== 0)
+  {
+    $ERROR_BUFFER .= "!";
+    $ERROR_BUFFER .= "\n";
+    $ERROR_BUFFER .= 'commit comment "MSA: apply conf"';
+    $ERROR_BUFFER .= "\n";
+    $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
+    $ERROR_BUFFER .= "\n";
+  }
+
+  if ($index === 1)
+  {
+    // Failed to commit one or more configuration items during a pseudo-atomic operation.
+    // All changes made have been reverted. Please issue 'show configuration failed [inheritance]'
+    // from this session to view the errors
+    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'show configuration failed', ")#", DELAY);
+    $SMS_OUTPUT_BUF = $sendexpect_result;
+
+    $ERROR_BUFFER .= 'show configuration failed';
+    $ERROR_BUFFER .= "\n";
+    $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
+    $ERROR_BUFFER .= "\n";
+  }
+  else if ($index === 2)
+  {
+    // One or more commits have occurred from other configuration sessions since this session started
+    // or since the last commit was made from this session.
+    // You can use the 'show configuration commit changes' command to browse the changes.
+    // Do you wish to proceed with this commit anyway? [no]:
+    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "yes", ")#", DELAY);
+  }
+
+  // we leave all conf (and potential submodes)
   sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', '#');
 
   // Refetch the prompt cause it can change during the apply conf
