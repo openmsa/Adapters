@@ -17,6 +17,7 @@ class DeviceConnection extends GenericConnection {
 	public $auth_header;
 	public $conn_timeout;
 	public $fqdn;
+	public $aws_sigv4;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -139,7 +140,11 @@ class DeviceConnection extends GenericConnection {
 			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
 		}
 
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		if (isset($this->aws_sigv4)) {
+			$this->aws_sigv4 = " --aws-sigv4 \'".$this->aws_sigv4."\' ";
+		}
+
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$this->aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
@@ -326,6 +331,12 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		$sms_sd_ctx->conn_timeout=trim($sd->SD_CONFIGVAR_list['CONN_TIMEOUT']->VAR_VALUE);
 	}
 	echo  "rest_generic_connect: setting HTTP timeout to: {$sms_sd_ctx->conn_timeout}\n";
+	
+	if (isset($sd->SD_CONFIGVAR_list['AWS_SIGV4'])) {
+		$sms_sd_ctx->aws_sigv4=trim($sd->SD_CONFIGVAR_list['AWS_SIGV4']->VAR_VALUE);
+		echo  "rest_generic_connect: setting AWS_SIGV4: {$sms_sd_ctx->aws_sigv4}\n";
+	}
+
 
 	try
 	{
