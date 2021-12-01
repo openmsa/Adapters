@@ -48,9 +48,16 @@ The transformation to XML will be triggered if the Content-Type HTTP header is s
 Use this to list the HTTP header to pass to the API HTTP requests.
 This configuration should be specified as a | separated list of "key: value"
 ###Example:
-HTTP_HEADER = Content-Type: application/json | Accept: application/json
+
+* HTTP_HEADER = Content-Type: application/json | Accept: application/json
+
 default: Content-Type: application/json | Accept: application/json
- 
+
+## AWS_SIGV4
+AWS ReST API, signing request with v4 signature.
+This option will pass the value to curl with the curl option `--aws-sigv4`
+
+*NOTE*: this option requires Curl version > 7.75
 
 # Sample configurations
 
@@ -83,8 +90,12 @@ AUTH_HEADER = "Authorization: Bearer"
 
 ## Token based authentication for Juniper Northstar APIv2
 jns_api_v2 mode provides vendor specific data structure
--d '{"grant_type":"password","username":"'\${username}'","password":"'${password}'"}'
-subsequent assess should have the following HTTP header set ex.: "Authorization: Bearer zRApShiOxoCcBiFGPRhISKAbaUACWQBRqMPmaq40/NU=" 
+
+`-d '{"grant_type":"password","username":"'\${username}'","password":"'${password}'"}'`
+
+subsequent assess should have the following HTTP header set 
+
+example: "Authorization: Bearer zRApShiOxoCcBiFGPRhISKAbaUACWQBRqMPmaq40/NU=" 
 
 * AUTH_MODE = "jns_api_v2"
 * AUTH_HEADER = "Authorization: Bearer"
