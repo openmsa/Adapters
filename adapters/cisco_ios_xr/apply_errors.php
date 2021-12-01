@@ -16,7 +16,8 @@ $apply_errors = array(
   "@Invalid input detected@",
   "@Incomplete command@",
   "@Ambiguous command@",
-  "@Failed to commit@"
+  "@Failed to commit@",
+  "@Syntax/Authorization errors@"
 );
 
 ?>
