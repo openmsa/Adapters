@@ -99,15 +99,16 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   $tab[1] = "Failed to commit";
   $tab[2] = "proceed with this commit anyway? [no]:";
 
-  $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'commit comment "MSA: apply conf"', $tab, DELAY);
+  $line = 'commit comment "MSA: apply conf"';
+  $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, $tab, DELAY);
   $SMS_OUTPUT_BUF = $sendexpect_result;
 
-  // if the command failed
+  // if the command fails or request confirmation
   if ($index !== 0)
   {
     $ERROR_BUFFER .= "!";
     $ERROR_BUFFER .= "\n";
-    $ERROR_BUFFER .= 'commit comment "MSA: apply conf"';
+    $ERROR_BUFFER .= $line;
     $ERROR_BUFFER .= "\n";
     $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
     $ERROR_BUFFER .= "\n";
@@ -118,10 +119,11 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
     // Failed to commit one or more configuration items during a pseudo-atomic operation.
     // All changes made have been reverted. Please issue 'show configuration failed [inheritance]'
     // from this session to view the errors
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'show configuration failed', ")#", DELAY);
+    $line = 'show configuration failed';
+    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, ")#", DELAY);
     $SMS_OUTPUT_BUF = $sendexpect_result;
 
-    $ERROR_BUFFER .= 'show configuration failed';
+    $ERROR_BUFFER .= $line;
     $ERROR_BUFFER .= "\n";
     $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
     $ERROR_BUFFER .= "\n";
