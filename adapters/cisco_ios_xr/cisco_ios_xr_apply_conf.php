@@ -120,8 +120,7 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
     // All changes made have been reverted. Please issue 'show configuration failed [inheritance]'
     // from this session to view the errors
     $line = 'show configuration failed';
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, ")#", DELAY);
-    $SMS_OUTPUT_BUF = $sendexpect_result;
+    $SMS_OUTPUT_BUF = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, ")#", DELAY);
 
     $ERROR_BUFFER .= $line;
     $ERROR_BUFFER .= "\n";
@@ -148,7 +147,7 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   $tab[0] = $sms_sd_ctx->getPrompt();
   $tab[1] = ")#";
   $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab, DELAY);
-  $SMS_OUTPUT_BUF .= $sendexpect_result;
+  $SMS_OUTPUT_BUF = $sendexpect_result;
   for ($i = 1; ($i <= 10) && ($index === 1); $i++)
   {
     $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", $tab, DELAY);
