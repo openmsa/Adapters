@@ -86,9 +86,8 @@ class cisco_ios_xr_restore_configuration {
 
 		$this->runningconf_to_restore = preg_replace ( $patterns, $replacements, $res );
 
-		$enable_line = "enable secret " . $this->sd->SD_PASSWD_ADM . "\n";
 		$username_line = "username " . $this->sd->SD_LOGIN_ENTRY . " password " . $this->sd->SD_PASSWD_ENTRY . "\n \n";
-		$this->runningconf_to_restore = $enable_line . $username_line . $this->runningconf_to_restore;
+		$this->runningconf_to_restore = $username_line . $this->runningconf_to_restore;
 
 		return SMS_OK;
 	}
