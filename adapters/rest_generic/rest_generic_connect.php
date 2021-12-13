@@ -140,11 +140,12 @@ class DeviceConnection extends GenericConnection {
 			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
 		}
 
+		$aws_sigv4="";
 		if (isset($this->aws_sigv4)) {
-			$this->aws_sigv4 = " --aws-sigv4 '".$this->aws_sigv4."' ";
+			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
 		}
 
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$this->aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
