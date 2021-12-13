@@ -9,5 +9,9 @@ In this document you will find the managed entity configuration variables to set
 
 For non production environment with BASIC authentication
 
+* AUTH_FQDN: api.[OUTSCALE_REGION].outscale.com 	
+* AUTH_MODE: BASIC 	
+* AWS_SIGV4: osc 	
 * PROTOCOL: https 
-* AWS_SIGV4: 
+
+NOTE: replace [OUTSCALE_REGION] by the your region (ex: eu-west-2)
