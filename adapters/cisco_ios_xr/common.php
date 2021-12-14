@@ -93,7 +93,7 @@ function create_flash_dir($path, $dst_disk)
   global $sendexpect_result;
 
   $root = dirname($path);
-  if ($root !== '.')
+  if (($root !== '.') && ($root !== '/'))
   {
     // Create the dest directory
     create_flash_dir($root, $dst_disk);
@@ -140,6 +140,8 @@ function scp_from_router($src, $dst)
   $passwd     = $sd->SD_PASSWD_ENTRY;
 
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd", $output);
+
+  sleep(1); // to let the device finish scp execution
 
   $ret = cisco_ios_xr_connect();
   if ($ret !== SMS_OK)
@@ -191,8 +193,11 @@ function scp_to_router($src, $dst)
 
   if (!empty($dst))
   {
-    $dst_path = dirname($dst);
-    if ($dst_path !== '.')
+    // $src = /opt/sms/spool/tftp/UBI153.cfg ; $dst = disk0:/write_UBI153.cfg ; $dst_disk = disk0 ; $dst_filepath = /write_UBI153.cfg
+    $dst_filepath = str_replace("$dst_disk:", '', $dst);
+    $dst_path = dirname($dst_filepath);
+
+    if (($dst_path !== '.') && ($dst_path !== '/'))
     {
       // Create the dest directory
       create_flash_dir($dst_path, $dst_disk);
@@ -207,7 +212,7 @@ function scp_to_router($src, $dst)
   $login      = $sd->SD_LOGIN_ENTRY;
   $passwd     = $sd->SD_PASSWD_ENTRY;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd", $output);
 
   sleep(1); // to let the device finish scp execution
 
@@ -263,13 +268,15 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = true, 
   $filename = basename($local_file);
   $orig_size = filesize($local_file);
 
+  $remote_filename = str_replace("$dst_disk:", '', $remote_file);
+
   sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "cd $dst_disk:");
   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "dir | include Directory");
   if (preg_match("@^Directory\s+of\s+(?<disk_unix_path>\S+)\s*$@m", $buffer, $matches) > 0)
   {
     $disk_unix_path = $matches['disk_unix_path'];
 
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "bash stat -c '%s' $disk_unix_path/$filename");
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "bash stat -c '%s' $disk_unix_path/$remote_filename");
     if (preg_match("@^\s*(?<size>\d+)\s*$@m", $buffer, $matches) > 0)
     {
       $size = $matches['size'];
@@ -282,7 +289,7 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = true, 
           $tab[0] = '#';
           $tab[1] = ']?';
           $tab[2] = '[confirm]';
-          $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete /noprompt $dst_disk:$remote_file", $tab);
+          $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete /noprompt $remote_file", $tab);
           while ($index > 0)
           {
             $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab);
@@ -327,7 +334,8 @@ function tftp_to_router($src, $dst, $tftp_server = null, $erase_flash = false)
   global $is_local_file_server;
   global $file_server_addr;
   global $disk_names;
-  $dst_disk = "disk0";
+  global $default_disk;
+  $dst_disk = $default_disk;
   $file = basename($src);
 
   init_local_file_server();
@@ -341,8 +349,9 @@ function tftp_to_router($src, $dst, $tftp_server = null, $erase_flash = false)
     }
   }
 
-  $dst_path = dirname($dst);
-  if ($dst_path !== '.')
+  $dst_filepath = str_replace("$dst_disk:", '', $dst);
+  $dst_path = dirname($dst_filepath);
+  if (($dst_path !== '.') && ($dst_path !== '/'))
   {
     // Create the dest directory
     create_flash_dir($dst_path, $dst_disk);

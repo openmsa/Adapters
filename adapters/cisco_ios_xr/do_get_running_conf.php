@@ -27,9 +27,7 @@ try {
 
   // Get the conf on the router
   $conf = new cisco_ios_xr_configuration($sdid);
-  $running_conf = $conf->get_running_conf();
-
-  debug_dump($running_conf, "RUNNING CONF\n");
+  $ret = $conf->get_running_conf($running_conf);
 
   cisco_ios_xr_disconnect();
 
@@ -47,7 +45,7 @@ catch(Exception | Error $e)
   sms_send_user_error($sms_csp, $sdid, $e->getMessage(), $e->getCode());
 }
 
-return SMS_OK;
+return $ret;
 
 
 ?>
