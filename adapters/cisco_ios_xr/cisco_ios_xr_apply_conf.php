@@ -86,9 +86,9 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
           $ERROR_BUFFER .= "\n";
           $ERROR_BUFFER .= $apply_error;
           $ERROR_BUFFER .= "\n";
-          $SMS_OUTPUT_BUF = '';
 
           sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n" );
+          $SMS_OUTPUT_BUF = '';
           $ret = ERR_SD_CMDFAILED;
         }
       }
