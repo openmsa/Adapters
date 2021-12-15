@@ -67,20 +67,11 @@ try
     return SMS_OK;
   }
 
-  sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'WORKING', "Rebooting router (restore revision: $revision_id)");
   cisco_ios_xr_disconnect();
-  $ret = $conf->wait_until_device_is_up();
-  if ($ret !== SMS_OK)
-  {
-    sms_set_update_status($sms_csp, $sdid, $ret, 'RESTORE', 'FAILED', "Device unreachable after restore (restore revision: $revision_id)");
-    sms_sd_unlock($sms_csp, $sms_sd_info);
-    return SMS_OK;
-  }
-
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'WORKING', "Backup of the restored configuration (restore revision: $revision_id)");
 
   // Wait for SSH to come up - Temporary fix
-  sleep(15);
+  sleep(1);
   require_once load_once('cisco_ios_xr', 'do_backup_conf.php');
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, 'RESTORE', 'ENDED', "Restore processed (restore revision: $revision_id)");

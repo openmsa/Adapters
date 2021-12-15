@@ -12,10 +12,10 @@ try
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
-  
+
   // Get the conf on the router
   $conf = new cisco_ios_xr_configuration($sdid);
-  $SMS_RETURN_BUF = $conf->get_running_conf();
+  $ret = $conf->get_running_conf($SMS_RETURN_BUF);
   cisco_ios_xr_disconnect();
 }
 catch(Exception | Error $e)
@@ -24,5 +24,5 @@ catch(Exception | Error $e)
   return $e->getCode();
 }
 
-return SMS_OK;
+return $ret;
 ?>
