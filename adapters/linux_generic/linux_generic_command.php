@@ -130,6 +130,20 @@ class linux_generic_command extends generic_command
     return $ret;
   }
 
+  function eval_CREATE()
+   {
+    global $SMS_RETURN_BUF;
+    foreach ($this->create_list as $create)
+    {
+      $conf = $create->evaluate();
+      $this->configuration .= "\n";
+      $this->configuration .= $conf;
+      #LED $SMS_RETURN_BUF .= $this->configuration;
+      $SMS_RETURN_BUF  = $this->configuration;
+    }
+    return SMS_OK;
+  }
+
   /*
    * #####################################################################################
    * UPDATE
@@ -146,6 +160,20 @@ class linux_generic_command extends generic_command
     $ret = sd_apply_conf($this->configuration, true);
 
     return $ret;
+  }
+
+  function eval_UPDATE()
+   {
+    global $SMS_RETURN_BUF;
+    foreach ($this->create_list as $create)
+    {
+      $conf = $create->evaluate();
+      $this->configuration .= "\n";
+      $this->configuration .= $conf;
+      #LED $SMS_RETURN_BUF .= $this->configuration;
+      $SMS_RETURN_BUF  = $this->configuration;
+    }
+    return SMS_OK;
   }
 
   /*
