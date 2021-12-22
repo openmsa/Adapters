@@ -138,7 +138,6 @@ class linux_generic_command extends generic_command
       $conf = $create->evaluate();
       $this->configuration .= "\n";
       $this->configuration .= $conf;
-      #LED $SMS_RETURN_BUF .= $this->configuration;
       $SMS_RETURN_BUF  = $this->configuration;
     }
     return SMS_OK;
@@ -170,7 +169,6 @@ class linux_generic_command extends generic_command
       $conf = $create->evaluate();
       $this->configuration .= "\n";
       $this->configuration .= $conf;
-      #LED $SMS_RETURN_BUF .= $this->configuration;
       $SMS_RETURN_BUF  = $this->configuration;
     }
     return SMS_OK;
