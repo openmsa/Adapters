@@ -22,8 +22,8 @@ class cisco_ios_xr_configuration
 
   // ------------------------------------------------------------------------------------------------
   /**
-	* Constructor
-	*/
+    * Constructor
+    */
   function __construct($sdid, $is_provisionning = false)
   {
     $this->conf_path = $_SERVER['GENERATED_CONF_BASE'];
@@ -36,32 +36,134 @@ class cisco_ios_xr_configuration
 
   // ------------------------------------------------------------------------------------------------
   /**
-	* Get running configuration from the router
-	*/
-  function get_running_conf()
+    * Get running configuration from the router
+    */
+  function get_running_conf(&$running_conf)
   {
-    global $sms_sd_ctx;
+    global $sendexpect_result;
+    global $apply_errors;
+    global $default_disk;
 
-    if ($sms_sd_ctx != null)
+    global $sms_sd_ctx;
+    $ret = SMS_OK;
+
+    if ($sms_sd_ctx == null)
     {
-      $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "show run | exc Last configuration change");
+        return ERR_SD_FAILED;
     }
+
+    // destination for configuration file on device
+    $src_disk = $default_disk;
+
+    $file_name = "{$this->sdid}.cfg";
+    $full_name = $_SERVER ['TFTP_BASE'] . "/" . $file_name;
+    $fname_on_device = "read_$file_name";
+
+    echo "Save configuration\n";
+    $ERROR_BUFFER = '';
+
+    $line = "delete /noprompt $src_disk:$fname_on_device";
+    $SMS_OUTPUT_BUF = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, "#", DELAY);
+
+    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#", DELAY);
+
+    /*
+    RP/0/RP0/CPU0:DEV-NEC-CISCO-IOS-XR-9000(config)#save configuration running disk0:read_UBI153.cfg
+    Destination file name (control-c to abort): [/read_UBI153.cfg]?
+    Building configuration.
+    231 lines built in 1 second
+    [OK]
+    RP/0/RP0/CPU0:DEV-NEC-CISCO-IOS-XR-9000(config)#save configuration running disk0:read_UBI153.cfg
+    Destination file name (control-c to abort): [/read_UBI153.cfg]?
+    The destination file already exists. Do you want to overwrite? [no]: yes
+    Building configuration.
+    231 lines built in 1 second
+    [OK]
+    RP/0/RP0/CPU0:DEV-NEC-CISCO-IOS-XR-9000(config)#
+    */
+
+    unset($tab);
+    $tab[0] = $sms_sd_ctx->getPrompt();
+    $tab[1] = ")#";
+    $tab[2] = $fname_on_device."]?";
+    $tab[3] = "overwrite? [no]:";
+
+    $line = "save configuration running $src_disk:$fname_on_device";
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, $tab, DELAY);
+    $SMS_OUTPUT_BUF = $sendexpect_result;
+
+    while (($index !== 0) && ($index !== 1))
+    {
+        if ($index === 2)
+        {
+            $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab, DELAY);
+            $SMS_OUTPUT_BUF .= $sendexpect_result;
+        }
+        else if ($index === 3)
+        {
+            $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "yes", $tab, DELAY);
+            $SMS_OUTPUT_BUF .= $sendexpect_result;
+        }
+    }
+    foreach ($apply_errors as $apply_error)
+    {
+        if (preg_match($apply_error, $SMS_OUTPUT_BUF, $matches) > 0)
+        {
+            $ERROR_BUFFER .= "!";
+            $ERROR_BUFFER .= "\n";
+            $ERROR_BUFFER .= $line;
+            $ERROR_BUFFER .= "\n";
+            $ERROR_BUFFER .= $apply_error;
+            $ERROR_BUFFER .= "\n";
+
+            sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n" );
+            $SMS_OUTPUT_BUF = '';
+            $ret = ERR_SD_CMDFAILED;
+        }
+    }
+
+    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", "#", DELAY);
+
+    if ($ret === SMS_OK)
+    {
+        try {
+            if (file_exists($full_name))
+            {
+                unlink($full_name);
+            }
+            $ret = scp_from_router ( "$src_disk:$fname_on_device", $full_name );
+            if ($ret === SMS_OK) {
+                $running_conf = file_get_contents($full_name);
+            }
+            else {
+                sms_log_error ( __FILE__ . ':' . __LINE__ . ": scp_from_router($src_disk:$fname_on_device, $full_name) FAILED\n" );
+            }
+        } catch ( Exception | Error $e ) {
+            sms_log_error ( __FILE__ . ':' . __LINE__ . ": SCP Exception/Error: " . $e->getMessage . "\n" );
+            if (strpos ( $e->getMessage (), 'connection failed' ) !== false) {
+                return ERR_SD_CONNREFUSED;
+            }
+            return ERR_SD_SCP;
+        }
+    }
+
     if (!empty($running_conf))
     {
       // trimming first and last lines
-      $pos = strpos($running_conf, ' Building configuration...');
+      $pos = strpos($running_conf, 'Building configuration...');
       if ($pos !== false)
       {
         $running_conf = substr($running_conf, $pos);
       }
       // remove 'ntp clock-period' line
-      $running_conf = remove_end_of_line_starting_with($running_conf, 'Current configuration');
-      $running_conf = remove_end_of_line_starting_with($running_conf, 'ntp clock-period');
-      $running_conf = remove_end_of_line_starting_with($running_conf, 'enable secret 5');
+      $running_conf = remove_line_starting_with($running_conf, 'Building configuration...');
+      $running_conf = remove_line_starting_with($running_conf, '!! IOS XR Configuration version');
+      $running_conf = remove_line_starting_with($running_conf, '!! Last configuration change at');
+      $running_conf = remove_line_starting_with($running_conf, 'ntp clock-period');
+      $running_conf = remove_end_of_line_starting_with($running_conf, ' secret 5');
       $running_conf = remove_end_of_line_starting_with($running_conf, ' create profile sync');
-      $running_conf = remove_end_of_line_starting_with($running_conf, 'username cisco_ios_xr password 7');
+      $running_conf = remove_end_of_line_starting_with($running_conf, ' password 7');
       $running_conf = remove_end_of_line_starting_with($running_conf, ' create cnf-files version-stamp');
-      $running_conf = remove_end_of_line_starting_with($running_conf, 'Current configuration :');
       $pos = strrpos($running_conf, "\n");
       if ($pos !== false)
       {
@@ -70,33 +172,42 @@ class cisco_ios_xr_configuration
     }
 
     $this->running_conf = $running_conf;
-    return $this->running_conf;
+    return $ret;
   }
 
   // ------------------------------------------------------------------------------------------------
   /**
-	* Generate a configuration cleaner based on the current router configuration
-	*/
+    * Generate a configuration cleaner based on the current router configuration
+    */
   function generate_clean(&$configuration)
   {
+    $ret = SMS_OK;
+
     // Load router conf if necessary
     if (empty($this->running_conf))
     {
-      $this->get_running_conf();
+      $ret = $this->get_running_conf($this->running_conf);
     }
 
-    foreach ($this->profile_list as $profile_name => $profile)
+    if ($ret === SMS_OK)
     {
-      $parser = $profile->get_parser_clean();
-      $parsed_running = parse_conf($this->running_conf, $parser);
-      $delta_conf = conf_differ($parsed_running, null);
-      // Generate the configuration from the delta
-      $configuration .= "! Clean $profile_name Configuration -- \n!\n";
-      $configuration .= generate_conf_from_diff($delta_conf, $parser);
-      $configuration .= "!\n! END Clean $profile_name Configuration\n!\n";
+        foreach ($this->profile_list as $profile_name => $profile)
+        {
+          $parser = $profile->get_parser_clean();
+          $parsed_running = parse_conf($this->running_conf, $parser);
+          $delta_conf = conf_differ($parsed_running, null);
+          // Generate the configuration from the delta
+          $configuration .= "! Clean $profile_name Configuration -- \n!\n";
+          $configuration .= generate_conf_from_diff($delta_conf, $parser);
+          $configuration .= "!\n! END Clean $profile_name Configuration\n!\n";
+        }
+    }
+    else
+    {
+        sms_log_error ( __FILE__ . ':' . __LINE__ . ": get_running_conf() FAILED\n" );
     }
 
-    return SMS_OK;
+    return $ret;
   }
 
   function get_current_firmware_name()
@@ -111,9 +222,9 @@ class cisco_ios_xr_configuration
   }
 
   /**
-	* Generate the general pre-configuration
-	* @param $configuration   configuration buffer to fill
-	*/
+    * Generate the general pre-configuration
+    * @param $configuration   configuration buffer to fill
+    */
   function generate_pre_conf(&$configuration)
   {
     //$configuration .= "!PRE CONFIG\n";
@@ -128,19 +239,19 @@ class cisco_ios_xr_configuration
    */
    function generate_conf(&$configuration,$tag_name)
    {
-   	get_conf_from_config_file($this->sdid, $this->conf_pflid, $configuration, $tag_name, 'Configuration');
-  	$ret = $this->generate_profile_conf($configuration);
-    	if ($ret !== SMS_OK)
-    	{
-    	return $ret;
-   	}
-   	return SMS_OK;
+    get_conf_from_config_file($this->sdid, $this->conf_pflid, $configuration, $tag_name, 'Configuration');
+    $ret = $this->generate_profile_conf($configuration);
+        if ($ret !== SMS_OK)
+        {
+        return $ret;
+    }
+    return SMS_OK;
     }
 
   /**
-	 * Generate a full configuration
-	 * Uses the previous conf if present to perform deltas
-	 */
+     * Generate a full configuration
+     * Uses the previous conf if present to perform deltas
+     */
   function generate(&$configuration, $use_running = false)
   {
     //$configuration .= "! CONFIGURATION GOES HERE\n";
@@ -155,9 +266,9 @@ class cisco_ios_xr_configuration
 
   // ------------------------------------------------------------------------------------------------
   /**
-	* Generate profile configuration
-	* Uses the previous conf if present to perform deltas
-	*/
+    * Generate profile configuration
+    * Uses the previous conf if present to perform deltas
+    */
   function generate_profile_conf(&$configuration, $use_running = false)
   {
     if (!empty($this->profile_list))
@@ -209,9 +320,9 @@ class cisco_ios_xr_configuration
   }
 
   /**
-	* Generate the general post-configuration
-	* @param $configuration   configuration buffer to fill
-	*/
+    * Generate the general post-configuration
+    * @param $configuration   configuration buffer to fill
+    */
   function generate_post_conf(&$configuration)
   {
     //$configuration .= "!POST CONFIG\n";
@@ -237,7 +348,7 @@ class cisco_ios_xr_configuration
     $ret = $this->generate_conf($generated_configuration,'ZTD_TEMPLATE');
     if ($ret !== SMS_OK)
     {
-    	return $ret;
+        return $ret;
     }
 
     $ret = $this->generate_post_conf($generated_configuration);
@@ -265,9 +376,9 @@ class cisco_ios_xr_configuration
     return $this->update_conf($flag);
   }
 
- 
 
-  
+
+
   function reboot($event, $params = '')
   {
     status_progress('Reloading device', $event);
@@ -299,37 +410,37 @@ class cisco_ios_xr_configuration
 
   function delete_router_file($event, $file)
   {
-  	global $sms_sd_ctx;
+    global $sms_sd_ctx;
 
-  	status_progress('Connecting to the device', $event);
+    status_progress('Connecting to the device', $event);
 
-  	$ret = cisco_ios_xr_connect();
+    $ret = cisco_ios_xr_connect();
 
-  	if ($ret != SMS_OK)
-  	{
-  		return $ret;
-  	}
+    if ($ret != SMS_OK)
+    {
+        return $ret;
+    }
 
-  	status_progress('Deleting router file', $event);
+    status_progress('Deleting router file', $event);
 
-  	// Remove previous firmware file
-  	unset($tab);
-  	$tab[0] = 'Error';
-  	$tab[1] = 'File not found';
-  	$tab[2] = '#';
-  	$tab[3] = ']?';
-  	$tab[4] = '[confirm]';
-  	$index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete $file", $tab);
-  	while ($index > 2)
-  	{
-  		$index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab);
-  		if ($index < 2)
-  		{
-  			return ERR_LOCAL_FILE;
-  		}
-  	}
+    // Remove previous firmware file
+    unset($tab);
+    $tab[0] = 'Error';
+    $tab[1] = 'File not found';
+    $tab[2] = '#';
+    $tab[3] = ']?';
+    $tab[4] = '[confirm]';
+    $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete $file", $tab);
+    while ($index > 2)
+    {
+        $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab);
+        if ($index < 2)
+        {
+            return ERR_LOCAL_FILE;
+        }
+    }
 
-  	return SMS_OK;
+    return SMS_OK;
   }
 }
 
