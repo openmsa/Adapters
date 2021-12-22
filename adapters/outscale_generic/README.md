@@ -14,4 +14,4 @@ For non production environment with BASIC authentication
 * AWS_SIGV4: osc 	
 * PROTOCOL: https 
 
-NOTE: replace [OUTSCALE_REGION] by the your region (ex: eu-west-2)
+NOTE: replace [OUTSCALE_REGION] by the your region (ex: eu-west-2) to configure the FQDN of the API server of your region.
