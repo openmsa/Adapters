@@ -22,7 +22,7 @@ Most common port are 80 or 443
 ## AUTH_MODE
 Use this configuration variable to select the authentication scheme: no authentication, BASIC authentication or token based authentication or token based authentication with no login
 values required
-* values: no-auth, BASIC, token, auth-key, jns_api_v2
+* values: no-auth, BASIC, token, auth-key, OAuth_v2
 * default: BASIC 
 
 ## AUTH_HEADER
@@ -88,8 +88,8 @@ AUTH_HEADER = "Authorization: Bearer"
 ![Configuration variables for MSActivator API](./images/configuration_variable_msa_api.png "Configuration variables for MSActivator API")
 
 
-## Token based authentication for Juniper Northstar APIv2
-jns_api_v2 mode provides vendor specific data structure
+## OAuth 2.0 authentication
+OAuth v2 mode provides vendor specific data structure
 
 `-d '{"grant_type":"password","username":"'\${username}'","password":"'${password}'"}'`
 
@@ -97,7 +97,7 @@ subsequent assess should have the following HTTP header set
 
 example: "Authorization: Bearer zRApShiOxoCcBiFGPRhISKAbaUACWQBRqMPmaq40/NU=" 
 
-* AUTH_MODE = "jns_api_v2"
+* AUTH_MODE = "oauth_v2"
 * AUTH_HEADER = "Authorization: Bearer"
 * SIGNIN_REQ_PATH = "/oauth2/token"
 * TOKEN_XPATH = "//root/access_token"
