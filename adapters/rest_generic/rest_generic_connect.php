@@ -118,10 +118,10 @@ class DeviceConnection extends GenericConnection {
 			$headers .= " -H '{$H}: {$this->key}'";
 		//	echo ("send(): headers= {$headers}\n");
 		// https://tools.ietf.org/html/rfc6750
-		} else if (($this->auth_mode == "jns_api_v2") && isset($this->key)) {
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
                         $H = trim($this->auth_header);
                         $headers .= " -H '{$H} {$this->key}'";
-		} else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
                         $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 
                 }
@@ -220,7 +220,7 @@ class TokenConnection extends DeviceConnection {
 		{
 			unset ( $this->key );
 
-			if($this->auth_mode == "jns_api_v2")
+			if($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2")
 			{
 				$data = array (
 						"grant_type" => "password",
@@ -267,7 +267,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" || $auth_mode == "auth-key" || $auth_mode == "jns_api_v2") {
+		if ($auth_mode == "token" 
+			|| $auth_mode == "auth-key" 
+			|| $auth_mode == "oauth_v2"
+			|| $auth_mode == "jns_api_v2") {
 			$class = "TokenConnection";
 		}
 
@@ -292,7 +295,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
   		$sms_sd_ctx->token_xpath = $token_xpath;
     	}
 
-	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "jns_api_v2") {
+	if ($sms_sd_ctx->auth_mode == "token" 
+		|| $sms_sd_ctx->auth_mode == "auth-key" 
+		|| $sms_sd_ctx->auth_mode == "oauth_v2" 
+		|| $sms_sd_ctx->auth_mode == "jns_api_v2") {
 
 	    if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
     		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
