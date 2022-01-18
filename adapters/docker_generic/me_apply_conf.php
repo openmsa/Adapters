@@ -14,13 +14,13 @@
 require_once 'smsd/sms_common.php';
 require_once load_once('docker_generic', 'common.php');
 require_once load_once('docker_generic', 'apply_errors.php');
-require_once load_once('docker_generic', 'docker_generic_configuration.php');
-require_once load_once('docker_generic', 'docker_generic_connect.php');
+require_once load_once('docker_generic', 'me_configuration.php');
+require_once load_once('docker_generic', 'me_connect.php');
 
 require_once "$db_objects";
 
 define('DELAY', 200000);
-function docker_generic_apply_conf($configuration, $is_ztd)
+function me_apply_conf($configuration, $is_ztd)
 {
   global $sdid;
   global $sms_sd_ctx;

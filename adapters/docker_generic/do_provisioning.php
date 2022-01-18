@@ -20,7 +20,7 @@ require_once 'smsd/sms_common.php';
 
 require_once load_once('docker_generic', 'adaptor.php');
 require_once load_once('docker_generic', 'common.php');
-require_once load_once('docker_generic', 'docker_generic_configuration.php');
+require_once load_once('docker_generic', 'me_configuration.php');
 require_once load_once('docker_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 

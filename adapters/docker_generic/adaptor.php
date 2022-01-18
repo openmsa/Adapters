@@ -14,9 +14,9 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('docker_generic', 'docker_generic_connect.php');
-require_once load_once('docker_generic', 'docker_generic_apply_conf.php');
-require_once load_once('docker_generic', 'docker_generic_configuration.php');
+require_once load_once('docker_generic', 'me_connect.php');
+require_once load_once('docker_generic', 'me_apply_conf.php');
+require_once load_once('docker_generic', 'me_configuration.php');
 
 require_once "$db_objects";
 
@@ -28,7 +28,7 @@ require_once "$db_objects";
  */
 function sd_connect($login = null, $passwd = null)
 {
-  return docker_generic_connect($login, $passwd);
+  return me_connect($login, $passwd);
 }
 
 /**
@@ -37,7 +37,7 @@ function sd_connect($login = null, $passwd = null)
  */
 function sd_disconnect()
 {
-  return  docker_generic_disconnect();
+  return  me_disconnect();
 }
 
 /**
@@ -53,14 +53,14 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
   }
   else
   {
-    docker_generic_synchro_prompt();
+    me_synchro_prompt();
   }
   if ($ret != SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CMDTMOUT);
   }
 
-  $ret = docker_generic_apply_conf($configuration, false);
+  $ret = me_apply_conf($configuration, false);
 
   $output = $SMS_OUTPUT_BUF;
 

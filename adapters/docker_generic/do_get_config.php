@@ -14,12 +14,12 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('docker_generic', 'docker_generic_configuration.php');
+require_once load_once('docker_generic', 'me_configuration.php');
 
 try {
   $generated_configuration = '';
 
-  $conf = new docker_generic_configuration($sdid);
+  $conf = new me_configuration($sdid);
 
   $ret = $conf->build_conf($generated_configuration);
   if ($ret !== SMS_OK)

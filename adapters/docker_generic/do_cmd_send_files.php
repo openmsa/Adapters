@@ -17,8 +17,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('docker_generic', 'docker_generic_connect.php');
-require_once load_once('docker_generic', 'docker_generic_configuration.php');
+require_once load_once('docker_generic', 'me_connect.php');
+require_once load_once('docker_generic', 'me_configuration.php');
 require_once "$db_objects";
 
 try {
@@ -50,23 +50,23 @@ try {
     sms_close_user_socket($sms_csp);
 
     // Connect to the device
-    $ret = docker_generic_connect();
+    $ret = me_connect();
     if ($ret !== SMS_OK)
     {
       sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
       sms_sd_unlock($sms_csp, $sms_sd_info);
-      docker_generic_disconnect();
+      me_disconnect();
       return SMS_OK;
     }
-    $conf = new docker_generic_configuration($sdid);
+    $conf = new me_configuration($sdid);
     $ret = $conf->send_data_files($status_type, $src_dir, $file_pattern, $dst_dir);
 
-    docker_generic_disconnect(true);
+    me_disconnect(true);
 
 } catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $status_message . $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
-    docker_generic_disconnect();
+    me_disconnect();
     return SMS_OK;
 }
 

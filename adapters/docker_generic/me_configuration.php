@@ -1,6 +1,6 @@
 <?php
 /*
- * Version: $Id: docker_generic_configuration.php 58927 2012-06-11 15:15:18Z abr $
+ * Version: $Id: me_configuration.php 58927 2012-06-11 15:15:18Z abr $
  * Created: Feb 12, 2009
  */
 require_once 'smsd/sms_common.php';
@@ -9,9 +9,9 @@ require_once 'smsd/expect.php';
 
 require_once load_once('docker_generic', 'common.php');
 require_once load_once('docker_generic', 'adaptor.php');
-require_once load_once('docker_generic', 'docker_generic_apply_conf.php');
+require_once load_once('docker_generic', 'me_apply_conf.php');
 require_once "$db_objects";
-class docker_generic_configuration
+class me_configuration
 {
   var $conf_path; // Path for previous stored configuration files
   var $sdid; // ID of the SD to update
@@ -148,7 +148,7 @@ class docker_generic_configuration
 
     if (!empty($generated_configuration))
     {
-      $ret = docker_generic_apply_conf($generated_configuration, $this->is_ztd);
+      $ret = me_apply_conf($generated_configuration, $this->is_ztd);
     }
     return $ret;
   }
@@ -193,7 +193,7 @@ class docker_generic_configuration
     while ($loop > 0)
     {
       sleep(10); // wait for ssh to come up
-      $ret = docker_generic_connect();
+      $ret = me_connect();
       if ($ret == SMS_OK)
       {
         break;
@@ -304,7 +304,7 @@ EOF;
           if ($sms_sd_ctx === null)
           {
             // connection lost, try a last time
-            $res = docker_generic_connect();
+            $res = me_connect();
             if ($res !== SMS_OK)
             {
               // give up

@@ -7,7 +7,7 @@
 require_once 'smsd/net_common.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('docker_generic', 'docker_generic_connect.php');
+require_once load_once('docker_generic', 'me_connect.php');
 
 function func_reboot($msg = '')
 {
@@ -78,7 +78,7 @@ function scp_from_router($src, $dst)
   global $sms_sd_ctx;
   global $status_message;
 
-  docker_generic_disconnect(true);
+  me_disconnect(true);
 
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
@@ -89,7 +89,7 @@ function scp_from_router($src, $dst)
 
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p '$passwd' ", $output);
 
-  $ret = docker_generic_connect();
+  $ret = me_connect();
   if ($ret !== SMS_OK)
   {
     if ($ret_scp !== SMS_OK)
@@ -139,7 +139,7 @@ function scp_to_router($src, $dst)
     }
   }
 
-  docker_generic_disconnect();
+  me_disconnect();
 
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
@@ -149,7 +149,7 @@ function scp_to_router($src, $dst)
 
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk/$dst -l $login -a $sd_ip_addr -p '$passwd' ", $output);
 
-  $ret = docker_generic_connect();
+  $ret = me_connect();
 
   if ($ret !== SMS_OK)
   {

@@ -15,7 +15,7 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('docker_generic', 'docker_generic_connect.php' , 'common.php');
+require_once load_once('docker_generic', 'me_connect.php' , 'common.php');
 require_once "$db_objects";
 
 $specific_cmds = array(
@@ -43,15 +43,15 @@ if (empty($smsexec_list))
 $network = get_network_profile();
 $SD = &$network->SD;
 
-$ret = docker_generic_connect();
+$ret = me_connect();
 if ($ret !== SMS_OK)
 {
-  sms_log_error(__FILE__.':'.__LINE__.": docker_generic_connect() failed\n");
+  sms_log_error(__FILE__.':'.__LINE__.": me_connect() failed\n");
   sms_send_user_error($sms_csp, $sdid, "", $ret);
   return $ret;
 }
 
-$on_error_fct = 'docker_generic_disconnect';
+$on_error_fct = 'me_disconnect';
 
 $result = '';
 $cmds = explode(',', $smsexec_list);
@@ -70,7 +70,7 @@ foreach ($cmds as $cmd)
 }
 
 unset($on_error_fct);
-docker_generic_disconnect();
+me_disconnect();
 
 sms_send_user_ok($sms_csp, $sdid, $result);
 
