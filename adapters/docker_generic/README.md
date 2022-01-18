@@ -1,7 +1,7 @@
-Generic adaptor for Linux
-=======================
+Generic adaptor for Docker
+==========================
 
-The Generic Adapter for Linux relies on SSH for running remote CLI commands on any Linux setup.
+The Generic Adapter for Docker relies on SSH for running remote CLI commands on any Docker setup.
 
 # Configuration modes
 
@@ -23,7 +23,7 @@ From the directory where the docker-compose file is installed, run:
 docker-compose exec msa_sms mkdir -p /opt/devops/ssh/
 docker-compose exec msa_sms chown -R ncuser. /opt/devops/ssh/
 
-MSA_SMS=`docker ps -aqf "name=msa_sms"` 
+MSA_SMS=`docker ps -aqf "name=msa_sms"`
 docker cp <SSH KEY FILE> $MSA_SMS:/opt/devops/ssh/
 
 docker-compose exec msa_sms  chown ncuser. /opt/devops/ssh/<SSH KEY FILE>
@@ -36,15 +36,15 @@ You can either enable the SSH key mode globally or locally.
 
 #### Enable globally
 
-If you enable the SSH key mode globally, *every* managed entities using the *Linux Generic* adapter will run with the SSH key mode
+If you enable the SSH key mode globally, *every* managed entities using the *Docker Generic* adapter will run with the SSH key mode
 
 Login to the container msa_dev from the From the directory where the docker-compose file is installed:
 
 > docker-compose exec msa_dev bash
 
-Edit the linux_generic adapter configuration file
+Edit the docker_generic adapter configuration file
 
-> vi /opt/devops/OpenMSA_Adapters/adapters/linux_generic/conf/sms_router.conf 
+> vi /opt/devops/OpenMSA_Adapters/adapters/docker_generic/conf/sms_router.conf
 
 Uncomment the last line and set the name of the SSH key you want to use
 
@@ -55,7 +55,7 @@ Save the file, fix the user and exit the container
 > chown -R ncuser. /opt/devops/OpenMSA_Adapters/adapters/
 
 Restart the container msa_sms to apply the new adapter configuration
- 
+
 > docker compose restart msa_sms
 
 #### Enable locally
