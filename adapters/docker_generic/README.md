@@ -1,0 +1,2 @@
+Generic adaptor for Docker
+==========================
