@@ -15,9 +15,9 @@
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
-require_once load_once('linux_generic', 'linux_generic_connect.php');
-require_once load_once('linux_generic', 'linux_generic_configuration.php');
-require_once load_once('linux_generic', 'common.php');
+require_once load_once('docker_generic', 'docker_generic_connect.php');
+require_once load_once('docker_generic', 'docker_generic_configuration.php');
+require_once load_once('docker_generic', 'common.php');
 
 try
 {

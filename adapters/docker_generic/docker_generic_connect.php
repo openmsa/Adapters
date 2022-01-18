@@ -1,6 +1,6 @@
 <?php
 /*
- * 	Version: 0.1: linux_generic_connect.php
+ * 	Version: 0.1: docker_generic_connect.php
  *  	Created: Jun 7, 2012
  *  	Available global variables
  *  	$sms_sd_ctx        	pointer to sd_ctx context to retrieve useful field(s)
@@ -17,7 +17,7 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/ssh_connection.php';
 require_once 'smsd/telnet_connection.php';
-require_once load_once('linux_generic', 'common.php');
+require_once load_once('docker_generic', 'common.php');
 require_once "$db_objects";
 
 // return false if error, true if ok
@@ -28,7 +28,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
   global $priv_key;
 
   $data = json_decode($model_data, true);
-  
+
   $network = get_network_profile();
 	$sd = &$network->SD;
   debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
@@ -39,7 +39,7 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
     if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
       // check if the default private key name was overridden by a configuration variable
-      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+      $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);
       echo("found custom key name in config variable: ".$priv_key."\n");
       $class = "LinuxsshKeyConnection";
 
@@ -49,10 +49,10 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
       echo("found default key name in sms_router.conf: ".$priv_key."\n");
       $class = "LinuxsshKeyConnection";
     }
- 
+
     $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
     $sms_sd_ctx->setParam("PROTOCOL", "SSH");
-  
+
   }
   catch (SmsException $e)
   {

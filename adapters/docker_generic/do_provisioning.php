@@ -18,10 +18,10 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('linux_generic', 'adaptor.php');
-require_once load_once('linux_generic', 'common.php');
-require_once load_once('linux_generic', 'linux_generic_configuration.php');
-require_once load_once('linux_generic', 'provisioning_stages.php');
+require_once load_once('docker_generic', 'adaptor.php');
+require_once load_once('docker_generic', 'common.php');
+require_once load_once('docker_generic', 'docker_generic_configuration.php');
+require_once load_once('docker_generic', 'provisioning_stages.php');
 require_once "$db_objects";
 
 
@@ -50,7 +50,7 @@ else
 
 if (isset($SD->SD_CONFIGVAR_list['SSH_KEY'])) {
   // check if the default private key name was overridden by a configuration variable
-  $priv_key = trim($SD->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);  
+  $priv_key = trim($SD->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);
   echo("found custom key name in config variable SSH_KEY: ".$priv_key."\n");
   if (empty($ipaddr) || empty($login) || empty($port))
   {

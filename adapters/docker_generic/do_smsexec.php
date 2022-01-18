@@ -15,7 +15,7 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('linux_generic', 'linux_generic_connect.php' , 'common.php');
+require_once load_once('docker_generic', 'docker_generic_connect.php' , 'common.php');
 require_once "$db_objects";
 
 $specific_cmds = array(

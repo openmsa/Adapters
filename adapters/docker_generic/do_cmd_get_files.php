@@ -6,7 +6,7 @@
  *
  * Available global variables
  * $src_dir  : source directorie on the device
- * $file_pattern  : file_name (it could be "test*" to copy all files test1, test2, testsxxx at the same times 
+ * $file_pattern  : file_name (it could be "test*" to copy all files test1, test2, testsxxx at the same times
  * $dst_dir  : destination directorie on the MSA after /opt/fmc_repository/Datafiles
 
  * Example to get the file /tmp/test.txt from the device_id 133  and copy the file into the MSA into /opt/fmc_repository/Datafiles/test2
@@ -18,8 +18,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('linux_generic', 'linux_generic_connect.php');
-require_once load_once('linux_generic', 'linux_generic_configuration.php');
+require_once load_once('docker_generic', 'docker_generic_connect.php');
+require_once load_once('docker_generic', 'docker_generic_configuration.php');
 require_once "$db_objects";
 
 try {

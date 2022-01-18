@@ -1,15 +1,15 @@
 <?php
 /*
- * Version: $Id: linux_generic_configuration.php 58927 2012-06-11 15:15:18Z abr $
+ * Version: $Id: docker_generic_configuration.php 58927 2012-06-11 15:15:18Z abr $
  * Created: Feb 12, 2009
  */
 require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 require_once 'smsd/expect.php';
 
-require_once load_once('linux_generic', 'common.php');
-require_once load_once('linux_generic', 'adaptor.php');
-require_once load_once('linux_generic', 'linux_generic_apply_conf.php');
+require_once load_once('docker_generic', 'common.php');
+require_once load_once('docker_generic', 'adaptor.php');
+require_once load_once('docker_generic', 'docker_generic_apply_conf.php');
 require_once "$db_objects";
 class linux_generic_configuration
 {
@@ -367,7 +367,7 @@ EOF;
           #TODO check_file_size("{$repo_dir}/{$dst_dir}/{$file_line}", $file_line, false, str_replace(':', '', $src_dir));
           $status_message .= "'{$src_dir}/{$file_line}' OK\n | ";
           $files[]=$file_line;
-          
+
         }
         catch (SmsException $e)
         {
@@ -380,9 +380,9 @@ EOF;
       return $ret;
     }else{
       return " No files copied ";
-    }      
+    }
   }
-  
+
 }
 
 ?>
