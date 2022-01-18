@@ -20,20 +20,20 @@ require_once load_once('docker_generic', 'docker_generic_configuration.php');
 
 try
 {
-  $ret = linux_generic_connect();
+  $ret = docker_generic_connect();
   if ($ret !== SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
   // Get the conf on the router
-  $conf = new linux_generic_configuration($sdid);
+  $conf = new docker_generic_configuration($sdid);
   $SMS_RETURN_BUF = $conf->get_running_conf();
-  linux_generic_disconnect();
+  docker_generic_disconnect();
 }
 catch(Exception | Error $e)
 {
-  linux_generic_disconnect();
+  docker_generic_disconnect();
   return $e->getCode();
 }
 

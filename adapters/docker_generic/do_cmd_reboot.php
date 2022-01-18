@@ -36,21 +36,21 @@ try {
     sms_close_user_socket($sms_csp);
 
     // Connect to the device
-    $ret = linux_generic_connect();
+    $ret = docker_generic_connect();
     if ($ret !== SMS_OK)
     {
       sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
       sms_sd_unlock($sms_csp, $sms_sd_info);
-      linux_generic_disconnect();
+      docker_generic_disconnect();
       return SMS_OK;
     }
-    $conf = new linux_generic_configuration($sdid);
+    $conf = new docker_generic_configuration($sdid);
     $ret = $conf->reboot($status_type);
-    linux_generic_disconnect(true);
+    docker_generic_disconnect(true);
 } catch (Exception | Error $e) {
     sms_set_update_status($sms_csp, $sdid, $ret, $status_type, 'FAILED', $e->getMessage());
     sms_sd_unlock($sms_csp, $sms_sd_info);
-    linux_generic_disconnect();
+    docker_generic_disconnect();
     return SMS_OK;
 }
 

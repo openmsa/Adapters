@@ -28,7 +28,7 @@ require_once "$db_objects";
  */
 function sd_connect($login = null, $passwd = null)
 {
-  return linux_generic_connect($login, $passwd);
+  return docker_generic_connect($login, $passwd);
 }
 
 /**
@@ -37,7 +37,7 @@ function sd_connect($login = null, $passwd = null)
  */
 function sd_disconnect()
 {
-  return  linux_generic_disconnect();
+  return  docker_generic_disconnect();
 }
 
 /**
@@ -53,14 +53,14 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
   }
   else
   {
-    linux_generic_synchro_prompt();
+    docker_generic_synchro_prompt();
   }
   if ($ret != SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CMDTMOUT);
   }
 
-  $ret = linux_generic_apply_conf($configuration, false);
+  $ret = docker_generic_apply_conf($configuration, false);
 
   $output = $SMS_OUTPUT_BUF;
 

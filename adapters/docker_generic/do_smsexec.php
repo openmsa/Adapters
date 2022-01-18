@@ -43,15 +43,15 @@ if (empty($smsexec_list))
 $network = get_network_profile();
 $SD = &$network->SD;
 
-$ret = linux_generic_connect();
+$ret = docker_generic_connect();
 if ($ret !== SMS_OK)
 {
-  sms_log_error(__FILE__.':'.__LINE__.": linux_generic_connect() failed\n");
+  sms_log_error(__FILE__.':'.__LINE__.": docker_generic_connect() failed\n");
   sms_send_user_error($sms_csp, $sdid, "", $ret);
   return $ret;
 }
 
-$on_error_fct = 'linux_generic_disconnect';
+$on_error_fct = 'docker_generic_disconnect';
 
 $result = '';
 $cmds = explode(',', $smsexec_list);
@@ -70,7 +70,7 @@ foreach ($cmds as $cmd)
 }
 
 unset($on_error_fct);
-linux_generic_disconnect();
+docker_generic_disconnect();
 
 sms_send_user_ok($sms_csp, $sdid, $result);
 

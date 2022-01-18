@@ -21,7 +21,7 @@ require_once load_once('docker_generic', 'common.php');
 require_once "$db_objects";
 
 // return false if error, true if ok
-function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
+function docker_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
   global $model_data;
@@ -35,19 +35,19 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
   try
   {
-    $class = "LinuxGenericsshConnection";
+    $class = "DockerGenericsshConnection";
 
     if (isset($sd->SD_CONFIGVAR_list['SSH_KEY'])) {
       // check if the default private key name was overridden by a configuration variable
       $priv_key = trim($sd->SD_CONFIGVAR_list['SSH_KEY']->VAR_VALUE);
       echo("found custom key name in config variable: ".$priv_key."\n");
-      $class = "LinuxsshKeyConnection";
+      $class = "DockersshKeyConnection";
 
     } elseif (isset($data['priv_key'])) {
       // default private key name can be set in adapter config file sms_router.conf
         $priv_key = $data['priv_key'];
       echo("found default key name in sms_router.conf: ".$priv_key."\n");
-      $class = "LinuxsshKeyConnection";
+      $class = "DockersshKeyConnection";
     }
 
     $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
@@ -64,13 +64,13 @@ function linux_generic_connect($sd_ip_addr = null, $login = null, $passwd = null
 
 // Disconnect
 // return false if error, true if ok
-function linux_generic_disconnect()
+function docker_generic_disconnect()
 {
   $sms_sd_ctx = null;
   return SMS_OK;
 }
 
-function linux_generic_synchro_prompt()
+function docker_generic_synchro_prompt()
 {
   global $sms_sd_ctx;
 
@@ -80,7 +80,7 @@ function linux_generic_synchro_prompt()
 }
 
 
-class LinuxsshKeyConnection extends SshKeyConnection
+class DockersshKeyConnection extends SshKeyConnection
 {
   public function do_store_prompt()
   {
@@ -121,7 +121,7 @@ class LinuxsshKeyConnection extends SshKeyConnection
 
 }
 
-class LinuxGenericsshConnection extends SshConnection
+class DockerGenericsshConnection extends SshConnection
 {
   public function do_store_prompt()
   {

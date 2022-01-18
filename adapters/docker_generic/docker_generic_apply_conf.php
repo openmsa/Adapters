@@ -20,7 +20,7 @@ require_once load_once('docker_generic', 'docker_generic_connect.php');
 require_once "$db_objects";
 
 define('DELAY', 200000);
-function linux_generic_apply_conf($configuration, $is_ztd)
+function docker_generic_apply_conf($configuration, $is_ztd)
 {
   global $sdid;
   global $sms_sd_ctx;

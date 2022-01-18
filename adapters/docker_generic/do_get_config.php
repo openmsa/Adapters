@@ -19,7 +19,7 @@ require_once load_once('docker_generic', 'docker_generic_configuration.php');
 try {
   $generated_configuration = '';
 
-  $conf = new linux_generic_configuration($sdid);
+  $conf = new docker_generic_configuration($sdid);
 
   $ret = $conf->build_conf($generated_configuration);
   if ($ret !== SMS_OK)
