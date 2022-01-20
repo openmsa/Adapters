@@ -10,15 +10,9 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('smsd', 'generic_command.php');
-require_once load_once('smsd', 'cmd_create_xml.php');
-require_once load_once('smsd', 'cmd_update_xml.php');
-require_once load_once('smsd', 'cmd_delete_xml.php');
-require_once load_once('smsd', 'cmd_import_xml.php');
-
-require_once load_once('smsd', 'cmd_read.php');
-require_once load_once('smsd', 'cmd_list.php');
 
 require_once load_once('checkpoint_r80', 'adaptor.php');
+
 class checkpoint_r80_command extends generic_command
 {
   var $parser_list;
@@ -74,12 +68,12 @@ class checkpoint_r80_command extends generic_command
 
         foreach ($this->parser_list as $parser)
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');          
+          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
           $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-        
-          
+
+
           if(strlen($xpath_eval)> 0)
-          {                           
+          {
               $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
               foreach ($path_list as $xpth) {
                   $cmd = trim($op_eval). "' -d '{".$xpth."}";
@@ -92,7 +86,7 @@ class checkpoint_r80_command extends generic_command
               // Group parsers into evaluated operations
               $parser_list[$cmd][] = $parser;
           }
-          
+
         }
 
         foreach ($parser_list as $op_eval => $sub_parsers)
@@ -139,17 +133,17 @@ class checkpoint_r80_command extends generic_command
     foreach ($this->create_list as $create)
     {
       $conf = trim($create->evaluate_operation());
-      
+
       if (!empty($conf))
       {
           $xml_conf = trim($create->evaluate_xml());
           $xml_conf_str = str_replace("\n", '', $xml_conf);
           $conf.="' -d '".$xml_conf_str;
-         
+
           $this->configuration .= "{$conf}\n";
           $SMS_RETURN_BUF .= "{$conf}\n";
       }
-          
+
     }
     return SMS_OK;
   }
@@ -180,14 +174,14 @@ class checkpoint_r80_command extends generic_command
 
     foreach ($this->update_list as $update)
     {
-      $conf = trim($update->evaluate_operation());      
-      
+      $conf = trim($update->evaluate_operation());
+
       if (!empty($conf))
       {
           $xml_conf = trim($update->evaluate_xml());
           $xml_conf_str = str_replace("\n", '', $xml_conf);
           $conf.="' -d '".$xml_conf_str;
-          
+
           $this->configuration .= "{$conf}\n";
           $SMS_RETURN_BUF .= "{$conf}\n";
       }
@@ -221,13 +215,13 @@ class checkpoint_r80_command extends generic_command
     foreach ($this->delete_list as $delete)
     {
         $conf = trim($delete->evaluate_operation());
-        
+
         if (!empty($conf))
         {
             $xml_conf = trim($delete->evaluate_xml());
             $xml_conf_str = str_replace("\n", '', $xml_conf);
             $conf.="' -d '".$xml_conf_str;
-            
+
             $this->configuration .= "{$conf}\n";
             $SMS_RETURN_BUF .= "{$conf}\n";
         }

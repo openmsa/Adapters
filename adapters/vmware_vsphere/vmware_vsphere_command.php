@@ -10,13 +10,9 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('smsd', 'generic_command.php');
-require_once load_once('smsd', 'cmd_create_xml.php');
-require_once load_once('smsd', 'cmd_update_xml.php');
-require_once load_once('smsd', 'cmd_delete_xml.php');
-require_once load_once('smsd', 'cmd_import_xml.php');
-require_once load_once('smsd', 'cmd_list.php');
 
 require_once load_once('vmware_vsphere', 'adaptor.php');
+
 class vmware_vsphere_command extends generic_command
 {
   var $parser_list;
@@ -138,7 +134,7 @@ class vmware_vsphere_command extends generic_command
   function eval_CREATE()
   {
     global $SMS_RETURN_BUF;
-  
+
     foreach ($this->create_list as $create)
     {
       $endpoint_str = trim($create->evaluate_operation());
@@ -177,7 +173,7 @@ class vmware_vsphere_command extends generic_command
         }
       }
     }
-    
+
     return SMS_OK;
   }
 
@@ -210,7 +206,7 @@ class vmware_vsphere_command extends generic_command
   function eval_UPDATE()
   {
     global $SMS_RETURN_BUF;
-  
+
     foreach ($this->update_list as $update)
     {
 
@@ -276,7 +272,7 @@ class vmware_vsphere_command extends generic_command
   function eval_DELETE()
   {
     global $SMS_RETURN_BUF;
-    
+
     foreach ($this->delete_list as $delete)
     {
       $endpoint = trim($delete->evaluate_operation());
@@ -290,7 +286,7 @@ class vmware_vsphere_command extends generic_command
 	$SMS_RETURN_BUF .= "{$conf}\n";
       }
     }
-    
+
     return SMS_OK;
   }
 
