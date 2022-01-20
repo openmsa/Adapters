@@ -11,17 +11,10 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('smsd', 'generic_command.php');
-require_once load_once('smsd', 'cmd_create_xml.php');
-require_once load_once('smsd', 'cmd_update_xml.php');
-require_once load_once('smsd', 'cmd_delete_xml.php');
-require_once load_once('smsd', 'cmd_import_xml.php');
-require_once load_once('pfsense_fw', 'pfsense_fw_configuration.php');
 
+require_once load_once('pfsense_fw', 'pfsense_fw_configuration.php');
 require_once load_once('pfsense_fw', 'adaptor.php');
 
-require_once "$db_objects";
-
-$network = get_network_profile(); // Retrieve all device informations.
 class pfsense_fw_command extends generic_command
 {
   var $parser_list;
