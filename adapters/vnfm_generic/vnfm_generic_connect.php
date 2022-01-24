@@ -53,6 +53,12 @@ class Nfvo_connection extends GenericConnection
 		$network = get_network_profile();
 		$sd = &$network->SD;
 
+		#Get the VNFM http port number from ME configuration variable.
+                $http_port = $sd->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
+                if empty($http_port) {
+                        $http_port = '8080';
+                }
+
 		$delay = EXPECT_DELAY / 1000;
 		// MODIF LO
 
@@ -62,7 +68,7 @@ class Nfvo_connection extends GenericConnection
 		// SI pas de endpoints, on prend keystone par défaut.
 		// if ($action[1] == "")
 		// {
-		$action[2] = 'http://' . $this->sd_ip_config . ':8080' . $action[2];
+		$action[2] = 'http://' . $this->sd_ip_config . ':' . $http_port . $action[2];
 		// }
 
 		// TODO TEST validité champ ACTION[]
