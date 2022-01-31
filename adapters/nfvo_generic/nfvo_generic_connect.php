@@ -53,11 +53,11 @@ class Nfvo_connection extends GenericConnection
 		$network = get_network_profile();
 		$sd = &$network->SD;
 
-		#Get the NFVO http port number from ME configuration variable.
-                $http_port = $sd->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
-                if empty($http_port) {
-                        $http_port = '8080';
-                }
+		#Get the NFVO port number from ME configuration variable.
+		$http_port = $sd->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
+		if (empty($http_port)) {
+			$http_port = '8080';
+		} 		
 
 		$delay = EXPECT_DELAY / 1000;
 		// MODIF LO

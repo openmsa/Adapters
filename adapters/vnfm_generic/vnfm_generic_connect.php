@@ -55,10 +55,11 @@ class Nfvo_connection extends GenericConnection
 
 		#Get the VNFM http port number from ME configuration variable.
                 $http_port = $sd->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
-                if empty($http_port) {
+                
+		if (empty($http_port)) {
                         $http_port = '8080';
                 }
-
+		
 		$delay = EXPECT_DELAY / 1000;
 		// MODIF LO
 
