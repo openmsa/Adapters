@@ -10,13 +10,9 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('smsd', 'generic_command.php');
-require_once load_once('smsd', 'cmd_create_xml.php');
-require_once load_once('smsd', 'cmd_update_xml.php');
-require_once load_once('smsd', 'cmd_delete_xml.php');
-require_once load_once('smsd', 'cmd_import_xml.php');
-require_once load_once('smsd', 'cmd_list.php');
 
 require_once load_once('rancher_cmp', 'adaptor.php');
+
 class rancher_cmp_command extends generic_command
 {
   var $parser_list;
@@ -275,7 +271,7 @@ class rancher_cmp_command extends generic_command
   function eval_DELETE()
   {
     global $SMS_RETURN_BUF;
-    
+
     foreach ($this->delete_list as $delete)
     {
       $operation = trim($delete->evaluate_operation());

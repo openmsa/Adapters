@@ -57,34 +57,28 @@ function terraform_generic_synchro_prompt()
 
 class TerraformSSHConnection extends SshConnection
 {
-  public function do_store_prompt()
-  {
-#    $this->setParam("newline_dos", true);
 
-    global $sendexpect_result;
-    echo "TerraformSSHConnection.do_store_prompt\n";
-    $tab[0] = '>';
-    $tab[1] = '#';
-    $tab[2] = '$';
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $this, 'terraform version', $tab);
-    echo " 1 sendexpect\n";
+  public function do_store_prompt() {
+    echo 'DEBUG: DO_STORE_PROMPT';
+    $this->sendCmd(__FILE__.':'.__LINE__, '');
+    unset($tab);
+    $tab[0] = '#';
+    $tab[1] = '$';
+    $tab[2] = '>';
+    $this->expect(__FILE__.':'.__LINE__, $tab);
+    $this->prompt = trim($this->last_result);
 
-    $this->prompt = trim($sendexpect_result);
-    if (strrchr($this->prompt, "\n") !== false)
-    {
-       $this->prompt = substr(strrchr($this->prompt, "\n"), 1);
-    }
+    // Remove Escape terminal sequence if any
+    $this->prompt = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', '',$this->prompt);
+    $this->prompt = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', '',$this->prompt);
+    $this->prompt = preg_replace('/[\x03|\x1a]/', '', $this->prompt);
 
-    echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
-
-    // synchronize again
-    $prompt = $this->prompt;
-    sendexpectone(__FILE__ . ':' . __LINE__, $this, "terraform version");
-
+    echo "Prompt found: '{$this->prompt}' for {$this->sd_ip_config}\n";
   }
 
   public function do_start() {
       $this->setParam('chars_to_remove', array("\033[00m", "\033[m"));
+      $this->do_store_prompt();
   }
 
 }

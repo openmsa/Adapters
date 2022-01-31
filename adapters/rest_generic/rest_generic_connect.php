@@ -14,8 +14,10 @@ class DeviceConnection extends GenericConnection {
 	public $http_header_list;
 	public $protocol;
 	public $auth_mode;
+	public $auth_header;
 	public $conn_timeout;
 	public $fqdn;
+	public $aws_sigv4;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -102,7 +104,9 @@ class DeviceConnection extends GenericConnection {
 		$auth = "";
 
 		echo("auth_mode= ".$this->auth_mode."\n");
-                echo("auth_header= ".$this->auth_header."\n");
+                if (isset($this->auth_header)) {
+                        echo("auth_header= ".$this->auth_header."\n");
+                }
 		if (isset($this->key)) {
 	                echo("key= ".$this->key."\n");
 		}
@@ -114,10 +118,10 @@ class DeviceConnection extends GenericConnection {
 			$headers .= " -H '{$H}: {$this->key}'";
 		//	echo ("send(): headers= {$headers}\n");
 		// https://tools.ietf.org/html/rfc6750
-		} else if (($this->auth_mode == "jns_api_v2") && isset($this->key)) {
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
                         $H = trim($this->auth_header);
                         $headers .= " -H '{$H} {$this->key}'";
-		} else if (($this->auth_mode == "jns_api_v2") && !isset($this->key)){
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
                         $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 
                 }
@@ -136,7 +140,12 @@ class DeviceConnection extends GenericConnection {
 			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
 		}
 
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		$aws_sigv4="";
+		if (isset($this->aws_sigv4)) {
+			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
+		}
+
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
@@ -211,7 +220,7 @@ class TokenConnection extends DeviceConnection {
 		{
 			unset ( $this->key );
 
-			if($this->auth_mode == "jns_api_v2")
+			if($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2")
 			{
 				$data = array (
 						"grant_type" => "password",
@@ -258,7 +267,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" || $auth_mode == "auth-key" || $auth_mode == "jns_api_v2") {
+		if ($auth_mode == "token" 
+			|| $auth_mode == "auth-key" 
+			|| $auth_mode == "oauth_v2"
+			|| $auth_mode == "jns_api_v2") {
 			$class = "TokenConnection";
 		}
 
@@ -283,7 +295,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
   		$sms_sd_ctx->token_xpath = $token_xpath;
     	}
 
-	if ($sms_sd_ctx->auth_mode == "token" || $sms_sd_ctx->auth_mode == "auth-key" || $sms_sd_ctx->auth_mode == "jns_api_v2") {
+	if ($sms_sd_ctx->auth_mode == "token" 
+		|| $sms_sd_ctx->auth_mode == "auth-key" 
+		|| $sms_sd_ctx->auth_mode == "oauth_v2" 
+		|| $sms_sd_ctx->auth_mode == "jns_api_v2") {
 
 	    if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
     		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
@@ -323,6 +338,12 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		$sms_sd_ctx->conn_timeout=trim($sd->SD_CONFIGVAR_list['CONN_TIMEOUT']->VAR_VALUE);
 	}
 	echo  "rest_generic_connect: setting HTTP timeout to: {$sms_sd_ctx->conn_timeout}\n";
+	
+	if (isset($sd->SD_CONFIGVAR_list['AWS_SIGV4'])) {
+		$sms_sd_ctx->aws_sigv4=trim($sd->SD_CONFIGVAR_list['AWS_SIGV4']->VAR_VALUE);
+		echo  "rest_generic_connect: setting AWS_SIGV4: {$sms_sd_ctx->aws_sigv4}\n";
+	}
+
 
 	try
 	{

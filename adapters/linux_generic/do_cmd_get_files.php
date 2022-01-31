@@ -10,7 +10,7 @@
  * $dst_dir  : destination directorie on the MSA after /opt/fmc_repository/Datafiles
 
  * Example to get the file /tmp/test.txt from the device_id 133  and copy the file into the MSA into /opt/fmc_repository/Datafiles/test2
- * curl -v --insecure  --header 'Accept: application/json' --header 'Authorization: Bearer eyJhbGciOiJIUzU..................' -X POST 'https://127.0.0.1/ubi-api-rest/sms/cmd/get_files/133/?params=src_dir=/tmp/,file_pattern=test.txt,dest_dir=test2'
+ * curl -v --insecure  --header 'Accept: application/json' --header 'Authorization: Bearer eyJhbGciOiJIUzU..................' -X POST 'https://127.0.0.1/ubi-api-rest/sms/cmd/get_files/133/?params=src_dir=/tmp/,file_pattern=test.txt,dst_dir=test2'
 
  */
 
@@ -25,7 +25,7 @@ require_once "$db_objects";
 try {
     $status_type = 'GETDATAFILES';
 
-    $params = preg_match("/src_dir=(.*),\s*file_pattern=(.*),\s*dest_dir=(.*)/",$optional_params,$match);
+    $params = preg_match("/src_dir=(.*),\s*file_pattern=(.*),\s*dst_dir=(.*)/",$optional_params,$match);
     $src_dir      = $match[1];
     $file_pattern = $match[2];
     $dst_dir      = trim($match[3]);

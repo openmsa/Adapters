@@ -9,15 +9,10 @@
  */
 require_once 'smsd/sms_common.php';
 
-require_once load_once('smsd', 'cmd_create.php');
-require_once load_once('smsd', 'cmd_read.php');
-require_once load_once('smsd', 'cmd_update.php');
-require_once load_once('smsd', 'cmd_delete.php');
-require_once load_once('smsd', 'cmd_list.php');
-require_once load_once('juniper_srx', 'cmd_import.php');
 require_once load_once('juniper_srx', 'adaptor.php');
 
 require_once load_once('smsd', 'generic_command.php');
+
 class juniper_srx_command extends generic_command
 {
   var $parser_list;
@@ -109,82 +104,6 @@ class juniper_srx_command extends generic_command
     }
 
     return SMS_OK;
-  }
-
-  /*
-   * #####################################################################################
-   * IMPORT FROM FILE
-   * #####################################################################################
-   */
-  /**
-   * IMPORT configuration from router
-   * @param object $json_params			JSON parameters of the command
-   * @param domElement $element			XML DOM element of the definition of the command
-   */
-  function eval_IMPORTFROMFILE()
-  {
-    global $sms_sd_ctx;
-    global $SMS_RETURN_BUF;
-
-    if (!empty($this->parser_list))
-    {
-      $objects = array();
-      // One operation groups several parsers
-      foreach ($this->parser_list as $operation => $parsers)
-      {
-        $sub_list = array();
-        foreach ($parsers as $parser)
-        {
-          $op_eval = $parser->eval_operation();
-          // Group parsers into evaluated operations
-          $sub_list["$op_eval"][] = $parser;
-        }
-
-        foreach ($sub_list as $op_eval => $sub_parsers)
-        {
-          // Run evaluated operation
-          $running_conf = '';
-
-          foreach ($this->import_file_list as $import_file)
-          {
-            echo "Reading file $import_file\n";
-            $running_conf .= file_get_contents($import_file);
-          }
-          // Apply concerned parsers
-          foreach ($sub_parsers as $parser)
-          {
-            $parser->parse($running_conf, $objects);
-          }
-        }
-      }
-
-      $this->parsed_objects = $objects;
-
-      debug_object_conf($objects);
-      $SMS_RETURN_BUF .= object_to_json($objects);
-    }
-
-    return SMS_OK;
-  }
-
-  /**
-   * save parsed objects to database
-   */
-  function apply_base_IMPORTFROMFILE($params)
-  {
-    global $sms_csp;
-    global $sms_sd_info;
-
-    if (empty($params))
-    {
-      $ret = sms_bd_reset_conf_objects($sms_csp, $sms_sd_info);
-      if ($ret !== SMS_OK)
-      {
-        return $ret;
-      }
-    }
-
-    return set_conf_object_to_db($this->parsed_objects);
   }
 
   /*
