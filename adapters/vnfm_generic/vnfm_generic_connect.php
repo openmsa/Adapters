@@ -59,21 +59,21 @@ class Nfvo_connection extends GenericConnection
 		if (empty($http_port)) {
                         $http_port = '8080';
                 }
+
+		#Get the VNFM Sol003 API version.
+		$sol003_api_version = $sd->SD_CONFIGVAR_list['SOL003_VERSION']->VAR_VALUE;
+
+                if (empty($sol003_api_version)) {
+			$sol003_api_version = '2.6.1';
+                }
 		
 		$delay = EXPECT_DELAY / 1000;
-		// MODIF LO
 
-		// MODIF LO : la commande $cmd est décomposée en quatre parties pour Openstack : GET#:endpoint (nova,keystone...)#/tenants...#parametres creation
 		$action = explode("#", $cmd);
 
-		// SI pas de endpoints, on prend keystone par défaut.
-		// if ($action[1] == "")
-		// {
 		$action[2] = 'http://' . $this->sd_ip_config . ':' . $http_port . $action[2];
-		// }
 
-		// TODO TEST validité champ ACTION[]
-		$curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' -u {$this->sd_login_entry}:{$this->sd_passwd_entry} --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
+		$curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' -u {$this->sd_login_entry}:{$this->sd_passwd_entry} --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: {$sol003_api_version}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
 		if (isset($action[3])) {
 			$curl_cmd .= " -d '{$action[3]}'";
 		}
