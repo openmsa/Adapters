@@ -11,7 +11,6 @@ require_once load_once ( 'cisco_isr', 'cisco_isr_connect_port.php' );
 require_once load_once ( 'cisco_isr', 'cisco_isr_connect.php' );
 require_once load_once ( 'cisco_isr', 'cisco_isr_apply_conf.php' );
 require_once load_once ( 'cisco_isr', 'cisco_isr_configuration.php' );
-require_once load_once ( 'cisco_isr', 'iba_configuration.php');
 
 require_once "$db_objects";
 
@@ -214,20 +213,6 @@ function addon_execute_command($addon, $cmd, $prompt, $need_addon_connection = f
   }
 
   return $sendexpect_result;
-}
-
-function addon_apply_conf($addon, &$configuration) {
-	$addon_object = strtolower ( $addon ) . '_object';
-	global $$addon_object;
-
-	$ret = addon_connect ( $addon, true, true );
-	if ($ret !== SMS_OK) {
-		return $ret;
-	}
-	$ret = $$addon_object->apply_conf ( $configuration );
-	addon_disconnect ();
-
-	return $ret;
 }
 
 ?>
