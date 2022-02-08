@@ -72,8 +72,9 @@ try
       $err .= "\n";
       foreach ($asset as $name => $value)
       {
-        $err .= "$name => $value";
+        $err .= "'$name' => '$value', ";
       }
+      $err = rtrim($err, ', \n\r\t\v\x00');
     }
     throw new SmsException($err, ERR_DB_FAILED);
   }
