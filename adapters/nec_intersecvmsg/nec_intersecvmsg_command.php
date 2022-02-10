@@ -10,16 +10,9 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('smsd', 'cmd_create.php');
-require_once load_once('smsd', 'cmd_read.php');
-require_once load_once('smsd', 'cmd_update.php');
-require_once load_once('smsd', 'cmd_delete.php');
-require_once load_once('smsd', 'cmd_import.php');
-require_once load_once('smsd', 'cmd_list.php');
-require_once load_once('nec_intersecvmsg', 'adaptor.php');
-
 require_once load_once('smsd', 'generic_command.php');
 
+require_once load_once('nec_intersecvmsg', 'adaptor.php');
 require_once load_once('nec_intersecvmsg', 'nec_intersecvmsg_common.php');
 
 class nec_intersecvmsg_command extends generic_command
@@ -64,13 +57,13 @@ class nec_intersecvmsg_command extends generic_command
   function eval_IMPORT()
   {
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'START nec_intersecvmsg_command:eval_IMPORT');
-    
+
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
     $ret = SMS_OK;
     $SMS_RETURN_BUF = '';
-    
+
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'sms_sd_ctx:' . print_r($sms_sd_ctx, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'SMS_RETURN_BUF:' . print_r($SMS_RETURN_BUF, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'ret:' . print_r($ret, true));
@@ -95,10 +88,10 @@ class nec_intersecvmsg_command extends generic_command
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'params:' . print_r($params, true));
 
     $ret = $this->nec_intersecvmsg_exec_cmd($params);
-    
+
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'ret:' . print_r($ret, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'END nec_intersecvmsg_command:apply_device_CREATE');
-    
+
     return $ret;
   }
 
@@ -115,12 +108,12 @@ class nec_intersecvmsg_command extends generic_command
   {
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'START nec_intersecvmsg_command:apply_device_UPDATE');
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'params:' . print_r($params, true));
-    
+
     $ret = $this->nec_intersecvmsg_exec_cmd($params);
-    
+
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'ret:' . print_r($ret, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'END nec_intersecvmsg_command:apply_device_UPDATE');
-    
+
     return $ret;
   }
 
@@ -139,13 +132,13 @@ class nec_intersecvmsg_command extends generic_command
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'params:' . print_r($params, true));
 
     $ret = $this->nec_intersecvmsg_exec_cmd($params);
-    
+
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'ret:' . print_r($ret, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'END nec_intersecvmsg_command:apply_device_DELETE');
-    
+
     return $ret;
   }
-  
+
   function nec_intersecvmsg_exec_cmd($params)
   {
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'START nec_intersecvmsg_command:nec_intersecvmsg_exec_cmd');
@@ -153,7 +146,7 @@ class nec_intersecvmsg_command extends generic_command
 
     global $sms_sd_ctx;
     debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
-    
+
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'sms_sd_ctx:' . print_r($sms_sd_ctx, true));
 
     try
@@ -208,7 +201,7 @@ class nec_intersecvmsg_command extends generic_command
       $SMS_RETURN_BUF = '';
       nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'SMS_RETURN_BUF:' . print_r($SMS_RETURN_BUF, true));
     }
-    
+
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'ret:' . print_r($ret, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'END nec_intersecvmsg_command:nec_intersecvmsg_exec_cmd');
 

@@ -71,9 +71,16 @@ function sd_save_conf() {
 	// get and save running conf
 	$conf = new cisco_ios_xr_configuration ( $sdid );
 
-	$running_conf = $conf->get_running_conf ();
+	$ret = $conf->get_running_conf ($running_conf);
 
-	$ret = save_result_file ( $running_conf, "running.conf" );
+	if ($ret === SMS_OK)
+	{
+		$ret = save_result_file ( $running_conf, "running.conf" );
+	}
+	else
+	{
+		sms_log_error ( __FILE__ . ':' . __LINE__ . ": get_running_conf() FAILED!\n" );
+	}
 	return $ret;
 }
 

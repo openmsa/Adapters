@@ -9,15 +9,10 @@
  */
 require_once 'smsd/sms_common.php';
 
-require_once load_once('smsd', 'cmd_create.php');
-require_once load_once('smsd', 'cmd_import.php');
-require_once load_once('smsd', 'cmd_read.php');
-require_once load_once('smsd', 'cmd_update.php');
-require_once load_once('smsd', 'cmd_delete.php');
-require_once load_once('smsd', 'cmd_list.php');
+require_once load_once('smsd', 'generic_command.php');
+
 require_once load_once('citrix_adc', 'adaptor.php');
 
-require_once load_once('smsd', 'generic_command.php');
 class citrix_netscalar_command extends generic_command
 {
   var $parser_list;
@@ -77,7 +72,7 @@ class citrix_netscalar_command extends generic_command
             // Group parsers into evaluated operations
             $sub_list["$op_eval"][] = $parser;
           }
-          
+
           foreach ($sub_list as $op_eval => $sub_parsers)
           {
             // Run evaluated operation
@@ -87,7 +82,7 @@ class citrix_netscalar_command extends generic_command
             {
               $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
             }
-            
+
             // Apply concerned parsers
             foreach ($sub_parsers as $parser)
             {

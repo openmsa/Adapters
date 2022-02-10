@@ -11,13 +11,10 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('smsd', 'generic_command.php');
-require_once load_once('smsd', 'cmd_create_xml.php');
-require_once load_once('smsd', 'cmd_update_xml.php');
-require_once load_once('smsd', 'cmd_delete_xml.php');
-require_once load_once('smsd', 'cmd_import_xml.php');
-require_once load_once('netconf_generic', 'netconf_generic_configuration.php');
 
+require_once load_once('netconf_generic', 'netconf_generic_configuration.php');
 require_once load_once('netconf_generic', 'adaptor.php');
+
 class netconf_generic_command extends generic_command
 {
   var $parser_list;
