@@ -26,7 +26,7 @@ class inventory_management_command extends generic_command {
       foreach ($sd->SD_CRUD_OBJECT_list as $key => $value)
       {
         $key_array = explode('.', $key);
-        if (empty($key_array) || (count($key_array) != 3))
+        if (empty($key_array))
         {
           continue;
         }
@@ -43,7 +43,23 @@ class inventory_management_command extends generic_command {
         {
           $crud_object[$ms_name][$object_id] = array();
         }
-        $crud_object[$ms_name][$object_id][$var] = $value;
+        if (count($key_array) == 3 ) {
+          $crud_object[$ms_name][$object_id][$var] = $value;
+        }
+        else {
+          if (!isset($crud_object[$ms_name][$object_id][$var]))
+          {
+            $crud_object[$ms_name][$object_id][$var]= array();
+          }
+          else
+          {
+            if (!isset($crud_object[$ms_name][$object_id][$var][$key_array[3]]))
+            {
+              $crud_object[$ms_name][$object_id][$var][$key_array[3]]=array();
+            }
+          }
+          $crud_object[$ms_name][$object_id][$var][$key_array[3]][$key_array[4]]=$value;
+         }
       }
     }
 
