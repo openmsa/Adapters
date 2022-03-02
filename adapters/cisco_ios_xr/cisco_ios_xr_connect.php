@@ -74,6 +74,7 @@ class CiscoIsrsshConnection extends SshConnection
 		}
 
 		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal length 0",'#');
+		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal width 0",'#');
 		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal exec prompt no-timestamp",'#');
 	}
 

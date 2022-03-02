@@ -89,6 +89,7 @@ class CiscoAsaRestSshConnection extends SshConnection
 		}
 
 		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal length 0",'#');
+		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal width 0",'#');
 	}
 
 	public function do_store_prompt() {
