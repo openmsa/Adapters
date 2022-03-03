@@ -89,7 +89,7 @@ class cisco_isr_command extends generic_command
               {
                 $op = substr($op, 1);
                 $running_conf .= "$op\n";
-                //echo "#############COMMAND : ".$op."\n";
+                echo "#############COMMAND : ".$op."\n";
               }
               else
               {
