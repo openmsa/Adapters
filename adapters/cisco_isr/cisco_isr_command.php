@@ -10,6 +10,7 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('smsd', 'generic_command.php');
+require_once load_once('cisco_isr', 'apply_errors.php');
 
 require_once load_once('cisco_isr', 'adaptor.php');
 
@@ -52,6 +53,8 @@ class cisco_isr_command extends generic_command
   {
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
+    global $apply_errors;
+    $ret = SMS_OK;
 
     try
     {
@@ -90,7 +93,17 @@ class cisco_isr_command extends generic_command
               }
               else
               {
-                $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+                $conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+                foreach ($apply_errors as $apply_error)
+                {
+                  if (preg_match($apply_error, $conf) > 0)
+                  {
+                    sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $conf !!!]]\n");
+                    $ret = ERR_SD_CMDFAILED;
+                    return $ret;
+                  }
+                }
+                $running_conf .= $conf;
               }
             }
             // Apply concerned parsers
@@ -114,7 +127,7 @@ class cisco_isr_command extends generic_command
       return $e->getCode();
     }
 
-    return SMS_OK;
+    return $ret;
   }
 
   /*
