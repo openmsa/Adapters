@@ -96,6 +96,7 @@ class cisco_isr_command extends generic_command
                 $conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
                 foreach ($apply_errors as $apply_error)
                 {
+                  echo "checking errors: $apply_error \n";
                   if (preg_match($apply_error, $conf) > 0)
                   {
                     sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $conf !!!]]\n");
