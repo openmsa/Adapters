@@ -52,7 +52,7 @@ function cisco_isr_disconnect()
   {
   	$tab[0] = ')#';
   	$tab[1] = $sms_sd_ctx->getPrompt();
-  	
+
   	$index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, '', $tab);
   	$i=0;
   	while($index == 0 && $i < 10)
@@ -95,7 +95,7 @@ class CiscoIsrsshConnection extends SshConnection
 	public function do_store_prompt() {
 		$buffer = sendexpectone(__FILE__.':'.__LINE__, $this, 'conf t', '(config)#');
 		$buffer = sendexpectone(__FILE__.':'.__LINE__, $this, 'exit', '#');
-		$this->prompt= trim($buffer);
+		$buffer = trim($buffer);
 		$this->prompt = substr(strrchr($buffer, "\n"), 1);
 
 		echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
@@ -108,7 +108,7 @@ class CiscoIsrTelnetConnection extends TelnetConnection
 	public function do_store_prompt() {
 		$buffer = sendexpectone(__FILE__.':'.__LINE__, $this, 'conf t', '(config)#');
 		$buffer = sendexpectone(__FILE__.':'.__LINE__, $this, 'exit', '#');
-		$this->prompt= trim($buffer);
+		$buffer = trim($buffer);
 		$this->prompt = substr(strrchr($buffer, "\n"), 1);
 
 		echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
