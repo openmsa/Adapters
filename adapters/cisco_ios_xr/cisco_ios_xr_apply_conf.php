@@ -98,10 +98,9 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
 
   // confirm we save the configuration
   unset($tab);
-  $tab[0] = ")#";
-  $tab[1] = "Failed to commit";
-  $tab[2] = "to view the errors"; // Failed to commit one or more configuration items during a pseudo-atomic operation. All changes made have been reverted. Please issue 'show configuration failed [inheritance]' from this session to view the errors
-  $tab[3] = "proceed with this commit anyway? [no]:";
+  $tab[0] = "Failed to commit";
+  $tab[1] = "proceed with this commit anyway? [no]:";
+  $tab[2] = ")#";
 
   $line = 'commit comment "MSA: apply conf"';
   $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, $tab, DELAY);
@@ -118,7 +117,7 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
     $ERROR_BUFFER .= "\n";
   }
 
-  if ($index === 1 || $index === 2)
+  if ($index === 0)
   {
     // Failed to commit one or more configuration items during a pseudo-atomic operation.
     // All changes made have been reverted. Please issue 'show configuration failed [inheritance]'
@@ -131,7 +130,7 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
     $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
     $ERROR_BUFFER .= "\n";
   }
-  else if ($index === 3)
+  else if ($index === 1)
   {
     // One or more commits have occurred from other configuration sessions since this session started
     // or since the last commit was made from this session.
