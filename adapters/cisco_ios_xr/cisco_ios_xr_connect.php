@@ -18,7 +18,7 @@ function cisco_ios_xr_connect($sd_ip_addr = null, $login = null, $passwd = null,
   echo "===============   cisco_ios_xr_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null) \n";
 
 	try{
-		$sms_sd_ctx = new CiscoIsrsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+		$sms_sd_ctx = new CiscoIosXrsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
 		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
 	} catch (SmsException $e) {
 	    return ERR_SD_CONNREFUSED;
@@ -52,7 +52,7 @@ function cisco_ios_xr_disconnect()
   return SMS_OK;
 }
 
-class CiscoIsrsshConnection extends SshConnection
+class CiscoIosXrsshConnection extends SshConnection
 {
     public function do_connect() {
       global $sendexpect_result;
