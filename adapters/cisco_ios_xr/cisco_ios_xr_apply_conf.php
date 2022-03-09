@@ -98,16 +98,15 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
 
   // confirm we save the configuration
   unset($tab);
-  $tab[0] = "Failed to commit";
+  $tab[0] = ")#";
   $tab[1] = "proceed with this commit anyway? [no]:";
-  $tab[2] = ")#";
 
   $line = 'commit comment "MSA: apply conf"';
   $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, $tab, DELAY);
   $SMS_OUTPUT_BUF = $sendexpect_result;
 
-  // if the command fails or request confirmation
-  if ($index !== 0)
+  // if the command ends with unexpected output
+  if ($index > 1)
   {
     $ERROR_BUFFER .= "!";
     $ERROR_BUFFER .= "\n";
@@ -116,20 +115,7 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
     $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
     $ERROR_BUFFER .= "\n";
   }
-
-  if ($index === 0)
-  {
-    // Failed to commit one or more configuration items during a pseudo-atomic operation.
-    // All changes made have been reverted. Please issue 'show configuration failed [inheritance]'
-    // from this session to view the errors
-    $line = 'show configuration failed';
-    $SMS_OUTPUT_BUF = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, ")#", DELAY);
-
-    $ERROR_BUFFER .= $line;
-    $ERROR_BUFFER .= "\n";
-    $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
-    $ERROR_BUFFER .= "\n";
-  }
+  // if the command request confirmation
   else if ($index === 1)
   {
     // One or more commits have occurred from other configuration sessions since this session started
@@ -138,6 +124,40 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
     // Do you wish to proceed with this commit anyway? [no]:
     sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "yes", ")#", DELAY);
   }
+
+  // check if some error occurred
+  foreach ($apply_errors as $index_err => $apply_error)
+  {
+    if (preg_match($apply_error, $SMS_OUTPUT_BUF, $matches) > 0)
+    {
+      $ERROR_BUFFER .= "!";
+      $ERROR_BUFFER .= "\n";
+      $ERROR_BUFFER .= $line;
+      $ERROR_BUFFER .= "\n";
+      $ERROR_BUFFER .= $apply_error;
+      $ERROR_BUFFER .= "\n";
+
+      sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n" );
+      $SMS_OUTPUT_BUF = '';
+      $ret = ERR_SD_CMDFAILED;
+
+      // Possible:
+      // Failed to commit one or more configuration items during a pseudo-atomic operation.
+      // All changes made have been reverted. Please issue 'show configuration failed [inheritance]'
+      // from this session to view the errors
+      if (isset($diagnostic_errors[$index_err]))
+      {
+        $line = $diagnostic_errors[$index_err];
+        $SMS_OUTPUT_BUF = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, ")#", DELAY);
+
+        $ERROR_BUFFER .= $line;
+        $ERROR_BUFFER .= "\n";
+        $ERROR_BUFFER .= $SMS_OUTPUT_BUF;
+        $ERROR_BUFFER .= "\n";
+      }
+    }
+  }
+
 
   // we leave all conf (and potential submodes)
   unset($tab);
