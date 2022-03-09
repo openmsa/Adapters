@@ -182,13 +182,13 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   if ($index === 1)
   {
     // Uncommitted changes found, commit them before exiting(yes/no/cancel)? [cancel]:
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no", ")#", DELAY);
+    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no", "#", DELAY);
   }
 
   // Refetch the prompt cause it can change during the apply conf
   extract_prompt();
 
-  // Exit from config mode
+  // Exit
   unset($tab);
   $tab[0] = $sms_sd_ctx->getPrompt();
   $tab[1] = ")#";
