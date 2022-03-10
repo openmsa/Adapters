@@ -188,18 +188,6 @@ function cisco_ios_xr_apply_conf($configuration, $push_to_startup = false)
   // Refetch the prompt cause it can change during the apply conf
   extract_prompt();
 
-  // Exit
-  unset($tab);
-  $tab[0] = $sms_sd_ctx->getPrompt();
-  $tab[1] = ")#";
-  $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab, DELAY);
-  $SMS_OUTPUT_BUF = $sendexpect_result;
-  for ($i = 1; ($i <= 10) && ($index === 1); $i++)
-  {
-    $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "exit", $tab, DELAY);
-    $SMS_OUTPUT_BUF .= $sendexpect_result;
-  }
-
   if (!empty($ERROR_BUFFER))
   {
     save_result_file($ERROR_BUFFER, "conf.error");
