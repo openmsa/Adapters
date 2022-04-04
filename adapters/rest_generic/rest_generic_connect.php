@@ -187,7 +187,10 @@ class DeviceConnection extends GenericConnection {
 			// call array to xml conversion function
 			$xml = arrayToXml ( $array, '<root></root>' );
 		} else {
-			$xml = new SimpleXMLElement($result);
+		    if (empty(trim($result))) {
+		        $result="<content-info> No Content </content-info>";
+		    }
+                    $xml = new SimpleXMLElement($result);
 		}
 		$this->xml_response = $xml; // new SimpleXMLElement($result);
 		$this->raw_json = $result;
