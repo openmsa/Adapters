@@ -188,7 +188,7 @@ class DeviceConnection extends GenericConnection {
 			$xml = arrayToXml ( $array, '<root></root>' );
 		} else {
 		    if (empty(trim($result))) {
-		        $result="<content-info> No Content </content-info>";
+		        $result="";
 		    }
                     $xml = new SimpleXMLElement($result);
 		}
