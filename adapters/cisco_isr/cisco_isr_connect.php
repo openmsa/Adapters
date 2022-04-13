@@ -30,13 +30,9 @@ function cisco_isr_connect($sd_ip_addr = null, $login = null, $passwd = null, $a
   echo "++++++++++++++++   cisco_isr_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null) \n";
 
 	try{
-                sms_log_info("+++++++++++++++++++++++++++SSH Connection++++++++++++++++++++++");
 		$sms_sd_ctx = new CiscoIsrsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
-                sms_log_info("+++++++++++++++++++++++++++SSH Connection 2++++++++++++++++++++");
 		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
-                sms_log_info("+++++++++++++++++++++++++++Connection OK+++++++++++++++++++++++");
 	} catch (SmsException $e) {
-                sms_log_info("+++++++++++++++++++++++++++TELNET++++++++++++++++++++++++++++++");
 		try{
 			$sms_sd_ctx = new CiscoIsrTelnetConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
 			$sms_sd_ctx->setParam("PROTOCOL", "TELNET");
