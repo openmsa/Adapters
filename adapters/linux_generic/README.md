@@ -26,8 +26,8 @@ docker-compose exec msa_sms chown -R ncuser. /opt/devops/ssh/
 MSA_SMS=`docker ps -aqf "name=msa_sms"` 
 docker cp <SSH KEY FILE> $MSA_SMS:/opt/devops/ssh/
 
-docker-compose exec msa_sms  chown ncuser. /opt/devops/ssh/<SSH KEY FILE>
-docker-compose exec msa_sms chmod 400 /opt/devops/ssh/<SSH KEY FILE>
+docker-compose exec msa-sms  chown ncuser. /opt/devops/ssh/<SSH KEY FILE>
+docker-compose exec msa-sms chmod 400 /opt/devops/ssh/<SSH KEY FILE>
 ```
 
 ### Enable the SSH key mode
@@ -40,7 +40,7 @@ If you enable the SSH key mode globally, *every* managed entities using the *Lin
 
 Login to the container msa_dev from the From the directory where the docker-compose file is installed:
 
-> docker-compose exec msa_dev bash
+> docker-compose exec msa-dev bash
 
 Edit the linux_generic adapter configuration file
 
@@ -56,7 +56,7 @@ Save the file, fix the user and exit the container
 
 Restart the container msa_sms to apply the new adapter configuration
  
-> docker compose restart msa_sms
+> docker compose restart msa-sms
 
 #### Enable locally
 
