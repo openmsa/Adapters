@@ -20,8 +20,8 @@ To enable this mode you'll first have to install the SSH key in the MSActivator.
 From the directory where the docker-compose file is installed, run:
 
 ```
-docker-compose exec msa_sms mkdir -p /opt/devops/ssh/
-docker-compose exec msa_sms chown -R ncuser. /opt/devops/ssh/
+docker-compose exec msa-sms mkdir -p /opt/devops/ssh/
+docker-compose exec msa-sms chown -R ncuser. /opt/devops/ssh/
 
 MSA_SMS=`docker ps -aqf "name=msa_sms"` 
 docker cp <SSH KEY FILE> $MSA_SMS:/opt/devops/ssh/
