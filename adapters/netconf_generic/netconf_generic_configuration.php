@@ -48,7 +48,7 @@ class netconf_generic_configuration {
 
 		$config = trim($config_all);
 
-		$xml_response = new SimpleXMLElement ( $config );
+		$xml_response = new SimpleXMLElement ( preg_replace('/xmlns="[^"]+"/', '', $config) );
 		$config_xml = $xml_response->asXML ();
 		$this->running_conf = $config_xml;
 

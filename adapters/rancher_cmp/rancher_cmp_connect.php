@@ -97,7 +97,7 @@ class RancherCmpRESTConnection extends GenericConnection
     }
     
     #echo "%%%%%%%%%%%%%%%%%%%%% RESULT = {$result} %%%%%%%%%%%%%%%%%%%%%%%\n";
-    $array = json_decode($result, true);
+    $array = json_decode(preg_replace('/xmlns="[^"]+"/', '', $result), true);
     
     // call array to xml conversion function
     $xml = arrayToXml($array, '<root></root>');

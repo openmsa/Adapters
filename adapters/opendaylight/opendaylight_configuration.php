@@ -76,6 +76,7 @@ class opendaylight_configuration
         foreach ($list_items->xpath('//uuid') as $uuid_object)
         {
           $list_ressource = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd . $type_object->name . "/" . $uuid_object);
+          $list_ressource = preg_replace('/xmlns="[^"]+"/', '', $list_ressource);
           //$config_string = $list_ressource->asXml();
           $running_conf_xml->addChild($type_object->name, $list_ressource->asXml());
         }

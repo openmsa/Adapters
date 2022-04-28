@@ -251,7 +251,7 @@ function send_rpc($rpc)
     $rpc_reply_string = get_rpc_reply($rpcstring);
   }
   $this->last_rpc_reply = $rpc_reply_string;
-  $rpc_reply_xml = new SimpleXMLElement($rpc_reply_string);
+  $rpc_reply_xml = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $rpc_reply_string));
   $raw_xml = $rpc_reply_xml->asXML();
   $rpc_reply = $raw_xml;
   return $rpc_reply;

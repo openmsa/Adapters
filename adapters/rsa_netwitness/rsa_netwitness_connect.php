@@ -138,6 +138,7 @@ class DeviceConnection extends GenericConnection {
             }
         }
         $xml;
+        $result = preg_replace('/xmlns="[^"]+"/', '', $result);
         if (strpos($curl_cmd, "Content-Type: application/json") || strpos($curl_cmd, "Accept: application/json")) {
             $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
             $array = json_decode ( $result, true );

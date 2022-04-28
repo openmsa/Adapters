@@ -114,6 +114,7 @@ class NokiaVsdRESTConnection extends GenericConnection
     }
     
     #echo "%%%%%%%%%%%%%%%%%%%%% RESULT = {$result} %%%%%%%%%%%%%%%%%%%%%%%\n";
+    $result = preg_replace('/xmlns="[^"]+"/', '', $result);
     $array = json_decode($result, true);
     if (array_key_exists('APIKey', $array[0])) {
         $this->key = $array[0]['APIKey'];

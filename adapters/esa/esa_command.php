@@ -93,7 +93,7 @@ class esa_command extends generic_command
           // Get the conf on the router
           $conf = new esa_configuration($sdid);
           $running_conf = $conf->get_running_conf();
-          $XMLConfig = new SimpleXMLElement($running_conf);
+          $XMLConfig = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $running_conf));
           //debug_dump($sms_sd_ctx->get_raw_xml());
           // Apply concerned parsers
           foreach ($sub_parsers as $parser)
