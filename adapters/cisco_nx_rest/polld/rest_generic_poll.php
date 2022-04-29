@@ -1,22 +1,14 @@
 <?php
 
 require_once 'smsd/sms_common.php';
-require_once load_once('rest_generic', 'rest_generic_connect.php');
+require_once load_once('cisco_nx_rest', 'me_connect.php');
 
-require_once "$db_objects";
-
-try
+$ret =  me_connect();
+if ($ret != SMS_OK)
 {
+  return $ret;
+}
 
-  rest_generic_connect();
-  rest_generic_disconnect();
-  return SMS_OK;
-}
-catch (Exception | Error $e)
-{
-  $msg = $e->getMessage();
-  $code = $e->getCode();
-  sms_log_error("connection error : $msg ($code)");
-  return $code;
-}
+return me_disconnect();
+
 ?>
