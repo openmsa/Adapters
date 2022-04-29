@@ -100,7 +100,7 @@ class DeviceConnection extends GenericConnection
       }
     }
 
-    $this->xml_response = new SimpleXMLElement($result);
+    $this->xml_response = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $result));
     $this->raw_xml = $this->xml_response->asXML();
     debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
   }
@@ -284,7 +284,7 @@ class DeviceConnection extends GenericConnection
   			$result .= "{$line}\n";
   		}
   	}
-  	$this->xml_response = new SimpleXMLElement($result);
+  	$this->xml_response = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $result));
   	$this->raw_xml = $this->xml_response->asXML();
   	debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
   }

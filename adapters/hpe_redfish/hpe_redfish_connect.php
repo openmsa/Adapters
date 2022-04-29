@@ -207,6 +207,7 @@ class DeviceConnection extends GenericConnection {
             throw new SmsException ( "$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
         }
         $xml;
+        $result = preg_replace('/xmlns="[^"]+"/', '', $result);
         if (strpos($curl_cmd, "Content-Type: application/json") or strpos($curl_cmd, "Content-Type: multipart/form-data")) {
             $array = json_decode ( $result, true );
     /*        if(isset($array['Id'])){

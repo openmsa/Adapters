@@ -202,6 +202,7 @@ class DeviceConnection extends GenericConnection {
                         }
                 }
 		$xml;
+		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
 		if (strpos($curl_cmd, "Content-Type: application/json")) {
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
