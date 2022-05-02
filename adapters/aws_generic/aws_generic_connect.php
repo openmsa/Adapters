@@ -99,7 +99,6 @@ class AWSSDKConnection extends GenericConnection
    			$result = $client->$awsAction();
    		}
       echo "AWS Action result: \n$result\n";
-      $result = preg_replace('/xmlns="[^"]+"/', '', $result);
 
    		$array = $result->toArray();
     } catch (Exception | Error $e) {
