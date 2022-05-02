@@ -117,7 +117,7 @@ class Nfvo_connection extends GenericConnection
 			$response_body = "";
 		}
 
-		$response_body = preg_replace('/xmlns="[^"]+"/', '', $response_body)
+		$response_body = preg_replace('/xmlns="[^"]+"/', '', $response_body);
 		$array = json_decode($response_body, true);
 
 		// call array to xml conversion function
