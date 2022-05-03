@@ -135,7 +135,7 @@ try
 
   sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "type=op&cmd=<request><license><info/></license></request>", "result");
   $buffer = $sms_sd_ctx->get_raw_xml();
-  $xml = simplexml_load_string($buffer);
+  $xml = simplexml_load_string(preg_replace('/xmlns="[^"]+"/', '', $buffer));
   $licenses = $xml->xpath("//response/result/licenses/entry");
 
   if (!empty($licenses))

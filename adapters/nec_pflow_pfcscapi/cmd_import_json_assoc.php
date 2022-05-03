@@ -18,7 +18,7 @@ class cmd_import_associative extends cmd_import
   {
     sms_log_debug(15, "JSON string to be parsed: " . $jbuffer);
     //$buffer = arrayToXml(json_decode($jbuffer), '<api></api>');
-    $buffer = arrayToXml(json_decode(preg_replace('/xmlns="[^"]+"/', '', $jbuffer), true), '<api></api>');
+    $buffer = arrayToXml(json_decode($jbuffer, true), '<api></api>');
     sms_log_debug(15, "Converted XML: " . $buffer->asXml());
 
     $sections_xml = $buffer->xpath($this->parser['section']['xpath']);

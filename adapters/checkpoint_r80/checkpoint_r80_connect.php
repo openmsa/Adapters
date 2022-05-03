@@ -109,7 +109,7 @@ class DeviceConnection extends GenericConnection
             }
         }
         
-        $array = json_decode(preg_replace('/xmlns="[^"]+"/', '', $result), true);
+        $array = json_decode($result, true);
         if(isset($array['sid']))
         {
             $this->key = $array['sid'];
