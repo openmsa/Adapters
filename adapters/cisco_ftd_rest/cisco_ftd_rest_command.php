@@ -8,13 +8,17 @@
  * $SMS_RETURN_BUF string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
-
-require_once load_once ( 'smsd', 'generic_command.php' );
+require_once 'smsd/generic_command.php';
 
 require_once load_once ( 'cisco_ftd_rest', 'adaptor.php' );
 
 class cisco_ftd_rest_command extends generic_command
 {
+
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
+  }
 
   function decode_IMPORT($object, $json_params, $element)
   {
@@ -80,10 +84,10 @@ class cisco_ftd_rest_command extends generic_command
           }
         }
 
-        $this->parsed_objects = $objects;
+        $this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
 
-        debug_object_conf($objects);
-        $SMS_RETURN_BUF .= json_encode($objects);
+        debug_object_conf($this->parsed_objects);
+        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
       sd_disconnect();

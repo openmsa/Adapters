@@ -9,31 +9,18 @@
 */
 
 require_once 'smsd/sms_common.php';
-
-require_once load_once('smsd', 'generic_command.php');
+require_once 'smsd/generic_command.php';
 
 require_once load_once('nec_intersecvmsg', 'adaptor.php');
 require_once load_once('nec_intersecvmsg', 'nec_intersecvmsg_common.php');
 
 class nec_intersecvmsg_command extends generic_command
 {
-  var $parser_list;
-  var $parsed_objects;
-  var $create_list;
-  var $delete_list;
-  var $list_list;
-  var $read_list;
-  var $update_list;
-  var $configuration;
 
   function __construct()
   {
-    $this->parser_list = array();
-    $this->create_list = array();
-    $this->delete_list = array();
-    $this->list_list = array();
-    $this->read_list = array();
-    $this->update_list = array();
+    parent::__construct ();
+    $this->parsed_objects = array ();
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'START nec_intersecvmsg_command()');
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'parser_list:' . print_r($this->parser_list, true));
     nec_intersecvmsg_dbg_print(NEC_DEBUG, __FILE__ . ':' . __LINE__, 'create_list:' . print_r($this->create_list, true));

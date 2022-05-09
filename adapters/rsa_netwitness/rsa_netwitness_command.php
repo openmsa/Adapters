@@ -8,31 +8,17 @@
  * $SMS_RETURN_BUF string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
-
-require_once load_once ( 'smsd', 'generic_command.php' );
+require_once 'smsd/generic_command.php';
 
 require_once load_once ( 'rsa_netwitness', 'adaptor.php' );
 
 class rsa_netwitness_command extends generic_command {
-	var $parser_list;
-	var $parsed_objects;
-	var $create_list;
-	var $delete_list;
-	var $list_list;
-	var $read_list;
-	var $update_list;
-	var $configuration;
-	var $import_file_list;
+
 	function __construct() {
-		parent::__construct ();
-		$this->parser_list = array ();
-		$this->create_list = array ();
-		$this->delete_list = array ();
-		$this->list_list = array ();
-		$this->read_list = array ();
-		$this->update_list = array ();
-		$this->import_file_list = array ();
+	  parent::__construct ();
+	  $this->parsed_objects = array ();
 	}
+
 	function decode_IMPORT($object, $json_params, $element) {
 		$parser = new cmd_import ( $object, $element, $json_params );
 		$this->parser_list [] = &$parser;
@@ -84,10 +70,10 @@ class rsa_netwitness_command extends generic_command {
 					}
 				}
 
-				$this->parsed_objects = $objects;
+				$this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
 
-				debug_object_conf ( $objects );
-				$SMS_RETURN_BUF .= json_encode ( $objects );
+				debug_object_conf($this->parsed_objects);
+				$SMS_RETURN_BUF = object_to_json($this->parsed_objects);
 			}
 
 			sd_disconnect ();
@@ -98,7 +84,6 @@ class rsa_netwitness_command extends generic_command {
 		return SMS_OK;
 	}
 	function eval_CREATE() {
-		global $SMS_RETURN_BUF;
 		echo "eval_CREATE()\n";
 		return $this->eval_OPERATON ( $this->create_list );
 	}
@@ -112,7 +97,6 @@ class rsa_netwitness_command extends generic_command {
 	}
 	function eval_UPDATE() {
 		echo "eval_UPDATE()\n";
-		global $SMS_RETURN_BUF;
 		return $this->eval_OPERATON ( $this->update_list );
 	}
 

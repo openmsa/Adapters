@@ -1,38 +1,21 @@
 <?php
 
 require_once 'smsd/sms_common.php';
-
-require_once load_once('smsd', 'generic_command.php');
+require_once 'smsd/generic_command.php';
 
 require_once load_once('nec_pflow_pfcscapi', 'adaptor.php');
 require_once load_once('nec_pflow_pfcscapi', 'cmd_import_json_assoc.php');
 
 class nec_pflow_pfcscapi_command extends generic_command
 {
-  var $parser_list;
-  var $parsed_objects;
-  var $create_list;
-  var $delete_list;
-  var $list_list;
-  var $read_list;
-  var $update_list;
-  var $configuration;
-  var $import_file_list;
 
-  function __construct()
-  {
-    parent::__construct();
-    $this->parser_list = array();
-    $this->create_list = array();
-    $this->delete_list = array();
-    $this->list_list = array();
-    $this->read_list = array();
-    $this->update_list = array();
-    $this->import_file_list = array();
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
   }
 
   /*
-   * #####################################################################################
+  * #####################################################################################
   * IMPORT
   * #####################################################################################
   */
@@ -67,7 +50,6 @@ class nec_pflow_pfcscapi_command extends generic_command
       if (!empty($this->parser_list))
       {
         $objects = array();
-        $parser_list = array();
 
         foreach ($this->parser_list as $parser)
         {
@@ -84,10 +66,10 @@ class nec_pflow_pfcscapi_command extends generic_command
           $parser->parse($running_conf, $objects);
         }
 
-        $this->parsed_objects = $objects;
-        //debug_dump($objects, "## OBJECTS");
-        //debug_object_conf($objects);
-        $SMS_RETURN_BUF = json_encode($objects);
+        $this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
+
+        debug_object_conf($this->parsed_objects);
+        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
       sd_disconnect();
