@@ -8,31 +8,16 @@
  * 	$SMS_RETURN_BUF     string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
-
-require_once load_once('smsd', 'generic_command.php');
+require_once 'smsd/generic_command.php';
 
 require_once load_once('veex_rtu', 'adaptor.php');
 
 class veex_rtu_command extends generic_command
 {
-  var $parser_list;
-  var $parsed_objects;
-  var $create_list;
-  var $delete_list;
-  var $list_list;
-  var $read_list;
-  var $update_list;
-  var $configuration;
 
-  function __construct()
-  {
-    parent::__construct();
-    $this->parser_list = array();
-    $this->create_list = array();
-    $this->delete_list = array();
-    $this->list_list = array();
-    $this->read_list = array();
-    $this->update_list = array();
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
   }
 
   /*
@@ -91,10 +76,10 @@ class veex_rtu_command extends generic_command
           }
         }
 
-        $this->parsed_objects = $objects;
+        $this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
 
-        debug_object_conf($objects);
-        $SMS_RETURN_BUF .= object_to_json($objects);
+        debug_object_conf($this->parsed_objects);
+        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
       sd_disconnect();
