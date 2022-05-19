@@ -6,12 +6,16 @@
  * $SMS_RETURN_BUF string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
-
-require_once load_once ('smsd', 'generic_command.php');
+require_once 'smsd/generic_command.php';
 
 require_once "$db_objects";
 
 class inventory_management_command extends generic_command {
+
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
+  }
 
   // return data of the database
   function eval_IMPORT() {
@@ -37,17 +41,10 @@ class inventory_management_command extends generic_command {
     }
 
     // set parsed_objects to store objects in DB
-    // parsed_objects is empty for the first MS
-    if (empty($this->parsed_objects))
-    {
-      $this->parsed_objects = $crud_objects;
-    }
-    else
-    {
-      $this->parsed_objects = array_merge_recursive($this->parsed_objects, $crud_objects);
-    }
+    $this->parsed_objects = array_merge_recursive($this->parsed_objects, $crud_objects);
 
-    $SMS_RETURN_BUF = json_encode($this->parsed_objects, JSON_FORCE_OBJECT);
+    debug_object_conf($this->parsed_objects);
+    $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
 
     return SMS_OK;
   }

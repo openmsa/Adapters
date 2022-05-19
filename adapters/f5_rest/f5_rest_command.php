@@ -10,9 +10,9 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_command.php';
 
-require_once load_once ( 'dell_redfish', 'adaptor.php' );
+require_once load_once ( 'f5_rest', 'adaptor.php' );
 
-class dell_redfish_command extends generic_command {
+class f5_rest_command extends generic_command {
 
     function __construct() {
       parent::__construct ();
@@ -51,9 +51,9 @@ class dell_redfish_command extends generic_command {
 					$xpath_eval = $parser->evaluate_internal ( 'IMPORT', 'xpath' );
 
 					if (strlen ( $xpath_eval ) > 0) {
-						$path_list = preg_split ( '@#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
+						$path_list = preg_split ( '@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
 						foreach ( $path_list as $xpth ) {
-							$cmd = trim ( $op_eval ) . "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#" . trim ( $xpth );
+							$cmd = trim ( $op_eval ) . "##" . trim ( $xpth );
 							$parser_list [$cmd] [] = $parser;
 						}
 					} else {
@@ -63,11 +63,14 @@ class dell_redfish_command extends generic_command {
 					}
 				}
 				foreach ( $parser_list as $op_eval => $sub_parsers ) {
-					$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
 
-				//debug_dump($sub_parsers,"===============eval_import======================\n");
-					foreach ( $sub_parsers as $parser ) {
-						$parser->parse ( $running_conf, $objects );
+					try {
+                                        	$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
+						foreach ( $sub_parsers as $parser ) {
+							$parser->parse ( $running_conf, $objects );
+						}
+					} catch ( Exception $e ) {
+						sms_send_user_error($sms_csp, $sdid, 'API ERROR. CHECK RESPONSE ABOVE', $e->getCode());
 					}
 				}
 
@@ -123,14 +126,14 @@ class dell_redfish_command extends generic_command {
 		foreach ( $list as $name ) {
 
 			$endpoint_str = trim ( $name->evaluate_operation () );
-			$endpoints = explode ( "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#", $endpoint_str );
+			$endpoints = explode ( "##", $endpoint_str );
 			$xpath_str = trim ( $name->evaluate_xpath () );
-			$xpaths = explode ( "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#", $xpath_str );
+			$xpaths = explode ( "##", $xpath_str );
 
 			$xml_conf_str = trim ( $name->evaluate_xml () );
 			$xml_conf_str = str_replace ( "\n", '', $xml_conf_str );
 
-			$xml_configs = explode ( "#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#", $xml_conf_str );
+			$xml_configs = explode ( "##", $xml_conf_str );
 			if (! empty ( $endpoint_str )) {
 
 				if (count ( $xpaths ) != count ( $endpoints )) {
@@ -140,9 +143,9 @@ class dell_redfish_command extends generic_command {
 					foreach ( $xml_configs as $xml_conf ) {
 						if (! empty ( $xml_conf )) {
 							$conf = $endpoints [$i];
-							$conf .= '#UBIQUBE_MSA_DELIMITER#' . $xpaths [$i];
-							// separate data with '#UBIQUBE_MSA_DELIMITER#'
-							$conf .= '#UBIQUBE_MSA_DELIMITER#' . $xml_conf;
+							$conf .= '#' . $xpaths [$i];
+							// separate data with '#'
+							$conf .= '#' . $xml_conf;
 
 							$this->configuration .= "{$conf}\n";
 							$SMS_RETURN_BUF .= "{$conf}\n";
@@ -167,7 +170,7 @@ class dell_redfish_command extends generic_command {
 			debug_dump ( $xpath, "DELETE XPATH\n" );
 
 			if (! empty ( $operation )) {
-                             $conf = $operation . '#UBIQUBE_MSA_DELIMITER##UBIQUBE_MSA_DELIMITER#' . $xpath;
+                             $conf = $operation . '##' . $xpath;
                              $xml_conf = trim($delete->evaluate_xml());
                              $xml_conf_str = str_replace("\n", '', $xml_conf);
                              $conf .= "' -d'".$xml_conf_str;
