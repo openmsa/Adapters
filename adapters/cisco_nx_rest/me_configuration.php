@@ -43,7 +43,8 @@ class me_configuration
         // Download the configuration file
         $cmd = "GET#/restconf/data/Cisco-NX-OS-device:System?content=config";
         $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
-        $running_conf = $sms_sd_ctx->get_raw_xml();
+        $running_conf = preg_replace("/<\\?xml.*\\?>/",'',$sms_sd_ctx->get_raw_xml(),1);
+        $running_conf = preg_replace("/<System>/",'<System xmlns="http://cisco.com/ns/yang/cisco-nx-os-device">',$running_conf,1);
         return $running_conf;
   }
 
