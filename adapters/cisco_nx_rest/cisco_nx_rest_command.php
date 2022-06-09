@@ -12,7 +12,7 @@ require_once 'smsd/generic_command.php';
 
 require_once load_once ( 'cisco_nx_rest', 'adaptor.php' );
 
-class me_command extends generic_command {
+class cisco_nx_rest_command extends generic_command {
 
     function __construct() {
       parent::__construct ();
