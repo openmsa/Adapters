@@ -21,8 +21,58 @@ class Nfvo_connection extends GenericConnection
 	// ------------------------------------------------------------------------------------------------
 	public function do_connect()
 	{
-		$this->endPointsURL = $endPointsURL_table[0];
-	}
+		//$this->endPointsURL = $endPointsURL_table[0];
+		//Adding Oauth2.0 implementation
+		$data = "";
+		
+	$network = get_network_profile();
+        $sd = &$network->SD;
+
+echo "Setting this object varsinside\n";
+        if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
+                $auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
+        }
+        $this->auth_mode = $auth_mode;
+        if($auth_mode == 'oauth_v2'){
+                if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
+                        throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
+                }
+                $this->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
+                echo  "nfvo_generic_connect: setting SIGNIN_REQ_PATH to: {$sms_sd_ctx->sign_in_req_path}\n";
+        }
+        if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
+                $token_xpath = trim($sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE);
+                $this->token_xpath = $token_xpath;
+        }
+        $this->protocol = "https";
+        if (isset($sd->SD_CONFIGVAR_list['PROTOCOL'])) {
+                $this->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
+        }
+        echo  "nfvo_generic_connect: setting HTTP protocol to: {$sms_sd_ctx->protocol}\n";
+		
+		if($this->auth_mode != "auth-key")
+		{
+			unset ( $this->key );
+
+			if($this->auth_mode == "oauth_v2" )
+			{
+				$data = "grant_type=client_credentials&client_id=$this->sd_login_entry&client_secret=$this->sd_passwd_entry";
+			}
+			else
+			{
+				$this->endPointsURL = $endPointsURL_table[0];
+			}
+
+			//$data = json_encode ( $data );
+			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
+			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
+		debug_dump($this->token_xpath, "do_connect result: \n");
+			// extract token
+			$this->key = (string)($result->xpath($this->token_xpath)[0]);
+
+        	}
+		debug_dump($this->key, "TOKEN\n");
+	}		
 
 	// ------------------------------------------------------------------------------------------------
 	public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
@@ -64,21 +114,36 @@ class Nfvo_connection extends GenericConnection
 
 		// MODIF LO : la commande $cmd est décomposée en quatre parties pour Openstack : GET#:endpoint (nova,keystone...)#/tenants...#parametres creation
 		$action = explode("#", $cmd);
+		//Add if oauth
+		if($this->auth_mode == "oauth_v2" && !isset($this->key)){
+			$curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -k '{$action[1]}'";
+                	if (isset($action[2])) {
+                        	$curl_cmd .= " -d '{$action[2]}'";
+                	}
+		}else if($this->auth_mode == "oauth_v2" && isset($this->key)){
+			$H = trim("Authorization: Bearer");
+			$headers .= " -H '{$H} {$this->key}'";
+			$curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
+			if (isset($action[3])) {
+                                $curl_cmd .= " -d '{$action[3]}'";
+                        }
 
-		// SI pas de endpoints, on prend keystone par défaut.
-		// if ($action[1] == "")
-		// {
-		$action[2] = 'http://' . $this->sd_ip_config . ':' . $http_port . $action[2];
-		// }
-
-		// TODO TEST validité champ ACTION[]
-		$curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' -u {$this->sd_login_entry}:{$this->sd_passwd_entry} --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
-		if (isset($action[3])) {
-			$curl_cmd .= " -d '{$action[3]}'";
 		}
+		else{
+			// SI pas de endpoints, on prend keystone par défaut.
+			// if ($action[1] == "")
+			// {
+			$action[2] = $this->protocol.'://' . $this->sd_ip_config . ':' . $http_port . $action[2];
+			// }
 
-		echo "{$cmd} for endPoint {$action[1]}\n";
-
+			// TODO TEST validité champ ACTION[]
+			$curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' -u {$this->sd_login_entry}:{$this->sd_passwd_entry} --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
+			if (isset($action[3])) {
+				$curl_cmd .= " -d '{$action[3]}'";
+			}
+	
+			echo "{$cmd} for endPoint {$action[1]}\n";
+		}
 		$curl_cmd .= " && echo";
 		$ret = exec_local($origin, $curl_cmd, $output_array);
 
@@ -178,8 +243,8 @@ class Nfvo_connection extends GenericConnection
 function nfvo_generic_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null)
 {
 	global $sms_sd_ctx;
-
 	$sms_sd_ctx = new Nfvo_connection($sd_ip_addr, $login, $passwd, $port_to_use);
+
 	return SMS_OK;
 }
 
