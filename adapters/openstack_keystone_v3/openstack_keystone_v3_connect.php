@@ -21,7 +21,7 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
 
     // first time keystone is forced by removing the endpoint
     unset($this->endPoint);
-
+echo "before_connect ->>";
     $network = get_network_profile();
     $sd = &$network->SD;
     $tenant_id = $sd->SD_CONFIGVAR_list['TENANT_ID']->VAR_VALUE;
@@ -30,11 +30,12 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     $cmd = "POST##/v3/auth/tokens#{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
     $cmd .= "\"{$user_domain_id}\"},\"name\": \"{$this->sd_login_entry}\",\"password\": \"{$this->sd_passwd_entry}\"}}}, ";
     $cmd .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
-
+echo "creatind cmd -->";
     $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");
 
     $endPointsURL_table = $result->xpath('//token/catalog');
     $this->endPointsURL = $endPointsURL_table[0];
+echo "after token -->";
   }
 
   public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
@@ -159,7 +160,8 @@ class OpenStackKeystoneV3RESTConnection extends GenericConnection
     else {
     	$response_body = "";
     }
-    
+    //remove any whitespace in the json keys of the $response_body
+    $response_body=preg_replace('/"([^[:space:],:]+)\s+([^[:space:],:]+)":/', '"$1-$2":', $response_body);    
     $array = json_decode($response_body, true);
 
     // call array to xml conversion function

@@ -97,7 +97,7 @@ class kubernetes_generic_command extends generic_command
           {
 
             $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-            //debug_dump($sms_sd_ctx->get_raw_xml());
+            debug_dump($sms_sd_ctx->get_raw_xml());
             // Apply concerned parsers
             foreach ($sub_parsers as $parser)
             {
