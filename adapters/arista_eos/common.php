@@ -162,14 +162,12 @@ function scp_to_router($src, $dst)
 	}
 
 	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "configure  terminal", "(config)#");
-	//sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "aaa new-model", "(config)#");
 	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "aaa authorization exec default local", "(config)#");
-	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "ip scp server enable", "(config)#");
 
 	$passwd = "Xy" . mt_rand(10000, 99999) . "Y";
 	$login = "NCO-SCP";
 
-	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "username $login privilege 15 password $passwd", "(config)#");
+	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "username $login privilege 15 secret $passwd", "(config)#");
 
 	sd_disconnect();
 
@@ -177,12 +175,11 @@ function scp_to_router($src, $dst)
 	$sd = &$net_profile->SD;
 	$sd_ip_addr = $sd->SD_IP_CONFIG;
 
-	$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d /$dst -l $login -a $sd_ip_addr -p $passwd", $output);
+	$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd", $output);
 
 	sd_connect();
 
 	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "configure terminal", "(config)#");
-	sendexpectnobuffer(__FILE__.':'.__LINE__, $sms_sd_ctx, "no ip scp server enable", "(config)#");
 
 	unset($tab);
 	$tab[0] = "(config)#";
