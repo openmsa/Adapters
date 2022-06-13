@@ -18,8 +18,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('f5_rest', 'adaptor.php');
-require_once load_once('f5_rest', 'provisioning_stages.php');
+require_once load_once('cisco_nx_rest', 'adaptor.php');
+require_once load_once('cisco_nx_rest', 'provisioning_stages.php');
 
 
 // -------------------------------------------------------------------------------------

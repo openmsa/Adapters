@@ -14,25 +14,25 @@
 // Get router configuration, not JSON response format
 require_once 'smsd/sms_common.php';
 
-require_once load_once('f5_rest', 'f5_rest_connect.php');
-require_once load_once('f5_rest', 'f5_rest_configuration.php');
+require_once load_once('cisco_nx_rest', 'me_connect.php');
+require_once load_once('cisco_nx_rest', 'me_configuration.php');
 
 try
 {
-  $ret = f5_rest_connect();
+  $ret = me_connect();
   if ($ret !== SMS_OK)
   {
   	throw new SmsException("", ERR_SD_CONNREFUSED);
   }
 
   // Get the conf on the router
-  $conf = new f5_rest_configuration($sdid);
+  $conf = new me_configuration($sdid);
   $SMS_RETURN_BUF = $conf->get_running_conf();
-  f5_rest_disconnect();
+  me_disconnect();
 }
 catch (Exception $e)
 {
-    f5_rest_disconnect();
+  me_disconnect();
   return $e->getCode();
 }
 

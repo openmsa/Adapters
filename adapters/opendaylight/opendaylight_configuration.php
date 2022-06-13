@@ -77,7 +77,7 @@ class opendaylight_configuration
         {
           $list_ressource = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd . $type_object->name . "/" . $uuid_object);
           //$config_string = $list_ressource->asXml();
-          $running_conf_xml->addChild($type_object->name, $list_ressource->asXml());
+          $running_conf_xml->addChild($type_object->name, preg_replace('/xmlns="[^"]+"/', '', $list_ressource->asXml()));
         }
       }
     }

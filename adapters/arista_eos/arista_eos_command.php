@@ -1,65 +1,44 @@
 <?php
 /*
  * Version: $Id$
- * Created: Apr 28, 2011
+ * Created: May 24, 2022
  * Available global variables
- *  $sms_csp            pointer to csp context to send response to user
- * 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
- * 	$SMS_RETURN_BUF     string buffer containing the result
  */
 
 require_once 'smsd/sms_common.php';
+require_once 'smsd/generic_command.php';
 
-require_once load_once('smsd', 'generic_command.php');
+require_once load_once('arista_eos', 'adaptor.php');
 
-require_once load_once('catalyst_ios', 'adaptor.php');
-
-class catalyst_command extends generic_command
+class arista_eos_command extends generic_command
 {
-  var $parser_list;
-  var $parsed_objects;
-  var $create_list;
-  var $delete_list;
-  var $list_list;
-  var $read_list;
-  var $update_list;
-  var $configuration;
 
-  function __construct()
-  {
-    parent::__construct();
-    $this->parser_list = array();
-    $this->create_list = array();
-    $this->delete_list = array();
-    $this->list_list = array();
-    $this->read_list = array();
-    $this->update_list = array();
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
   }
 
   /*
    * #####################################################################################
-  * IMPORT
-  * #####################################################################################
-  */
+   * IMPORT
+   * #####################################################################################
+   * $element := xml node 'command'
+   */
 
   /**
    * IMPORT configuration from router
-   * @param object $json_params			JSON parameters of the command
-   * @param domElement $element			XML DOM element of the definition of the command
    */
   function eval_IMPORT()
   {
-    global $sms_sd_ctx;
+	global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
-
-    $on_error_fct = 'sd_disconnect';
 
     if (sd_connect() != SMS_OK)
     {
-      return ERR_SD_NETWORK;
+    	return ERR_SD_NETWORK;
     }
 
-    if (!empty($this->parser_list))
+   if (!empty($this->parser_list))
     {
       $objects = array();
       // One operation groups several parsers
@@ -90,14 +69,12 @@ class catalyst_command extends generic_command
         }
       }
 
-      $this->parsed_objects = $objects;
+      $this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
 
-      debug_object_conf($objects);
-      $SMS_RETURN_BUF .= object_to_json($objects);
-
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
 
-    unset($on_error_fct);
     sd_disconnect();
 
     return SMS_OK;
@@ -105,9 +82,9 @@ class catalyst_command extends generic_command
 
   /*
    * #####################################################################################
-  * CREATE
-  * #####################################################################################
-  */
+   * CREATE
+   * #####################################################################################
+   */
 
   /**
    * Apply created object to device and if OK add object to the database.
@@ -122,12 +99,11 @@ class catalyst_command extends generic_command
     return $ret;
   }
 
-
   /*
    * #####################################################################################
-  * UPDATE
-  * #####################################################################################
-  */
+   * UPDATE
+   * #####################################################################################
+   */
 
   /**
    * Apply updated object to device and if OK add object to the database.
@@ -144,9 +120,9 @@ class catalyst_command extends generic_command
 
   /*
    * #####################################################################################
-  * DELETE
-  * #####################################################################################
-  */
+   * DELETE
+   * #####################################################################################
+   */
 
   /**
    * Apply deleted object to device and if OK add object to the database.

@@ -8,32 +8,18 @@
  * $SMS_RETURN_BUF string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
+require_once 'smsd/generic_command.php';
 
-require_once load_once ( 'smsd', 'generic_command.php' );
+require_once load_once ( 'cisco_nx_rest', 'adaptor.php' );
 
-require_once load_once ( 'f5_rest', 'adaptor.php' );
+class cisco_nx_rest_command extends generic_command {
 
-class f5_rest_command extends generic_command {
-	var $parser_list;
-	var $parsed_objects;
-	var $create_list;
-	var $delete_list;
-	var $list_list;
-	var $read_list;
-	var $update_list;
-	var $configuration;
-	var $import_file_list;
-	function __construct() {
-		parent::__construct ();
-		$this->parser_list = array ();
-		$this->create_list = array ();
-		$this->delete_list = array ();
-		$this->list_list = array ();
-		$this->read_list = array ();
-		$this->update_list = array ();
-		$this->import_file_list = array ();
-	}
-	function decode_IMPORT($object, $json_params, $element) {
+    function __construct() {
+      parent::__construct ();
+      $this->parsed_objects = array ();
+    }
+
+    function decode_IMPORT($object, $json_params, $element) {
 		$parser = new cmd_import ( $object, $element, $json_params );
 		$this->parser_list [] = &$parser;
 	}
@@ -78,20 +64,16 @@ class f5_rest_command extends generic_command {
 				}
 				foreach ( $parser_list as $op_eval => $sub_parsers ) {
 
-					try {
-                                        	$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
-						foreach ( $sub_parsers as $parser ) {
-							$parser->parse ( $running_conf, $objects );
-						}
-					} catch ( Exception $e ) {
-						sms_send_user_error($sms_csp, $sdid, 'API ERROR. CHECK RESPONSE ABOVE', $e->getCode());
+					$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
+					foreach ( $sub_parsers as $parser ) {
+						$parser->parse ( $running_conf, $objects );
 					}
 				}
 
-				$this->parsed_objects = $objects;
+				$this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
 
-				debug_object_conf ( $objects );
-				$SMS_RETURN_BUF .= json_encode ( $objects );
+				debug_object_conf($this->parsed_objects);
+				$SMS_RETURN_BUF = object_to_json($this->parsed_objects);
 			}
 
 			sd_disconnect ();
@@ -187,7 +169,9 @@ class f5_rest_command extends generic_command {
                              $conf = $operation . '##' . $xpath;
                              $xml_conf = trim($delete->evaluate_xml());
                              $xml_conf_str = str_replace("\n", '', $xml_conf);
-                             $conf .= "' -d'".$xml_conf_str;
+				if (! empty ( $xml_conf_str )) {
+	                             $conf .= "' -d'".$xml_conf_str;
+				}
 
                              $this->configuration .= "{$conf}\n";
                              $SMS_RETURN_BUF .= "{$conf}\n";

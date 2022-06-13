@@ -77,6 +77,7 @@ class juniper_contrail_configuration
         {
           $list_ressource = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd . $type_object->name . "/" . $uuid_object);
           //$config_string = $list_ressource->asXml();
+          $list_ressource = preg_replace('/xmlns="[^"]+"/', '', $list_ressource);
           $running_conf_xml->addChild($type_object->name, $list_ressource->asXml());
         }
       }

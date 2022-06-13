@@ -4,12 +4,12 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('f5_rest', 'f5_rest_configuration.php');
+require_once load_once('cisco_nx_rest', 'me_configuration.php');
 
 try {
 	$generated_configuration = '';
 
-	$conf = new f5_rest_configuration($sdid);
+	$conf = new me_configuration($sdid);
 
 	$ret = $conf->build_conf($generated_configuration);
 	if ($ret !== SMS_OK)

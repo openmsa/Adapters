@@ -177,6 +177,7 @@ class DeviceConnection extends GenericConnection {
 			}
 		}
 		$xml;
+		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
 		if (strpos($curl_cmd, "Content-Type: application/json")) {
 			$result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
@@ -187,7 +188,10 @@ class DeviceConnection extends GenericConnection {
 			// call array to xml conversion function
 			$xml = arrayToXml ( $array, '<root></root>' );
 		} else {
-			$xml = new SimpleXMLElement($result);
+		    if (empty(trim($result))) {
+		        $result="<root></root>";
+		    }
+                    $xml = new SimpleXMLElement($result);
 		}
 		$this->xml_response = $xml; // new SimpleXMLElement($result);
 		$this->raw_json = $result;

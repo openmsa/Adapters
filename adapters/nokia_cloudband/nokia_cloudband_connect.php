@@ -127,6 +127,7 @@ class NokiaCloudbandRESTConnection extends GenericConnection
     $result = str_replace('\r', '', $result);
     $result = str_replace('\n', '', $result);
     $result = str_replace('\t', '', $result);
+    $result = preg_replace('/xmlns="[^"]+"/', '', $result);
 
     $array = json_decode($result, true);
     if (array_key_exists('access_token', $array)) {

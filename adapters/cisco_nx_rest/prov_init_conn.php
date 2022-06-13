@@ -9,8 +9,8 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
   global $login;
   global $passwd;
 
-  f5_rest_connect($ipaddr, $login, $passwd);
-  f5_rest_disconnect();
+  me_connect($ipaddr, $login, $passwd);
+  me_disconnect();
 
   return SMS_OK;
 }

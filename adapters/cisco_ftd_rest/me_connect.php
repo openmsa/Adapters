@@ -13,6 +13,7 @@ class MeConnection extends GenericConnection {
 	public $http_header_list = array(
 	    'GET' => array('Accept: application/json'),
 	    'POST' => array('Content-Type: application/json', 'Accept: application/json'),
+	    'PUT' => array('Content-Type: application/json', 'Accept: application/json'),
 	    'DELETE' => array('Accept: application/json'),
 	);
 	public $http_header_custom = null;

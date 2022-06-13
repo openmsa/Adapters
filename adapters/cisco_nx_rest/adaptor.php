@@ -5,9 +5,8 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('f5_rest', 'f5_rest_connect.php');                                          
-require_once load_once('f5_rest', 'f5_rest_apply_conf.php');
-//require_once load_once('f5_rest', 'f5_rest_apply_command_delete.php');
+require_once load_once('cisco_nx_rest', 'me_connect.php');                                          
+require_once load_once('cisco_nx_rest', 'me_apply_conf.php');
 
 require_once "$db_objects";
 
@@ -19,7 +18,7 @@ require_once "$db_objects";
  */
 function sd_connect($login = null, $passwd = null, $adminpasswd = null)
 {
-    $ret = f5_rest_connect($login, $passwd);
+    $ret = me_connect($login, $passwd);
 
 	return $ret;
 }
@@ -30,7 +29,7 @@ function sd_connect($login = null, $passwd = null, $adminpasswd = null)
  */
 function sd_disconnect($clean_exit = false)
 {
-    $ret = f5_rest_disconnect();
+    $ret = me_disconnect();
 
 	return $ret;
 }
@@ -47,7 +46,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 		sd_connect();
 	}
 
-	$ret = f5_rest_apply_conf($configuration, false);
+	$ret = me_apply_conf($configuration, false);
 
 	if ($need_sd_connection)
 	{
@@ -56,32 +55,6 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 
 	return $ret;
 }
-
-
-
-/**
- * Apply a configuration buffer to a device
- * @param  $configuration
- * @param  $need_sd_connection
- */
-// function sd_apply_command_delete($configuration, $need_sd_connection = false)
-// {
-// 	if ($need_sd_connection)
-// 	{
-// 		sd_connect();
-// 	}
-
-// 	$ret = f5_rest_apply_command_delete($configuration, false);
-
-// 	if ($need_sd_connection)
-// 	{
-// 		sd_disconnect();
-// 	}
-
-// 	return $ret;
-// }
-
-
 
 /**
  * Execute a command on a device

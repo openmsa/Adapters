@@ -8,33 +8,17 @@
  * 	$SMS_RETURN_BUF     string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
+require_once 'smsd/generic_command.php';
 
-require_once load_once('smsd', 'generic_command.php');
-
+require_once load_once('cisco_isr', 'apply_errors.php');
 require_once load_once('cisco_isr', 'adaptor.php');
 
 class cisco_isr_command extends generic_command
 {
-  var $parser_list;
-  var $parsed_objects;
-  var $create_list;
-  var $delete_list;
-  var $list_list;
-  var $read_list;
-  var $update_list;
-  var $configuration;
-  var $import_file_list;
 
-  function __construct()
-  {
-    parent::__construct();
-    $this->parser_list = array();
-    $this->create_list = array();
-    $this->delete_list = array();
-    $this->list_list = array();
-    $this->read_list = array();
-    $this->update_list = array();
-    $this->import_file_list = array();
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
   }
 
   /*
@@ -52,6 +36,8 @@ class cisco_isr_command extends generic_command
   {
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
+    global $apply_errors;
+    $ret = SMS_OK;
 
     try
     {
@@ -86,11 +72,21 @@ class cisco_isr_command extends generic_command
               {
                 $op = substr($op, 1);
                 $running_conf .= "$op\n";
-                //echo "#############COMMAND : ".$op."\n";
+              #  echo "#############COMMAND : ".$op."\n";
               }
               else
               {
-                $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+                $conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+                foreach ($apply_errors as $apply_error)
+                {
+                  if (preg_match($apply_error, $conf) > 0)
+                  {
+                    sms_log_error(__FILE__ . ':' . __LINE__ . ": [[!!! $conf !!!]]\n");
+                    $ret = ERR_SD_CMDFAILED;
+                    return $ret;
+                  }
+                }
+                $running_conf .= $conf;
               }
             }
             // Apply concerned parsers
@@ -101,10 +97,10 @@ class cisco_isr_command extends generic_command
           }
         }
 
-        $this->parsed_objects = $objects;
+        $this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
 
-        debug_object_conf($objects);
-        $SMS_RETURN_BUF .= object_to_json($objects);
+        debug_object_conf($this->parsed_objects);
+        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
       sd_disconnect();
@@ -114,7 +110,7 @@ class cisco_isr_command extends generic_command
       return $e->getCode();
     }
 
-    return SMS_OK;
+    return $ret;
   }
 
   /*

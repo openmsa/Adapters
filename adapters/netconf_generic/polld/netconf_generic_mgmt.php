@@ -23,7 +23,7 @@ try {
 
 	$capability_id = 0;
 
-	$xml = simplexml_load_string(xml_remove_endcomment($sms_sd_ctx->get_device_capabilities()));
+	$xml = simplexml_load_string(preg_replace('/xmlns="[^"]+"/', '', xml_remove_endcomment($sms_sd_ctx->get_device_capabilities())));
 	$matched_capabilities = $xml->xpath("//capability");
 	if ( $matched_capabilities === FALSE )
 	{

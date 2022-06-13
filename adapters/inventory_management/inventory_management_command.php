@@ -6,12 +6,16 @@
  * $SMS_RETURN_BUF string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
-
-require_once load_once ('smsd', 'generic_command.php');
+require_once 'smsd/generic_command.php';
 
 require_once "$db_objects";
 
 class inventory_management_command extends generic_command {
+
+  function __construct() {
+    parent::__construct ();
+    $this->parsed_objects = array ();
+  }
 
   // return data of the database
   function eval_IMPORT() {
@@ -20,34 +24,27 @@ class inventory_management_command extends generic_command {
     $net = get_network_profile();
     $sd = $net->SD;
 
-    $crud_object = array();
-    if (!empty($sd->SD_CRUD_OBJECT_list))
+    // Filter objects by MS name (object_name)
+    $crud_objects = array();
+    if (!empty($this->parser_list))
     {
-      foreach ($sd->SD_CRUD_OBJECT_list as $key => $value)
+      foreach ($this->parser_list as $parsers)
       {
-        $key_array = explode('.', $key);
-        if (empty($key_array) || (count($key_array) != 3))
+        foreach($parsers as $parser)
         {
-          continue;
+          if (!empty($sd->smarty[$parser->object_name]))
+          {
+            $crud_objects[$parser->object_name] = $sd->smarty[$parser->object_name];
+          }
         }
-
-        $ms_name = $key_array[0];
-        $object_id = $key_array[1];
-        $var = $key_array[2];
-
-        if (!isset($crud_object[$ms_name]))
-        {
-          $crud_object[$ms_name] = array();
-        }
-        if (!isset($crud_object[$ms_name][$object_id]))
-        {
-          $crud_object[$ms_name][$object_id] = array();
-        }
-        $crud_object[$ms_name][$object_id][$var] = $value;
       }
     }
 
-    $SMS_RETURN_BUF = json_encode($crud_object, JSON_FORCE_OBJECT);
+    // set parsed_objects to store objects in DB
+    $this->parsed_objects = array_merge_recursive($this->parsed_objects, $crud_objects);
+
+    debug_object_conf($this->parsed_objects);
+    $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
 
     return SMS_OK;
   }

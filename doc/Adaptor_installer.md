@@ -19,8 +19,11 @@ These 2 properties files must be placed in the adapter's directory into sub-dire
 
 Whenever a change is done to one of the files `sms_router.conf` or `device.properties` msa_api and msa_sms containers have to be restarted
 
-	sudo docker-compose restart msa_api
-	sudo docker-compose restart msa_sms
+	sudo docker-compose restart msa-api
+	sudo docker-compose restart msa-sms
+	sudo docker-compose restart msa-monitoring
+	sudo docker-compose restart msa-alarm
+	sudo docker-compose restart msa-bud
 	
 Changes on the adapter code (PHP scripts) do not require any restart.	
 
@@ -43,11 +46,12 @@ example sets of properties files:
 
 - [`vmware_vsphere`](../adapters/vmware_vsphere/conf)
 - [`f5_bigip`](../adapters/f5_bigip/conf)
+- [`linux`](../adapters/linux_generic/conf)
 
 Enable/Disable an adapter
 -------------------------
 
-By default all the adapters under `/opt/devops/Openmsa_Adapters` in the MSActivator container msa_dev are available to the CoreEngine but it is possible to enable/disable an adapter in the UI by editing the file device.properties and setting the flag obsolete to true or false. 
+By default all the adapters under `/opt/devops/Openmsa_Adapters` in the MSActivator container msa_dev are available to the CoreEngine but it is possible to enable/disable an adapter in the UI by editing the file device.properties and setting the flag `obsolete` to true or false. 
 
 To update the UI, you need to restart the container msa_api
 

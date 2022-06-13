@@ -2,12 +2,12 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 
-require_once load_once('f5_rest', 'adaptor.php');
-require_once load_once('f5_rest', 'f5_rest_apply_conf.php');
+require_once load_once('cisco_nx_rest', 'adaptor.php');
+require_once load_once('cisco_nx_rest', 'me_apply_conf.php');
 
 
 require_once "$db_objects";
-class f5_rest_configuration
+class me_configuration
 {
   var $conf_path; // Path for previous stored configuration files
   var $sdid; // ID of the SD to update
@@ -38,7 +38,14 @@ class f5_rest_configuration
 	*/
   function get_running_conf()
   {
-  	return '';
+  	//return '';
+        global $sms_sd_ctx;
+        // Download the configuration file
+        $cmd = "GET#/restconf/data/Cisco-NX-OS-device:System?content=config";
+        $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
+        $running_conf = preg_replace("/<\\?xml.*\\?>/",'',$sms_sd_ctx->get_raw_xml(),1);
+        $running_conf = preg_replace("/<System>/",'<System xmlns="http://cisco.com/ns/yang/cisco-nx-os-device">',$running_conf,1);
+        return $running_conf;
   }
 
   /**
@@ -95,7 +102,7 @@ class f5_rest_configuration
    */
   function restore_conf($configuration)
   {
-    $ret = f5_rest_apply_restore_conf($configuration);
+    $ret = me_apply_restore_conf($configuration);
     return $ret;
   }
 

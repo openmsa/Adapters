@@ -96,6 +96,7 @@ class OpenStackGenericsshConnection extends GenericConnection
     
 
     //echo "%%%%%%%%%%%%%%%%%%%%% RESULT = {$result} %%%%%%%%%%%%%%%%%%%%%%%\n";
+    $result = preg_replace('/xmlns="[^"]+"/', '', $result);
     $array = json_decode($result, true);
 
     // call array to xml conversion function

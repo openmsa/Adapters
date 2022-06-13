@@ -98,7 +98,7 @@ $te = str_replace("}\"","}",$te);
 
 $ae = json_decode($te,true);
 
-
+        $te = preg_replace('/xmlns="[^"]+"/', '', $te);
 //        $array = json_decode($result, true);
         $array = json_decode($te, true);
              
@@ -138,7 +138,7 @@ $ae = json_decode($te,true);
 	echo "\n&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
 	var_dump($output_array);
 	echo "\n&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
-        $this->xml_response = new SimpleXMLElement($result);
+        $this->xml_response = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $result));
         $this->raw_xml = $this->xml_response->asXML();
         debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
     }

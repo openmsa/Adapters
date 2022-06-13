@@ -4,11 +4,11 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('f5_rest', 'f5_rest_connect.php');
-require_once load_once('f5_rest', 'f5_rest_configuration.php');
+require_once load_once('cisco_nx_rest', 'me_connect.php');
+require_once load_once('cisco_nx_rest', 'me_configuration.php');
 
 try {
-    $ret = f5_rest_connect();
+    $ret = me_connect();
 	if ($ret !== SMS_OK)
 	{
 		sms_send_user_error($sms_csp, $sdid, "", ERR_SD_CONNREFUSED);
@@ -16,9 +16,9 @@ try {
 	}
 
 	// Get the conf on the router
-	$conf = new f5_rest_configuration($sdid);
+	$conf = new me_configuration($sdid);
 	$running_conf = htmlentities($conf->get_running_conf());
-	f5_rest_disconnect();
+	me_disconnect();
 
 	if (!empty($running_conf))
 	{

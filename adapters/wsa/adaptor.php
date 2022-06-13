@@ -109,7 +109,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
   $config_to_apply = $conf->get_running_conf();
 
   /* Configurations lines to apply is in $config_to_apply: */
-  $xmlconfig = simplexml_load_string($config_to_apply);
+  $xmlconfig = simplexml_load_string(preg_replace('/xmlns="[^"]+"/', '', $config_to_apply));
 
   // Split configuration by lines begining with action:
   $vconfig = explode ("\naction=", $configuration);

@@ -50,7 +50,7 @@ function netconf_generic_apply_conf($configuration) {
     {
     	if (preg_match($apply_error, $SMS_OUTPUT_BUF) > 0)
     	{
-    		$xml_result = new SimpleXMLElement ( $SMS_OUTPUT_BUF );
+    		$xml_result = new SimpleXMLElement ( preg_replace('/xmlns="[^"]+"/', '', $SMS_OUTPUT_BUF) );
 
     		$error_xml = $xml_result->asXML ();
 

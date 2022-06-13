@@ -3,7 +3,6 @@
 require_once 'smsd/sms_common.php';
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_user_message.php';
-//require_once 'f5_rest_connect.php';
 
 require_once "$db_objects";
 
@@ -83,8 +82,15 @@ class device_restore_configuration
     {
       return $ret;
     }
-	$ret = $sms_sd_ctx->send_file($this->sdid, $full_name);
-	echo $ret;
+
+    $cmd = "PATCH#/restconf/data/Cisco-NX-OS-device#@$full_name";
+    $ret = $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
+
+    if ($ret !== SMS_OK)
+    {
+      return $ret;
+    }
+    echo "restore_conf method is finished";
     return $ret;
   }
 
