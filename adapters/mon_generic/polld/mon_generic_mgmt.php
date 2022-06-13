@@ -37,7 +37,42 @@ else
 {
   $version = '2c';
 }
-$asset['model'] = getsnmp('1.3.6.1.2.1.1.1.0', $sd_ip_addr, $community, $version);
+$cmd ='';
+if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.object_id'])){
+    $version = '3';
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level']))
+    {
+      $sec_level = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level'];
+      $cmd .= " -l $sec_level";
+    }
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name']))
+    {
+      $sec_name = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name'];
+      $cmd .= " -n $sec_name";
+    }
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type']))
+    {
+      $auth_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type'];
+      $cmd .= " -a $auth_type";
+    }
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase']))
+    {
+      $auth_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase'];
+      $cmd .= " -A $auth_phrase";
+    }
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type']))
+    {
+      $priv_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type'];
+      $cmd .= " -x $priv_type";
+    }
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase']))
+    {
+      $priv_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase'];
+      $cmd .= " -X $priv_phrase";
+    }	
+
+}
+$asset['model'] = getsnmp('1.3.6.1.2.1.1.1.0', $sd_ip_addr, $community, $version, $cmd);
 if (empty($asset['model']))
 {
   unset($asset['model']);

@@ -84,38 +84,37 @@ if ($SD->SD_LOG)
     // SNMPv3
     $cmd .= ' -v 3';
 
-    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level']->CRUD_VALUE))
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level']))
     {
-      $sec_level = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level']->CRUD_VALUE;
+      $sec_level = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level'];
       $cmd .= " -l $sec_level";
     }
-    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name']->CRUD_VALUE))
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name']))
     {
-      $sec_name = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name']->CRUD_VALUE;
+      $sec_name = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name'];
       $cmd .= " -n $sec_name";
     }
-    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type']->CRUD_VALUE))
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type']))
     {
-      $auth_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type']->CRUD_VALUE;
+      $auth_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type'];
       $cmd .= " -a $auth_type";
     }
-    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase']->CRUD_VALUE))
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase']))
     {
-      $auth_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase']->CRUD_VALUE;
+      $auth_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase'];
       $cmd .= " -A $auth_phrase";
     }
-    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type']->CRUD_VALUE))
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type']))
     {
-      $priv_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type']->CRUD_VALUE;
+      $priv_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type'];
       $cmd .= " -x $priv_type";
     }
-    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase']->CRUD_VALUE))
+    if (!empty($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase']))
     {
-      $priv_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase']->CRUD_VALUE;
+      $priv_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase'];
       $cmd .= " -X $priv_phrase";
     }
-
-    $ret = exec_local(__FILE__ . ':' . __LINE__, $cmd, $output);
+   $ret = exec_local(__FILE__ . ':' . __LINE__, $cmd, $output);
     if ($ret !== SMS_OK)
     {
       sms_bd_set_provstatus($sms_csp, $sms_sd_info, $stage, 'F', ERR_SD_SNMP, 'W', "$cmd => " . implode(' ', $output));

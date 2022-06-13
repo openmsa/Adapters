@@ -139,7 +139,7 @@ class JuniperSRX2sshConnection extends SshConnection
         $this->prompt = preg_replace('/[\x03|\x1a]/', '', $this->prompt);
         $this->prompt = preg_replace('/.*\n/', '', $this->prompt);
         
-        //echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+        echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
     }
     
     //sendCommand with return,  send method is just do write example prompty like yes/no:
@@ -157,6 +157,7 @@ class JuniperSRX2sshConnection extends SshConnection
             unset($tab);
             $tab[0] = '%';
             $tab[1] = '>';
+	    $tab[2] = '#';
             
             $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "$passwd\n\n", $tab);
             
@@ -172,7 +173,7 @@ class JuniperSRX2sshConnection extends SshConnection
                 
                 $sms_sd_ctx->do_store_prompt();
             }
-            else if ($index == 1)
+            else if ($index == 1 || $index == 2)
             {
                 
                 $sms_sd_ctx->do_store_prompt();

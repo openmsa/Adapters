@@ -45,7 +45,7 @@ class juniper_srx_configuration
     $SMS_OUTPUT_BUF = '';
 
     // Run the CLI Cmd
-    $SMS_OUTPUT_BUF .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "show config | display set");
+    $SMS_OUTPUT_BUF .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "show config");
 
     $config_string = "";
 

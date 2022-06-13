@@ -62,8 +62,10 @@ function juniper_srx_apply_restore_conf($configuration)
   debug_dump($configTmp, 'CONFIG TO APPLY');
   
   $file_name = "$sdid.cfg";
-  
+  $configTmp = str_replace("SMS_OK", "",$configTmp);
   // Create the file
+$var=get_current_user();
+echo "naveen---$var"; 
   $local_file_name = $_SERVER['TFTP_BASE'] . "/" . $file_name;
   if (file_put_contents($local_file_name, $configTmp) === false)
   {
@@ -73,10 +75,11 @@ function juniper_srx_apply_restore_conf($configuration)
   }
   
   $src = $local_file_name;
-  $dst = "/config/config-from-msa.cfg";
+  #$dst = "/config/config-from-msa.cfg";
+  $dst = "/var/tmp/config-from-msa.cfg";
   
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd", $output);
-  unlink($local_file_name);
+//  unlink($local_file_name);
   
   if ($ret_scp !== SMS_OK)
   {
@@ -106,7 +109,8 @@ function juniper_srx_apply_restore_conf($configuration)
   save_result_file($configTmp, 'conf.applied');
   
   $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "edit");
-  $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "load override /config/config-from-msa.cfg");
+  #$sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "load override /config/config-from-msa.cfg");
+  $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "load override /var/tmp/config-from-msa.cfg");
   
   $sendexpect_result = '';
   $SMS_OUTPUT_BUF = '';
