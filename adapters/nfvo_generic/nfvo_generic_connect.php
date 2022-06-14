@@ -28,7 +28,6 @@ class Nfvo_connection extends GenericConnection
 	$network = get_network_profile();
         $sd = &$network->SD;
 
-echo "Setting this object varsinside\n";
         if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
                 $auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
         }
@@ -48,7 +47,7 @@ echo "Setting this object varsinside\n";
         if (isset($sd->SD_CONFIGVAR_list['PROTOCOL'])) {
                 $this->protocol=trim($sd->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE);
         }
-        echo  "nfvo_generic_connect: setting HTTP protocol to: {$sms_sd_ctx->protocol}\n";
+        echo  "nfvo_generic_connect: setting HTTP protocol to: {$this->protocol}\n";
 		
 		if($this->auth_mode != "auth-key")
 		{
@@ -57,21 +56,21 @@ echo "Setting this object varsinside\n";
 			if($this->auth_mode == "oauth_v2" )
 			{
 				$data = "grant_type=client_credentials&client_id=$this->sd_login_entry&client_secret=$this->sd_passwd_entry";
+				//$data = json_encode ( $data );
+                        	$cmd = "POST#{$this->sign_in_req_path}#{$data}";
+	                        $result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
+        		        debug_dump($this->token_xpath, "do_connect result: \n");
+                        	// extract token
+                        	$this->key = (string)($result->xpath($this->token_xpath)[0]);
+				debug_dump($this->key, "TOKEN\n");
 			}
 			else
 			{
 				$this->endPointsURL = $endPointsURL_table[0];
 			}
 
-			//$data = json_encode ( $data );
-			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
-			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
-		debug_dump($this->token_xpath, "do_connect result: \n");
-			// extract token
-			$this->key = (string)($result->xpath($this->token_xpath)[0]);
 
         	}
-		debug_dump($this->key, "TOKEN\n");
 	}		
 
 	// ------------------------------------------------------------------------------------------------
