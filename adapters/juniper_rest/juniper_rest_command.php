@@ -171,8 +171,10 @@ class juniper_rest_command extends generic_command {
                              $conf = $operation . '##' . $xpath;
                              $xml_conf = trim($delete->evaluate_xml());
                              $xml_conf_str = str_replace("\n", '', $xml_conf);
-                             $conf .= "' -d'".$xml_conf_str;
-
+                             if (! empty ( $xml_conf_str ))
+                             {
+                                 $conf .= "' -d '".$xml_conf_str;
+                             }
                              $this->configuration .= "{$conf}\n";
                              $SMS_RETURN_BUF .= "{$conf}\n";
                         }
