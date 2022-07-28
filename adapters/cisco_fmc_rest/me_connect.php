@@ -13,29 +13,25 @@ class MeConnection extends GenericConnection {
 	public $http_header_list = array(
 	    'GET' => array('Accept: application/json'),
 	    'POST' => array('Content-Type: application/json', 'Accept: application/json'),
-	    'PUT' => array('Content-Type: application/json', 'Accept: application/json'),
 	    'DELETE' => array('Accept: application/json'),
 	);
 	public $http_header_custom = null;
 	public $protocol = 'https';
-	public $auth_header = 'Authorization: Bearer';
+	public $auth_header = 'X-auth-access-token:';
 	public $conn_timeout = EXPECT_DELAY / 1000;
-	public $sign_in_req_path = '/api/fdm/latest/fdm/token';
-	public $access_token = 'access_token';
+	#public $sign_in_req_path = '/api/fdm/latest/fdm/token';
+	public $sign_in_req_path = '/api/fmc_platform/v1/auth/generatetoken';
+	public $access_token = 'X-auth-access-token';
 	public $key;
 
 	public function do_connect() {
 
-	  $data = array (
-	      "grant_type" => "password",
-	      "username" => $this->sd_login_entry,
-	      "password" => $this->sd_passwd_entry
-	  );
-	  $data = json_encode ( $data );
-	  $cmd = "POST#{$this->sign_in_req_path}#{$data}";
-	  $this->send ( __FILE__ . ':' . __LINE__, $cmd );
-	  // extract token
-	  $this->key = $this->array_response[$this->access_token];
+	  $data = "";
+	  if (!isset($this->key)) 
+	  {
+ 		  $cmd = "POST#{$this->sign_in_req_path}#{$data}";
+		  $this->send ( __FILE__ . ':' . __LINE__, $cmd , "-i ");
+	  }
 	}
 
 	public function do_disconnect() {
@@ -44,7 +40,7 @@ class MeConnection extends GenericConnection {
 	    // revoke token
 	    $data = array (
 	        "grant_type" => "revoke_token",
-	        "access_token" => $this->key,
+	        "X-auth-access-token:" => $this->key,
 	        "token_to_revoke" => $this->key
 	    );
 	    $data = json_encode ( $data );
@@ -171,7 +167,10 @@ class MeConnection extends GenericConnection {
     		$array = json_decode ( $result, true );
     		if (isset ( $array ['sid'] )) {
     			$this->key = $array ['sid'];
-    		}
+    		}elseif (preg_match('/X-auth-access-token: ([^\\\]*?)\\n/', $result, $match) == 1){
+			$this->key = $match[1];	
+			debug_dump( $this->key, "X-auth-access-token:");
+		}
         }
         else
         {
