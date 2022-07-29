@@ -18,8 +18,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_ftd_rest', 'adaptor.php');
-require_once load_once('cisco_ftd_rest', 'provisioning_stages.php');
+require_once load_once('cisco_fmc_rest', 'adaptor.php');
+require_once load_once('cisco_fmc_rest', 'provisioning_stages.php');
 
 
 // -------------------------------------------------------------------------------------

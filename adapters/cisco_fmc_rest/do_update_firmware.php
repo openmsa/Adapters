@@ -14,8 +14,8 @@
 
 // Enter Script description here
 require_once 'smsd/sms_common.php';
-require_once load_once('cisco_ftd_rest', 'me_connect.php');
-require_once load_once('cisco_ftd_rest', 'me_configuration.php');
+require_once load_once('cisco_fmc_rest', 'me_connect.php');
+require_once load_once('cisco_fmc_rest', 'me_configuration.php');
 
 try
 {

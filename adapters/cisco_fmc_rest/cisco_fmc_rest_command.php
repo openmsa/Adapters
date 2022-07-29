@@ -10,9 +10,9 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_command.php';
 
-require_once load_once ( 'cisco_ftd_rest', 'adaptor.php' );
+require_once load_once ( 'cisco_fmc_rest', 'adaptor.php' );
 
-class cisco_ftd_rest_command extends generic_command
+class cisco_fmc_rest_command extends generic_command
 {
 
   function __construct() {
