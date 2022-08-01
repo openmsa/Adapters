@@ -8,9 +8,8 @@ require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
 
 class DeviceConnection extends GenericConnection {
-  
-	protected $xml_response;
-	protected $raw_xml;
+
+	protected $response; // either SimpleXMLElement or array, depending of rest_json
 	public $http_header_list;
 	public $protocol;
 	public $auth_mode;
@@ -18,6 +17,8 @@ class DeviceConnection extends GenericConnection {
 	public $conn_timeout;
 	public $fqdn;
 	public $aws_sigv4;
+	public $rest_json;
+	public $json_path;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -50,7 +51,7 @@ class DeviceConnection extends GenericConnection {
 
 		$this->expect ( $origin, $tab );
 
-		if (is_array ( $sendexpect_result )) {
+		if (!$this->rest_json && is_array ( $sendexpect_result )) {
 			return $sendexpect_result [0];
 		}
 		return $sendexpect_result;
@@ -60,21 +61,24 @@ class DeviceConnection extends GenericConnection {
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
 		global $$global_result_name;
 
-		if (! isset ( $this->xml_response )) {
-			throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
-		}
+        if (!isset($this->response)) {
+            throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
+        }
 		$index = 0;
 		if (empty ( $tab )) {
-			$result = $this->xml_response;
-			$$global_result_name = $result;
+		    $$global_result_name = $this->response;
 			return $index;
 		}
 		foreach ( $tab as $path ) {
-			$result = $this->xml_response->xpath ( $path );
-			if (($result !== false) && ! empty ( $result )) {
-				$$global_result_name = $result;
-				return $index;
-			}
+		    if ($this->rest_json) {
+                $result = $this->json_path->find($this->response, $path);
+		    } else {
+		        $result = $this->response->xpath($path);
+		    }
+		    if (($result !== false) && ! empty ( $result )) {
+			    $$global_result_name = $result;
+			    return $index;
+		    }
 			$index ++;
 		}
 
@@ -88,8 +92,7 @@ class DeviceConnection extends GenericConnection {
 	}
 
 	public function send($origin, $rest_cmd) {
-		unset ( $this->xml_response );
-		unset ( $this->raw_xml );
+		unset ( $this->response );
 		echo ("send(): rest_cmd = ".$rest_cmd."\n");
 		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
 		debug_dump ( $cmd_list, "CMD_LIST\n" );
@@ -176,28 +179,31 @@ class DeviceConnection extends GenericConnection {
 				}
 			}
 		}
-		$xml;
+
 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
 		if (strpos($curl_cmd, "Content-Type: application/json")) {
-			$result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
 			}
-
-			// call array to xml conversion function
-			$xml = arrayToXml ( $array, '<root></root>' );
+			if ($this->rest_json) {
+                $response = $array;
+			} else {
+                // call array to xml conversion function
+                $response = arrayToXml ($array, '<root></root>');
+			}
 		} else {
-		    if (empty(trim($result))) {
-		        $result="<root></root>";
+		    if ($this->rest_json) {
+		        throw new SmsException ("$origin: Repsonse to API {$rest_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED );
 		    }
-                    $xml = new SimpleXMLElement($result);
+		    if (empty(trim($result))) {
+		        $response = new SimpleXMLElement('<root></root>');
+		    }
 		}
-		$this->xml_response = $xml; // new SimpleXMLElement($result);
-		$this->raw_json = $result;
+        $this->response = $response;
 
-		$this->raw_xml = $this->xml_response->asXML ();
-		debug_dump ( $this->raw_xml, "DEVICE RESPONSE\n" );
+		debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
 	}
 
 }
@@ -215,11 +221,11 @@ class TokenConnection extends DeviceConnection {
 	public $token_xpath = '//root/token';
 	public $auth_header;
 	public $key;
-	
+
 	public function do_connect() {
 
 		$data = "";
-		
+
 		if($this->auth_mode != "auth-key")
 		{
 			unset ( $this->key );
@@ -271,8 +277,8 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 
 	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
 		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" 
-			|| $auth_mode == "auth-key" 
+		if ($auth_mode == "token"
+			|| $auth_mode == "auth-key"
 			|| $auth_mode == "oauth_v2"
 			|| $auth_mode == "jns_api_v2") {
 			$class = "TokenConnection";
@@ -299,9 +305,9 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
   		$sms_sd_ctx->token_xpath = $token_xpath;
     	}
 
-	if ($sms_sd_ctx->auth_mode == "token" 
-		|| $sms_sd_ctx->auth_mode == "auth-key" 
-		|| $sms_sd_ctx->auth_mode == "oauth_v2" 
+	if ($sms_sd_ctx->auth_mode == "token"
+		|| $sms_sd_ctx->auth_mode == "auth-key"
+		|| $sms_sd_ctx->auth_mode == "oauth_v2"
 		|| $sms_sd_ctx->auth_mode == "jns_api_v2") {
 
 	    if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
@@ -323,10 +329,10 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		echo  "rest_generic_connect: setting authentication header to: {$sms_sd_ctx->auth_header}\n";
 	}
 
-	$http_header_str ="Content-Type: application/json | Accept: application/json";
 	if (isset($sd->SD_CONFIGVAR_list['HTTP_HEADER'])) {
 		$http_header_str = $sd->SD_CONFIGVAR_list['HTTP_HEADER']->VAR_VALUE;
-		$sms_sd_ctx->http_header_list = explode("|", $http_header_str);
+	} else {
+        $http_header_str ="Content-Type: application/json | Accept: application/json";
 	}
 	$sms_sd_ctx->http_header_list = explode("|", $http_header_str);
 	echo "rest_generic_connect: setting HTTP header to: ".print_r($sms_sd_ctx->http_header_list, true)."\n";
@@ -342,12 +348,17 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		$sms_sd_ctx->conn_timeout=trim($sd->SD_CONFIGVAR_list['CONN_TIMEOUT']->VAR_VALUE);
 	}
 	echo  "rest_generic_connect: setting HTTP timeout to: {$sms_sd_ctx->conn_timeout}\n";
-	
+
 	if (isset($sd->SD_CONFIGVAR_list['AWS_SIGV4'])) {
 		$sms_sd_ctx->aws_sigv4=trim($sd->SD_CONFIGVAR_list['AWS_SIGV4']->VAR_VALUE);
 		echo  "rest_generic_connect: setting AWS_SIGV4: {$sms_sd_ctx->aws_sigv4}\n";
 	}
 
+	if (isset($sd->SD_CONFIGVAR_list['REST_JSON'])) {
+	  $sms_sd_ctx->rest_json=trim($sd->SD_CONFIGVAR_list['REST_JSON']->VAR_VALUE);
+	  $sms_sd_ctx->json_path = new \JsonPath\JsonPath();
+	  echo  "rest_generic_connect: setting REST_JSON: {$sms_sd_ctx->rest_json}\n";
+	}
 
 	try
 	{
@@ -359,7 +370,6 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
 		rest_generic_disconnect();
 		throw new SmsException($e->getMessage(), $e->getCode());
 	}
-
 
 	return SMS_OK;
 }
