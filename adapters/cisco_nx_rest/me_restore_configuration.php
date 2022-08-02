@@ -82,7 +82,9 @@ class device_restore_configuration
     {
       return $ret;
     }
-
+    
+    $http_header_str = "Content-Type: application/yang.data+xml|Accept: application/yang.data+xml";
+    $sms_sd_ctx->http_header_list = explode("|", $http_header_str);
     $cmd = "PATCH#/restconf/data/Cisco-NX-OS-device#@$full_name";
     $ret = $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
 
