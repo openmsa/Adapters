@@ -187,6 +187,15 @@ class DeviceConnection extends GenericConnection {
 
 			// call array to xml conversion function
 			$xml = arrayToXml ( $array, '<root></root>' );
+		}
+		elseif (strpos($curl_cmd, "content-type:application/json-rpc")) {
+	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+			$array = json_decode ( $result, true );
+			if (isset ( $array ['sid'] )) {
+				$this->key = $array ['sid'];
+			}
+			// call array to xml conversion function
+			$xml = arrayToXml ($array, '<root></root>');
 		} else {
                        if (empty(trim($result))) {
 		        $result="<root></root>";
