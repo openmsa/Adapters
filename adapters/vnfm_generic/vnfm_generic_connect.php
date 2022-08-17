@@ -129,6 +129,7 @@ class Nfvo_connection extends GenericConnection
 		}else if($this->auth_mode == "oauth_v2" && isset($this->key)){
 			$H = trim("Authorization: Bearer");
 			$headers .= " -H '{$H} {$this->key}'";
+			$action[2]=preg_replace('/\/\//', '/', $action[2]);
 			$curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
 			if (isset($action[3])) {
                                 $curl_cmd .= " -d '{$action[3]}'";
@@ -136,9 +137,10 @@ class Nfvo_connection extends GenericConnection
 
 		}
 		else{
-			// SI pas de endpoints, on prend keystone par défaut.
+			// SI pas de endpoints, on prend keystone par defaut.
 			// if ($action[1] == "")
 			// {
+			$action[2]=preg_replace('/\/\//', '/', $action[2]);
 			$action[2] = $this->protocol.'://' . $this->sd_ip_config . ':' . $http_port . $action[2];
 			// }
 
