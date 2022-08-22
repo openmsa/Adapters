@@ -17,25 +17,6 @@ require_once 'smsd/sms_common.php';
 require_once load_once('cisco_fmc_rest', 'me_connect.php');
 require_once load_once('cisco_fmc_rest', 'me_configuration.php');
 
-try
-{
-  $ret = me_connect();
-  if ($ret !== SMS_OK)
-  {
-  	return $ret;
-  }
+return ERR_SD_NOT_SUPPORTED;
 
-  // Get the conf on the router
-  $conf = new MeConfiguration($sdid);
-  $SMS_RETURN_BUF = $conf->get_running_conf();
-  me_disconnect();
-}
-catch (Exception $e)
-{
-  me_disconnect();
-  $SMS_OUTPUT_BUF = $e->getMessage();
-  return $e->getCode();
-}
-
-return SMS_OK;
 ?>

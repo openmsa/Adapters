@@ -18,8 +18,6 @@ try {
 	// Get the conf on the router
 	$conf = new MeConfiguration($sdid);
 	$running_conf = htmlentities($conf->get_running_conf());
-	me_disconnect();
-
 	if (!empty($running_conf))
 	{
 		sms_send_user_ok($sms_csp, $sdid, $running_conf);
@@ -28,6 +26,8 @@ try {
 	{
 		sms_send_user_error($sms_csp, $sdid, '', ERR_SD_FAILED);
 	}
+
+	me_disconnect();
 }
 catch(Exception $e)
 {

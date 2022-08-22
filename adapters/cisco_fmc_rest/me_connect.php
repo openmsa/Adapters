@@ -23,6 +23,8 @@ class MeConnection extends GenericConnection {
 	public $sign_in_req_path = '/api/fmc_platform/v1/auth/generatetoken';
 	public $access_token = 'X-auth-access-token';
 	public $key;
+	public $domain_uuid = 'DOMAIN_UUID:';
+	public $domain_uuid_key;
 
 	public function do_connect() {
 
@@ -104,13 +106,15 @@ class MeConnection extends GenericConnection {
 			$rest_path = $cmd_list[1];
 		}
 
+		$rest_path = str_replace ( "<domainUUID>", $this->domain_uuid_key, $rest_path );
+
 		$headers = '';
 		$auth = '';
 
 		if (isset($this->key)) {
             $headers = "-H '{$this->auth_header} {$this->key}'";
 		} else {
-		    $auth = "-u {$this->sd_login_entry}:{$this->sd_passwd_entry}";
+		    $auth = "-u '{$this->sd_login_entry}:{$this->sd_passwd_entry}'";
 		}
 
 		if (isset($this->http_header_custom)) {
@@ -170,7 +174,11 @@ class MeConnection extends GenericConnection {
     		}elseif (preg_match('/X-auth-access-token: ([^\\\]*?)\\n/', $result, $match) == 1){
 			$this->key = $match[1];	
 			debug_dump( $this->key, "X-auth-access-token:");
-		}
+			}
+			if (preg_match('/DOMAIN_UUID: ([^\\\]*?)\\n/', $result, $match) == 1){
+				$this->domain_uuid_key = $match[1];	
+				debug_dump( $this->domain_uuid_key, "DOMAIN_UUID:");
+			}
         }
         else
         {
