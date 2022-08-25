@@ -62,7 +62,7 @@ class juniper_contrail_command extends generic_command
           //MODIF LO
           //$cmd = trim($op_eval) . '&xpath=' . urlencode(trim($xpath_eval));
           // Rechercher tous les objets et les rajouter à la liste des commandes à passer
-          $cmd = 'GET#' . trim($op_eval);
+          $cmd = trim($op_eval);
 
           $uuid = $parser->evaluate_internal('IMPORT', 'json_params');
           if ($uuid != '0')
