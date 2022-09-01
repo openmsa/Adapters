@@ -219,6 +219,7 @@ class TokenConnection extends DeviceConnection {
 
 	public $sign_in_req_path;
 	public $token_xpath = '//root/token';
+	public $token_jsonpath = '$.token';
 	public $auth_header;
 	public $key;
 
@@ -249,9 +250,14 @@ class TokenConnection extends DeviceConnection {
 			$data = json_encode ( $data );
 			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
-		debug_dump($this->token_xpath, "do_connect result: \n");
+			debug_dump($this->rest_json ? $this->json_path : $this->token_xpath, "do_connect result: \n");
+
 			// extract token
-			$this->key = (string)($result->xpath($this->token_xpath)[0]);
+			if ($this->rest_json) {
+				$this->key = (string)($this->json_path->find($result, $this->token_jsonpath)[0]);
+			} else {
+				$this->key = (string)($result->xpath($this->token_xpath)[0]);
+			}
 
         }
 		debug_dump($this->key, "TOKEN\n");
@@ -304,6 +310,13 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
         	$token_xpath = trim($sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE);
   		$sms_sd_ctx->token_xpath = $token_xpath;
     	}
+
+        if (isset($sd->SD_CONFIGVAR_list['TOKEN_JSONPATH'])) {
+        	$token_jsonpath = trim($sd->SD_CONFIGVAR_list['TOKEN_JSONPATH']->VAR_VALUE);
+  		$sms_sd_ctx->token_jsonpath = $token_jsonpath;
+    	}
+
+		
 
 	if ($sms_sd_ctx->auth_mode == "token"
 		|| $sms_sd_ctx->auth_mode == "auth-key"
