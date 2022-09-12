@@ -20,33 +20,14 @@ class MeConnection extends GenericConnection {
       'PUT' => array('Content-Type: application/json', 'Accept: application/json'),
       'DELETE' => array('Accept: application/json'),
   );
-  public $protocol = 'https';
+  public $protocol;
   public $conn_timeout = EXPECT_DELAY / 1000;
   public $key;
 
-  public function do_connect() {
-
-    $network = get_network_profile();
-    $sd = &$network->SD;
-
-    if (isset($sd->SD_CONFIGVAR_list['REST_JSON'])) {
-      $this->rest_json=trim($sd->SD_CONFIGVAR_list['REST_JSON']->VAR_VALUE);
-      $this->json_path = new \JsonPath\JsonPath();
-    }
-
-    // Authentication part
-    // https://www.juniper.net/documentation/en_US/contrail20/information-products/pathway-pages/api-guide-2011/tutorial_with_rest.html#authentication
-    // https://docs.openstack.org/api-quick-start/api-quick-start.html
-
-    $auth_array = array();
-    $auth_array['auth'] = array();
-    $auth_array['auth']['identity'] = array();
-    $auth_array['auth']['identity']['methods'] = array();
-    $methods = array('password');
-    $auth_array['auth']['identity']['methods'] = $methods;
-    $auth_array['auth']['identity']['password'] = array();
-    $auth_array['auth']['identity']['password']['user'] = array();
-    $auth_array['auth']['identity']['password']['user']['domain'] = array();
+  // Authentication part
+  // https://www.juniper.net/documentation/en_US/contrail20/information-products/pathway-pages/api-guide-2011/tutorial_with_rest.html#authentication
+  // https://docs.openstack.org/api-quick-start/api-quick-start.html
+  private function get_token($sd) {
 
     if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROTOCOL'])) {
       $keystone_proto = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROTOCOL']->VAR_VALUE);
@@ -59,6 +40,17 @@ class MeConnection extends GenericConnection {
     if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PORT'])) {
       $keystone_port = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PORT']->VAR_VALUE);
     }
+
+
+    $auth_array = array();
+    $auth_array['auth'] = array();
+    $auth_array['auth']['identity'] = array();
+    $auth_array['auth']['identity']['methods'] = array();
+    $methods = array('password');
+    $auth_array['auth']['identity']['methods'] = $methods;
+    $auth_array['auth']['identity']['password'] = array();
+    $auth_array['auth']['identity']['password']['user'] = array();
+    $auth_array['auth']['identity']['password']['user']['domain'] = array();
 
     if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_USER_DOMAIN_NAME'])) {
       $auth_array['auth']['identity']['password']['user']['domain']['name'] = trim($sd->SD_CONFIGVAR_list['KEYSTONE_USER_DOMAIN_NAME']->VAR_VALUE);
@@ -99,6 +91,30 @@ class MeConnection extends GenericConnection {
     }
 
     $this->key = trim($matches[1]);
+  }
+
+  public function do_connect() {
+
+    $network = get_network_profile();
+    $sd = &$network->SD;
+
+    if (isset($sd->SD_CONFIGVAR_list['REST_JSON'])) {
+      $this->rest_json = empty($sd->SD_CONFIGVAR_list['REST_JSON']->VAR_VALUE) ? false : true;
+      $this->json_path = new \JsonPath\JsonPath();
+    } else {
+      $this->rest_json = false;
+    }
+
+    // if the variable KEYSTONE_IP is present then assume authentication is enable
+    // protocol = HTTPS if authentication enable, HTTP otherwise
+    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_IP'])) {
+      $this->get_token($sd);
+      $this->protocol = 'https';
+    }else {
+      $this->protocol = 'http';
+    }
+
+    $this->send(__FILE__ . ':' . __LINE__, 'GET#/');
   }
 
   public function do_disconnect() {
