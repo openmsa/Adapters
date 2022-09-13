@@ -12,8 +12,10 @@ So a Juniper contrail managed entity should have several configuration variables
 
 ## KEYSTONE_IP
 The IP address to reach the keystone component of Openstack.
+
 ## KEYSTONE_PORT
 The TCP port to reach the keystone component of Openstack.
+
 ## KEYSTONE_PROTOCOL
 The protocol to access the keystone component of Openstack.
 
