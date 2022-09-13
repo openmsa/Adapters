@@ -10,7 +10,9 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_command.php';
 
-require_once load_once('smsd', 'generic_command.php');
+#require_once load_once('smsd', 'generic_command.php');
+require_once load_once('juniper_srx', 'adaptor.php');
+
 
 class juniper_srx_command extends generic_command
 {

@@ -62,7 +62,8 @@ class juniper_contrail_command extends generic_command
           //MODIF LO
           //$cmd = trim($op_eval) . '&xpath=' . urlencode(trim($xpath_eval));
           // Rechercher tous les objets et les rajouter à la liste des commandes à passer
-          $cmd = 'GET#' . trim($op_eval);
+          #$cmd = 'GET#' . trim($op_eval);
+          $cmd = trim($op_eval) . '#' . trim($xpath_eval);
 
           $uuid = $parser->evaluate_internal('IMPORT', 'json_params');
           if ($uuid != '0')
@@ -77,7 +78,7 @@ class juniper_contrail_command extends generic_command
           { // sinon parser tous les objets
             echo ("LISTE d'OBJET\n");
 
-            $list_objects = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd . "s");
+            $list_objects = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd);
             // trouver tous les UUID pour faire les GET
             foreach ($list_objects->xpath('//uuid') as $uuid_object)
             {
@@ -134,12 +135,13 @@ class juniper_contrail_command extends generic_command
 
     foreach ($this->create_list as $create)
     {
-      $conf = 'POST#' . trim($create->evaluate_operation());
+      #$conf = 'POST#' . trim($create->evaluate_operation());
+      $conf = trim($create->evaluate_operation());
       if (!empty($conf))
       {
         $xpath = trim($create->evaluate_xpath());
         // MODIF LO
-        $conf .= urlencode(trim($xpath));
+        $conf .= '#' . urlencode(trim($xpath));
         //$conf .= '&element=';
         echo ("################## {$create->evaluate_xml()} ##############\n");
 
@@ -157,6 +159,12 @@ class juniper_contrail_command extends generic_command
           // FIN MODIF
         }
         $this->configuration .= "{$conf}\n";
+
+        echo ("########### 'apply_device_CREATE' function not called WORKAROUND #####################");
+        debug_dump($this->configuration, "CONFIGURATION TO SEND TO THE DEVICE");
+        $ret = sd_apply_conf($this->configuration, true, $params);
+        echo ("########### END WORKAROUND ###########################");
+
         $SMS_RETURN_BUF = "";
       }
     }
