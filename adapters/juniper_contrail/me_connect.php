@@ -12,6 +12,7 @@ class MeConnection extends GenericConnection {
 
   protected $response; // either SimpleXMLElement or array, depending of rest_json
   protected $header;
+  protected $header_xauth_set = false;
   public $rest_json;
   public $json_path;
   public $http_header_list = array(
@@ -29,18 +30,7 @@ class MeConnection extends GenericConnection {
   // https://docs.openstack.org/api-quick-start/api-quick-start.html
   private function get_token($sd) {
 
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROTOCOL'])) {
-      $keystone_proto = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROTOCOL']->VAR_VALUE);
-    }
-
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_IP'])) {
-      $keystone_ip = trim($sd->SD_CONFIGVAR_list['KEYSTONE_IP']->VAR_VALUE);
-    }
-
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PORT'])) {
-      $keystone_port = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PORT']->VAR_VALUE);
-    }
-
+    $keystone_url = trim($sd->SD_CONFIGVAR_list['KEYSTONE_URL']->VAR_VALUE);
 
     $auth_array = array();
     $auth_array['auth'] = array();
@@ -76,15 +66,11 @@ class MeConnection extends GenericConnection {
       }
     }
 
-    $keystone_token_req = '/v3/auth/tokens?nocatalog'; // Config var ?
+    $payload = json_encode($auth_array);
 
     // WARNING : Do not call $this->send() because it uses credentials of the Contrail
     // while we have to use the ones of the Keystone
-    $url = "{$keystone_proto}://{$keystone_ip}:{$keystone_port}{$keystone_token_req}";
-
-    $payload = json_encode($auth_array);
-
-    $this->execute_curl_command(__FILE__ . ':' . __LINE__, 'do_connect', 'POST', $url, $payload);
+    $this->execute_curl_command(__FILE__ . ':' . __LINE__, 'get_token', 'POST', $keystone_url, $payload);
 
     if (preg_match('/X-Subject-Token:\s+(.*)$/m', $this->header, $matches) != 1) {
       throw new SmsException("Authentication failed, no token in header response to $url, header : $this->header", ERR_SD_AUTH, __FILE__ . ':' . __LINE__);
@@ -105,12 +91,12 @@ class MeConnection extends GenericConnection {
       $this->rest_json = false;
     }
 
-    // if the variable KEYSTONE_IP is present then assume authentication is enable
+    // if the variable KEYSTONE_URL is present then assume authentication is enable
     // protocol = HTTPS if authentication enable, HTTP otherwise
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_IP'])) {
+    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_URL'])) {
       $this->get_token($sd);
       $this->protocol = 'https';
-    }else {
+    } else {
       $this->protocol = 'http';
     }
 
@@ -174,8 +160,9 @@ class MeConnection extends GenericConnection {
 
     $http_op = $cmd_list[0];
 
-    if (isset($this->key)) {
+    if (isset($this->key) && !$this->header_xauth_set) {
       $this->http_header_list[$http_op][] = "X-Auth-Token: {$this->key}";
+      $this->header_xauth_set = true;
     }
 
     if (count($cmd_list) > 1 ) {
