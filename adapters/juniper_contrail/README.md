@@ -11,8 +11,8 @@ The authentication is described in this document :  https://docs.openstack.org/a
 
 So a Juniper contrail managed entity should have several configuration variables for the authentication:
 
-## KEYSTONE_IP
-The IP address to reach the keystone component of Openstack.
+## KEYSTONE_URL
+The URL for requesting an authentication token to the keystone component of Openstack.
 
 ## KEYSTONE_PORT
 The TCP port to reach the keystone component of Openstack.
@@ -36,7 +36,7 @@ The project domain for authentication. (Optional)
 The project name for authentication. (Optional)
 
 
-If the authentication is not required, no variable to create or at least KEYSTONE_IP should not be created.
+If the authentication is not required, no variable to create or at least KEYSTONE_URL should not be created.
 
 REST API of Contrail are described here https://www.juniper.net/documentation/en_US/contrail20/information-products/pathway-pages/api-guide-2011/index.html
 

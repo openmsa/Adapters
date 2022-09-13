@@ -12,6 +12,7 @@ class MeConnection extends GenericConnection {
 
   protected $response; // either SimpleXMLElement or array, depending of rest_json
   protected $header;
+  protected $header_xauth_set = false;
   public $rest_json;
   public $json_path;
   public $http_header_list = array(
@@ -20,23 +21,16 @@ class MeConnection extends GenericConnection {
       'PUT' => array('Content-Type: application/json', 'Accept: application/json'),
       'DELETE' => array('Accept: application/json'),
   );
-  public $protocol = 'https';
+  public $protocol;
   public $conn_timeout = EXPECT_DELAY / 1000;
   public $key;
 
-  public function do_connect() {
+  // Authentication part
+  // https://www.juniper.net/documentation/en_US/contrail20/information-products/pathway-pages/api-guide-2011/tutorial_with_rest.html#authentication
+  // https://docs.openstack.org/api-quick-start/api-quick-start.html
+  private function get_token($sd) {
 
-    $network = get_network_profile();
-    $sd = &$network->SD;
-
-    if (isset($sd->SD_CONFIGVAR_list['REST_JSON'])) {
-      $this->rest_json=trim($sd->SD_CONFIGVAR_list['REST_JSON']->VAR_VALUE);
-      $this->json_path = new \JsonPath\JsonPath();
-    }
-
-    // Authentication part
-    // https://www.juniper.net/documentation/en_US/contrail20/information-products/pathway-pages/api-guide-2011/tutorial_with_rest.html#authentication
-    // https://docs.openstack.org/api-quick-start/api-quick-start.html
+    $keystone_url = trim($sd->SD_CONFIGVAR_list['KEYSTONE_URL']->VAR_VALUE);
 
     $auth_array = array();
     $auth_array['auth'] = array();
@@ -47,18 +41,6 @@ class MeConnection extends GenericConnection {
     $auth_array['auth']['identity']['password'] = array();
     $auth_array['auth']['identity']['password']['user'] = array();
     $auth_array['auth']['identity']['password']['user']['domain'] = array();
-
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROTOCOL'])) {
-      $keystone_proto = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROTOCOL']->VAR_VALUE);
-    }
-
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_IP'])) {
-      $keystone_ip = trim($sd->SD_CONFIGVAR_list['KEYSTONE_IP']->VAR_VALUE);
-    }
-
-    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PORT'])) {
-      $keystone_port = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PORT']->VAR_VALUE);
-    }
 
     if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_USER_DOMAIN_NAME'])) {
       $auth_array['auth']['identity']['password']['user']['domain']['name'] = trim($sd->SD_CONFIGVAR_list['KEYSTONE_USER_DOMAIN_NAME']->VAR_VALUE);
@@ -84,21 +66,41 @@ class MeConnection extends GenericConnection {
       }
     }
 
-    $keystone_token_req = '/v3/auth/tokens?nocatalog'; // Config var ?
+    $payload = json_encode($auth_array);
 
     // WARNING : Do not call $this->send() because it uses credentials of the Contrail
     // while we have to use the ones of the Keystone
-    $url = "{$keystone_proto}://{$keystone_ip}:{$keystone_port}{$keystone_token_req}";
-
-    $payload = json_encode($auth_array);
-
-    $this->execute_curl_command(__FILE__ . ':' . __LINE__, 'do_connect', 'POST', $url, $payload);
+    $this->execute_curl_command(__FILE__ . ':' . __LINE__, 'get_token', 'POST', $keystone_url, $payload);
 
     if (preg_match('/X-Subject-Token:\s+(.*)$/m', $this->header, $matches) != 1) {
       throw new SmsException("Authentication failed, no token in header response to $url, header : $this->header", ERR_SD_AUTH, __FILE__ . ':' . __LINE__);
     }
 
     $this->key = trim($matches[1]);
+  }
+
+  public function do_connect() {
+
+    $network = get_network_profile();
+    $sd = &$network->SD;
+
+    if (isset($sd->SD_CONFIGVAR_list['REST_JSON'])) {
+      $this->rest_json = empty($sd->SD_CONFIGVAR_list['REST_JSON']->VAR_VALUE) ? false : true;
+      $this->json_path = new \JsonPath\JsonPath();
+    } else {
+      $this->rest_json = false;
+    }
+
+    // if the variable KEYSTONE_URL is present then assume authentication is enable
+    // protocol = HTTPS if authentication enable, HTTP otherwise
+    if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_URL'])) {
+      $this->get_token($sd);
+      $this->protocol = 'https';
+    } else {
+      $this->protocol = 'http';
+    }
+
+    $this->send(__FILE__ . ':' . __LINE__, 'GET#/');
   }
 
   public function do_disconnect() {
@@ -158,8 +160,9 @@ class MeConnection extends GenericConnection {
 
     $http_op = $cmd_list[0];
 
-    if (isset($this->key)) {
+    if (isset($this->key) && !$this->header_xauth_set) {
       $this->http_header_list[$http_op][] = "X-Auth-Token: {$this->key}";
+      $this->header_xauth_set = true;
     }
 
     if (count($cmd_list) > 1 ) {
