@@ -19,7 +19,6 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('juniper_contrail', 'adaptor.php');
-require_once load_once('juniper_contrail', 'juniper_contrail_configuration.php');
 require_once load_once('juniper_contrail', 'provisioning_stages.php');
 
 

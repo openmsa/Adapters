@@ -3,16 +3,16 @@
  * Version: $Id$
  * Created: Apr 28, 2011
  * Available global variables
- *  $sms_csp            pointer to csp context to send response to user
- * 	$sms_sd_ctx         pointer to sd_ctx context to retreive usefull field(s)
- * 	$SMS_RETURN_BUF     string buffer containing the result
+ * $sms_csp pointer to csp context to send response to user
+ * $sms_sd_ctx pointer to sd_ctx context to retreive usefull field(s)
+ * $SMS_RETURN_BUF string buffer containing the result
  */
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_command.php';
 
-require_once load_once('juniper_contrail', 'adaptor.php');
+require_once load_once ( 'cisco_fmc_rest', 'adaptor.php' );
 
-class juniper_contrail_command extends generic_command
+class cisco_fmc_rest_command extends generic_command
 {
 
   function __construct() {
@@ -201,7 +201,7 @@ class juniper_contrail_command extends generic_command
         $xml_conf_str = str_replace("\n", '', $xml_conf);
         if (! empty ( $xml_conf_str ))
         {
-          $conf .= "' -d '" . $xml_conf_str;
+            $conf .= "' -d '" . $xml_conf_str;
         }
         $this->configuration .= "{$conf}\n";
         $SMS_RETURN_BUF .= "{$conf}\n";

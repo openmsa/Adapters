@@ -1,13 +1,11 @@
 <?php
 
 // -------------------------------------------------------------------------------------
-// DNS & IP CONFIG UPDATE
+// LOCK PROVISIONING
 // -------------------------------------------------------------------------------------
-function prov_register_ip($sms_csp, $sdid, $sms_sd_info, &$err)
+function prov_lock($sms_csp, $sdid, $sms_sd_info, &$err)
 {
-  global $ipaddr;
-
-  return sd_ip_update($sms_csp, $sdid, $sms_sd_info, $ipaddr);
+  return sd_prov_lock($sms_csp, $sms_sd_info);
 }
 
 ?>
