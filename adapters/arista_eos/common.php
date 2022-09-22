@@ -189,7 +189,11 @@ function scp_to_router($src, $dst)
 	}
 
 	// Check file size
-	check_file_size($src, $dst);
+	$check_file_size_ret=check_file_size($src, $dst);
+        if( $check_file_size_ret != SMS_OK )
+        {
+                throw new SmsException("Sending file $src Failed", $check_file_size_ret);
+        }
 
 	if (strpos($out, 'SMS-CMD-OK') !== false)
 	{
@@ -211,7 +215,8 @@ function check_file_size($src, $dst)
   $filename = basename($src);
   $orig_size = filesize($src);
   $buffer = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "dir $dst");
-  if (preg_match("@^\s+\S+\s+\S+\s+(?<size>\d+)\s+.*\s+{$filename}\s*$@m", $buffer, $matches) > 0)
+//        -rw-          53           Sep 22 08:39  SDS139.cfg
+  if (preg_match("@^\s+\S+\s+(?<size>\d+)\s+.*\s+{$filename}\s*$@m", $buffer, $matches) > 0)
   {
     $size = $matches['size'];
     if ($size != $orig_size)
