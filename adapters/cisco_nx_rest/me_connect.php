@@ -356,7 +356,11 @@ function me_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_
 		$sms_sd_ctx->aws_sigv4=trim($sd->SD_CONFIGVAR_list['AWS_SIGV4']->VAR_VALUE);
 		echo  "me_connect: setting AWS_SIGV4: {$sms_sd_ctx->aws_sigv4}\n";
 	}
-
+	
+	if (isset($sd->SD_CONFIGVAR_list['NO_SAVE_CONFIG_TO_START_UP_ON_APPLY_CONF'])) {
+		$no_save_config_to_startup = trim($sd->SD_CONFIGVAR_list['NO_SAVE_CONFIG_TO_START_UP_ON_APPLY_CONF']->VAR_VALUE);
+		$sms_sd_ctx->no_save_config_to_startup = $no_save_config_to_startup;
+	}
 
 	try
 	{
