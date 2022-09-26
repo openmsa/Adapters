@@ -7,10 +7,6 @@ require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
 
-require 'autoload.php';
-use Aws\Signature\SignatureV4;
-use GuzzleHttp\Psr7\Request;
-use Aws\Credentials\Credentials;
 
 class KubernetesGenericRESTConnection extends GenericConnection
 {
