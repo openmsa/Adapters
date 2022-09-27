@@ -36,7 +36,10 @@ function me_apply_conf($configuration)
     	}
     	$line = get_one_line($configuration);
     }
-    $ret = copy_config_to_startup();
+    if ($sms_sd_ctx->no_save_config_to_startup != 'true') {
+        $ret = copy_config_to_startup();
+    }
+    
     if ($ret !== SMS_OK)
     {
       return $ret;
