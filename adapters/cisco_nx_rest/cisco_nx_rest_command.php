@@ -178,18 +178,19 @@ class cisco_nx_rest_command extends generic_command {
                                   $i = 0;
                                   foreach ( $operations as $operation )
                                   {
-                                        $conf = $operation . '##' . $xpaths[0];
-                                        $xml_conf_str = str_replace("\n", '', $xml_conf[0]);
+                                        $conf = $operation . '##' . $xpaths[$i];
+                                        $xml_conf_str = str_replace("\n", '', $xml_conf[$i]);
                                         if (! empty ( $xml_conf_str )) {
                                                  $conf .= "' -d'".$xml_conf_str;
                                         }
                                         $this->configuration .= "{$conf}\n";
-                                        $SMS_RETURN_BUF .= "{$conf}\n";
+                                       
                                         $i += 1;
                                   }
                                 }
                         }
                 }
+		 $SMS_RETURN_BUF = $this->configuration;
 		return SMS_OK;
 	}
 
