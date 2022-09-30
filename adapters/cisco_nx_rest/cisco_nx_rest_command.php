@@ -179,7 +179,7 @@ class cisco_nx_rest_command extends generic_command {
                                   foreach ( $operations as $operation )
                                   {
                                         $conf = $operation . '##' . $xpaths[$i];
-                                        $xml_conf_str = str_replace("\n", '', $xml_conf[$i]);
+                                        $xml_conf_str = str_replace("\n", '', $xml_configs[$i]);
                                         if (! empty ( $xml_conf_str )) {
                                                  $conf .= "' -d'".$xml_conf_str;
                                         }
