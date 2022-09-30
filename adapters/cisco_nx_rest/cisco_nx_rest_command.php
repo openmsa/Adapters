@@ -135,18 +135,14 @@ class cisco_nx_rest_command extends generic_command {
 				if (count ( $xpaths ) != count ( $endpoints )) {
 					throw new SmsException ( "End points are not as many as Xpaths" );
 				} else {
-					$i = 0;
-					foreach ( $xml_configs as $xml_conf ) {
-						if (! empty ( $xml_conf )) {
-							$conf = $endpoints [$i];
-							$conf .= '#' . $xpaths [$i];
-							// separate data with '#'
-							$conf .= '#' . $xml_conf;
-
-							$this->configuration .= "{$conf}\n";
-							$SMS_RETURN_BUF .= "{$conf}\n";
-						}
-						$i += 1;
+					foreach ( $operations as $i => $operation )
+					{
+					    $conf = $operation . '##' . $xpaths[$i];
+					    $xml_conf_str = str_replace("\n", '', $xml_configs[$i]);
+					    if (! empty ( $xml_conf_str )) {
+						$conf .= "' -d'".$xml_conf_str;
+					    }
+					    $this->configuration .= "{$conf}\n";
 					}
 				}
 			}
