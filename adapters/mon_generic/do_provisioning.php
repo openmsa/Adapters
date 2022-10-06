@@ -79,42 +79,52 @@ if ($SD->SD_LOG)
 
   $cmd = "/opt/sms/bin/snmp_test.sh -t get -H $sd_ip_addr -o $snmp_oid";
 
-  if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.object_id']))
+  // check if all the necessary SNMP V3 config vars are there
+  $cmd_v3 = '';
+  $nb_params_v3 = 0;
+
+  if (!empty($SD->SD_CONFIGVAR_list['snmpv3_securityLevel']))
+  {
+    $sec_level = $SD->SD_CONFIGVAR_list['snmpv3_securityLevel']->VAR_VALUE;
+    $cmd_v3 .= " -l $sec_level";
+    $nb_params_v3++;
+  }
+  if (!empty($SD->SD_CONFIGVAR_list['snmpv3_securityName']))
+  {
+    $sec_name = $SD->SD_CONFIGVAR_list['snmpv3_securityName']->VAR_VALUE;
+    $cmd_v3 .= " -n $sec_name";
+    $nb_params_v3++;
+  }
+  if (!empty($SD->SD_CONFIGVAR_list['snmpv3_authProtocol']))
+  {
+    $auth_type = $SD->SD_CONFIGVAR_list['snmpv3_authProtocol']->VAR_VALUE;
+    $cmd_v3 .= " -a $auth_type";
+    $nb_params_v3++;
+  }
+  if (!empty($SD->SD_CONFIGVAR_list['snmpv3_authKey']))
+  {
+    $auth_phrase = $SD->SD_CONFIGVAR_list['snmpv3_authKey']->VAR_VALUE;
+    $cmd_v3 .= " -A $auth_phrase";
+    $nb_params_v3++;
+  }
+  if (!empty($SD->SD_CONFIGVAR_list['snmpv3_privProtocol']))
+  {
+    $priv_type = $SD->SD_CONFIGVAR_list['snmpv3_privProtocol']->VAR_VALUE;
+    $cmd_v3 .= " -x $priv_type";
+    $nb_params_v3++;
+  }
+  if (!empty($SD->SD_CONFIGVAR_list['snmpv3_privKey']))
+  {
+    $priv_phrase = $SD->SD_CONFIGVAR_list['snmpv3_privKey']->VAR_VALUE;
+    $cmd_v3 .= " -X $priv_phrase";
+    $nb_params_v3++;
+  }
+  // which SNMP ?
+  if ($nb_params_v3 == 6)
   {
     // SNMPv3
-    $cmd .= ' -v 3';
+    $cmd .= ' -v 3' . $cmd_v3;
 
-    if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level']))
-    {
-      $sec_level = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_level'];
-      $cmd .= " -l $sec_level";
-    }
-    if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name']))
-    {
-      $sec_name = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_sec_name'];
-      $cmd .= " -n $sec_name";
-    }
-    if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type']))
-    {
-      $auth_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_type'];
-      $cmd .= " -a $auth_type";
-    }
-    if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase']))
-    {
-      $auth_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_auth_phrase'];
-      $cmd .= " -A $auth_phrase";
-    }
-    if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type']))
-    {
-      $priv_type = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_type'];
-      $cmd .= " -x $priv_type";
-    }
-    if (isset($SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase']))
-    {
-      $priv_phrase = $SD->SD_CRUD_OBJECT_list['snmpv3.1.snmpv3_priv_phrase'];
-      $cmd .= " -X $priv_phrase";
-    }
-    echo ("CMD: ".$cmd."\n");
     $ret = exec_local(__FILE__ . ':' . __LINE__, $cmd, $output);
     if ($ret !== SMS_OK)
     {
@@ -123,13 +133,14 @@ if ($SD->SD_LOG)
   }
   else
   {
+    // SNMPv2
     $snmp_community = $SD->SD_SNMP_COMMUNITY;
-    $cmd .= " -c $snmp_community";
+    $cmd .= " -v 2c -c $snmp_community";
 
     $ret = exec_local(__FILE__ . ':' . __LINE__, "$cmd -v 2c", $output);
     if ($ret !== SMS_OK)
     {
-      // Try snmp v1
+      // Try SNMPv1
       $ret = exec_local(__FILE__ . ':' . __LINE__, "$cmd -v 1", $output);
       if ($ret !== SMS_OK)
       {
@@ -157,7 +168,7 @@ if ($SD->SD_LOG)
 }
 
 // -------------------------------------------------------------------------------------
-// DNS & IP CONFIG UPDATE
+// IP CONFIG UPDATE
 // -------------------------------------------------------------------------------------
 $stage += 1;
 

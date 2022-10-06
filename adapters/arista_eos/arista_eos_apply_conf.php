@@ -79,9 +79,15 @@ function arista_eos_apply_conf($configuration)
 					break;
 				}
 			}
-
-			sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "delete " .$disk_type . $file_name, "]?");
-			sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "", "[confirm]");
+			unset($tab);
+      			$tab[0] = '#';
+      			$tab[1] = ']?';
+      			$tab[2] = '[confirm]';
+      			$index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete " .$disk_type . $file_name, $tab);
+      			while ($index > 0)
+      			{
+        		$index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab);
+      			}
 			sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "", $sms_sd_ctx->getPrompt());
 
 			if ($ret === SMS_OK)

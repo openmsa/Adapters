@@ -6,6 +6,8 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
+
+
 class KubernetesGenericRESTConnection extends GenericConnection
 {
    private $key;
@@ -32,7 +34,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
        $cmd               = "POST##/v3/auth/tokens#{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
        $cmd .= "\"{$user_domain_id}\"},\"name\": \"{$this->sd_login_entry}\",\"password\": \"{$this->sd_passwd_entry}\"}}}, ";
        $cmd .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
-       if ($kube_auth_method == "KUBERNETES") {
+       if ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS") {
            $cmd = "GET##/api#{}";
        }
        
@@ -87,8 +89,8 @@ class KubernetesGenericRESTConnection extends GenericConnection
        $action           = explode("#", $cmd);
        $kube_auth_method = $sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD']->VAR_VALUE;
        $kube_token       = $sd->SD_CONFIGVAR_list['KUBE_TOKEN']->VAR_VALUE;
-       
-       if (($action[1] == "") && ($kube_auth_method != "KUBERNETES")) {
+
+       if (($action[1] == "") && ($kube_auth_method != "KUBERNETES" && $kube_auth_method != "EKS")) {
            $action[2] = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
        } else {
            $action[2] = $kube_http_protocol . '://' . $this->sd_ip_config . ':' . $kube_port . '' . $action[2];
@@ -103,14 +105,30 @@ class KubernetesGenericRESTConnection extends GenericConnection
            $token = $sd->SD_CONFIGVAR_list['KUBE_TOKEN']->VAR_VALUE;
        }
        
+       if ($kube_auth_method == "EKS") {
+           $region       = $sd->SD_CONFIGVAR_list['region']->VAR_VALUE;
+           $cluster_id   = $sd->SD_CONFIGVAR_list['cluster_id']->VAR_VALUE;
+
+           putenv("AWS_ACCESS_KEY_ID=$this->sd_login_entry");
+           putenv("AWS_SECRET_ACCESS_KEY=$this->sd_passwd_entry");
+           $get_token_cmd = "/usr/local/bin/aws eks get-token --cluster-id {$cluster_id} --region {$region}";
+           $ret = exec_local($origin, $get_token_cmd, $output_array);
+           sms_log_debug(15, "Get Token Response: " . $output_array);
+           if ($ret !== SMS_OK) {
+            throw new SmsException("Failed to get Token", $ret);
+           }
+           $json = json_decode($output_array[0], true);
+           $token = $json['status']['token'];
+       }
+       
        // TODO TEST validité champ ACTION[]
        $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} {$token} -H \"Content-Type: application/json\" -k '{$action[2]}'";
-       if ($kube_auth_method == "KUBERNETES") {
+       if ($kube_auth_method == "KUBERNETES"|| $kube_auth_method == "EKS") {
            $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} --header \"Authorization: Bearer {$token}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
        }
        
        
-       if (isset($action[3]) && ($kube_auth_method == "KUBERNETES")) {
+       if (isset($action[3]) && ($kube_auth_method == "KUBERNETES"|| $kube_auth_method == "EKS")) {
            $curl_cmd .= " -d '{$action[3]}'";
        }
        
@@ -252,5 +270,3 @@ function kubernetes_generic_disconnect()
    $sms_sd_ctx = null;
    return SMS_OK;
 }
-
-?>
