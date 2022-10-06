@@ -79,48 +79,40 @@ if ($SD->SD_LOG)
 
   $cmd = "/opt/sms/bin/snmp_test.sh -t get -H $sd_ip_addr -o $snmp_oid";
 
-  // check if all the necessary SNMP V3 config vars are there
   $cmd_v3 = '';
-  $nb_params_v3 = 0;
 
   if (!empty($SD->SD_CONFIGVAR_list['snmpv3_securityLevel']))
   {
     $sec_level = $SD->SD_CONFIGVAR_list['snmpv3_securityLevel']->VAR_VALUE;
     $cmd_v3 .= " -l $sec_level";
-    $nb_params_v3++;
   }
   if (!empty($SD->SD_CONFIGVAR_list['snmpv3_securityName']))
   {
     $sec_name = $SD->SD_CONFIGVAR_list['snmpv3_securityName']->VAR_VALUE;
     $cmd_v3 .= " -n $sec_name";
-    $nb_params_v3++;
   }
   if (!empty($SD->SD_CONFIGVAR_list['snmpv3_authProtocol']))
   {
     $auth_type = $SD->SD_CONFIGVAR_list['snmpv3_authProtocol']->VAR_VALUE;
     $cmd_v3 .= " -a $auth_type";
-    $nb_params_v3++;
   }
   if (!empty($SD->SD_CONFIGVAR_list['snmpv3_authKey']))
   {
     $auth_phrase = $SD->SD_CONFIGVAR_list['snmpv3_authKey']->VAR_VALUE;
     $cmd_v3 .= " -A $auth_phrase";
-    $nb_params_v3++;
   }
   if (!empty($SD->SD_CONFIGVAR_list['snmpv3_privProtocol']))
   {
     $priv_type = $SD->SD_CONFIGVAR_list['snmpv3_privProtocol']->VAR_VALUE;
     $cmd_v3 .= " -x $priv_type";
-    $nb_params_v3++;
   }
   if (!empty($SD->SD_CONFIGVAR_list['snmpv3_privKey']))
   {
     $priv_phrase = $SD->SD_CONFIGVAR_list['snmpv3_privKey']->VAR_VALUE;
     $cmd_v3 .= " -X $priv_phrase";
-    $nb_params_v3++;
   }
-  // which SNMP ?
-  if ($nb_params_v3 == 6)
+
+  if (!empty($cmd_v3))
   {
     // SNMPv3
     $cmd .= ' -v 3' . $cmd_v3;
