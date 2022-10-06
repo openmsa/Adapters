@@ -160,23 +160,33 @@ class cisco_nx_rest_command extends generic_command {
 		global $SMS_RETURN_BUF;
 
 		foreach ( $this->delete_list as $delete ) {
-			$operation = trim ( $delete->evaluate_operation () );
-			debug_dump ( $operation, "DELETE CONF\n" );
-			$xpath = trim ( $delete->evaluate_xpath () );
-			debug_dump ( $xpath, "DELETE XPATH\n" );
+                        $operation_str = trim ( $delete->evaluate_operation () );
+                        $operations = explode ( "##", $operation_str );
 
-			if (! empty ( $operation )) {
-                             $conf = $operation . '##' . $xpath;
-                             $xml_conf = trim($delete->evaluate_xml());
-                             $xml_conf_str = str_replace("\n", '', $xml_conf);
-				if (! empty ( $xml_conf_str )) {
-	                             $conf .= "' -d'".$xml_conf_str;
-				}
+                        $xpath_str = trim ( $delete->evaluate_xpath () );
+                        $xpaths = explode ( "##", $xpath_str );
 
-                             $this->configuration .= "{$conf}\n";
-                             $SMS_RETURN_BUF .= "{$conf}\n";
+                        $xml_conf_str = trim ( $delete->evaluate_xml () );
+                        $xml_conf_str = str_replace ( "\n", '', $xml_conf_str );
+                        $xml_configs = explode ( "##", $xml_conf_str );
+
+                        if (! empty ( $operation_str )) {
+                                 if (count ( $xpaths ) != count ( $operations )) {
+                                        throw new SmsException ( "Operations are not as many as Xpaths" );
+                                } else {
+				       foreach ( $operations as $i => $operation )
+							{
+							    $conf = $operation . '##' . $xpaths[$i];
+							    $xml_conf_str = str_replace("\n", '', $xml_configs[$i]);
+							    if (! empty ( $xml_conf_str )) {
+								$conf .= "' -d'".$xml_conf_str;
+							    }
+							    $this->configuration .= "{$conf}\n";
+							}
+						}
                         }
-		}
+                }
+		 $SMS_RETURN_BUF = $this->configuration;
 		return SMS_OK;
 	}
 
