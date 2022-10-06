@@ -13,7 +13,6 @@
 *  	$passwd             current password
 *  	$adminpasswd        current administation **PORT**
 */
-
 // Initial provisioning
 
 require_once 'smsd/sms_common.php';

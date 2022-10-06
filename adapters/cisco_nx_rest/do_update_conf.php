@@ -11,7 +11,6 @@
 * 	$SMS_RETURN_BUF    string buffer containing the result
 *
 */
-
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
