@@ -26,4 +26,14 @@ function set_fields(&$fields, &$records) {
     $fields['hostname'] = str_replace(':','',$records['orig']);
   }
 
+	//-------------------------------
+	//----     Date
+	//-------------------------------
+	if (empty($records['timestamp'])) {
+	  $fields['Date'] = date('Y-m-d\TH:i:s');
+	} else if (!empty($records['date']) && !empty($records['time'])){
+	  $fields['Date'] = $records['date'] . 'T' . $records['time'];
+	}
+	$fields['Date'] .= $timezone;
+
 }
