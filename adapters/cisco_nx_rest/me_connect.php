@@ -6,6 +6,8 @@ require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
+require_once 'smsd/ssh_connection.php';
+require_once load_once ('cisco_nx_rest', 'common.php');
 
 class DeviceConnection extends GenericConnection {
   
@@ -13,11 +15,7 @@ class DeviceConnection extends GenericConnection {
 	protected $raw_xml;
 	public $http_header_list;
 	public $protocol;
-	public $auth_mode;
-	public $auth_header;
 	public $conn_timeout;
-	public $fqdn;
-	public $aws_sigv4;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -87,6 +85,10 @@ class DeviceConnection extends GenericConnection {
 		return $this->raw_xml;
 	}
 
+	public function get_raw_json() {
+    		return $this->raw_json;
+    	}
+
 	public function send($origin, $rest_cmd) {
 		unset ( $this->xml_response );
 		unset ( $this->raw_xml );
@@ -101,31 +103,7 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		$headers = "";
-		$auth = "";
-
-		echo("auth_mode= ".$this->auth_mode."\n");
-                if (isset($this->auth_header)) {
-                        echo("auth_header= ".$this->auth_header."\n");
-                }
-		if (isset($this->key)) {
-	                echo("key= ".$this->key."\n");
-		}
-
-		if ($this->auth_mode == "BASIC") {
-			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
-			$H = trim($this->auth_header);
-			$headers .= " -H '{$H}: {$this->key}'";
-		//	echo ("send(): headers= {$headers}\n");
-		// https://tools.ietf.org/html/rfc6750
-		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
-                        $H = trim($this->auth_header);
-                        $headers .= " -H '{$H} {$this->key}'";
-		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
-                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-
-                }
-
+		$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		foreach($this->http_header_list as $header) {
 			$H = trim($header);
 			$headers .= " -H '{$H}'";
@@ -140,12 +118,7 @@ class DeviceConnection extends GenericConnection {
 			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
 		}
 
-		$aws_sigv4="";
-		if (isset($this->aws_sigv4)) {
-			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
-		}
-
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
@@ -218,49 +191,6 @@ class GenericBASICConnection extends DeviceConnection {
 
 }
 
-class TokenConnection extends DeviceConnection {
-
-	public $sign_in_req_path;
-	public $token_xpath = '//root/token';
-	public $auth_header;
-	public $key;
-	
-	public function do_connect() {
-
-		$data = "";
-		
-		if($this->auth_mode != "auth-key")
-		{
-			unset ( $this->key );
-
-			if($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2")
-			{
-				$data = array (
-						"grant_type" => "password",
-						"username" => $this->sd_login_entry,
-						"password" => $this->sd_passwd_entry
-				);
-			}
-			else
-			{
-				$data = array (
-						"username" => $this->sd_login_entry,
-						"password" => $this->sd_passwd_entry
-				);
-			}
-
-			$data = json_encode ( $data );
-			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
-			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
-		debug_dump($this->token_xpath, "do_connect result: \n");
-			// extract token
-			$this->key = (string)($result->xpath($this->token_xpath)[0]);
-
-        }
-		debug_dump($this->key, "TOKEN\n");
-	}
-}
-
 // return false if error, true if ok
 function me_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null) {
 	global $sms_sd_ctx;
@@ -273,64 +203,11 @@ function me_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_
 	//debug_dump($sd, "SD\n");
 
 	//debug_dump($sd->SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
-	//debug_dump($sd->SD_CONFIGVAR_list['AUTH_MODE'], "AUTH_MODE\n");
 
 	$class = "GenericBASICConnection";
-	$auth_mode = "BASIC";
-
-	if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
-		$auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
-		if ($auth_mode == "token" 
-			|| $auth_mode == "auth-key" 
-			|| $auth_mode == "oauth_v2"
-			|| $auth_mode == "jns_api_v2") {
-			$class = "TokenConnection";
-		}
-
-	}
-        echo  "me_connect: setting authentication mode to: {$auth_mode}\n";
-
-	if (isset($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT'])) {
-                $port_to_use = trim($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT']->VAR_VALUE);
-                echo "me_connect: using management port: " . $port_to_use . "\n";
-	}
 
 	echo "me_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, "", $port_to_use );
-
-  	$sms_sd_ctx->auth_mode = $auth_mode;
-  	if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
-        $fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
-                $sms_sd_ctx->fqdn = $fqdn;
-    }
-        if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
-        	$token_xpath = trim($sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE);
-  		$sms_sd_ctx->token_xpath = $token_xpath;
-    	}
-
-	if ($sms_sd_ctx->auth_mode == "token" 
-		|| $sms_sd_ctx->auth_mode == "auth-key" 
-		|| $sms_sd_ctx->auth_mode == "oauth_v2" 
-		|| $sms_sd_ctx->auth_mode == "jns_api_v2") {
-
-	    if (isset($sd->SD_CONFIGVAR_list['AUTH_KEY'])) {
-    		$key = trim($sd->SD_CONFIGVAR_list['AUTH_KEY']->VAR_VALUE);
-       		$sms_sd_ctx->key = $key;
-   	   	}
-   	    echo  "me_connect: setting AUTH_KEY to: {$sms_sd_ctx->key}\n";
-
-		if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
-			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
-		}
-		$sms_sd_ctx->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
-		echo  "me_connect: setting SIGNIN_REQ_PATH to: {$sms_sd_ctx->sign_in_req_path}\n";
-
-		if (!isset($sd->SD_CONFIGVAR_list['AUTH_HEADER'])) {
-			throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var AUTH_HEADER" , ERR_SD_CMDFAILED);
-		}
-		$sms_sd_ctx->auth_header = $sd->SD_CONFIGVAR_list['AUTH_HEADER']->VAR_VALUE;
-		echo  "me_connect: setting authentication header to: {$sms_sd_ctx->auth_header}\n";
-	}
 
 	$http_header_str ="Content-Type: application/json | Accept: application/json";
 	if (isset($sd->SD_CONFIGVAR_list['HTTP_HEADER'])) {
@@ -351,11 +228,7 @@ function me_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_
 		$sms_sd_ctx->conn_timeout=trim($sd->SD_CONFIGVAR_list['CONN_TIMEOUT']->VAR_VALUE);
 	}
 	echo  "me_connect: setting HTTP timeout to: {$sms_sd_ctx->conn_timeout}\n";
-	
-	if (isset($sd->SD_CONFIGVAR_list['AWS_SIGV4'])) {
-		$sms_sd_ctx->aws_sigv4=trim($sd->SD_CONFIGVAR_list['AWS_SIGV4']->VAR_VALUE);
-		echo  "me_connect: setting AWS_SIGV4: {$sms_sd_ctx->aws_sigv4}\n";
-	}
+
 	
 	if (isset($sd->SD_CONFIGVAR_list['NO_SAVE_CONFIG_TO_START_UP_ON_APPLY_CONF'])) {
 		$sms_sd_ctx->no_save_config_to_startup = trim($sd->SD_CONFIGVAR_list['NO_SAVE_CONFIG_TO_START_UP_ON_APPLY_CONF']->VAR_VALUE);
@@ -372,7 +245,6 @@ function me_connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_
 		throw new SmsException($e->getMessage(), $e->getCode());
 	}
 
-
 	return SMS_OK;
 }
 
@@ -384,26 +256,74 @@ function me_disconnect() {
 	return SMS_OK;
 }
 
-
-function generate_random_string($length = 8)
+// return false if error, true if ok
+function me_cli_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[mt_rand(0, $charactersLength - 1)];
-    }
-
-    return $randomString;
+  global $sms_sd_ctx;
+  $port_to_use="22";
+  if (isset($sd->SD_CONFIGVAR_list['SSH_PORT'])) {
+     $port_to_use = $sd->SD_CONFIGVAR_list['SSH_PORT']->VAR_VALUE;
+  }
+	try{
+		$sms_sd_ctx = new CiscoNXsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
+	} catch (SmsException $e) {
+		return ERR_SD_CONNREFUSED;
+	}
+	return SMS_OK;
 }
 
-
-function generate_auth($apiSecret, $apiKey)
+// Disconnect
+// return false if error, true if ok
+function me_cli_disconnect()
 {
-    $nonce = generate_random_string(8);
-    $timestamp = gmdate("Ymd\ZHis");
-    $hash = hash('sha256', $apiSecret.$timestamp.$nonce);
+  global $sms_sd_ctx;
+  if(is_object($sms_sd_ctx))
+  {
+  	$tab[0] = ')#';
+  	$tab[1] = $sms_sd_ctx->getPrompt();
 
-    return $apiKey.':'.$timestamp.':'.$nonce.':'.$hash;
+  	$index = sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, '', $tab);
+  	while($index == 0)
+  	{
+  	  sendexpect(__FILE__.':'.__LINE__, $sms_sd_ctx, 'end', $tab);
+  	}
+  	$sms_sd_ctx->sendCmd(__FILE__.':'.__LINE__, 'exit');
+  }
+  $sms_sd_ctx = null;
+  return SMS_OK;
+}
+
+class CiscoNXsshConnection extends SshConnection
+{
+
+	public function do_post_connect()
+	{
+		echo "***Call cisco NX Do_post_connect***\n";
+		unset($tab);
+		$tab[0] = '#';
+		$tab[1] = '$';
+		$tab[2] = '>';
+		$result_id = $this->expect(__FILE__.':'.__LINE__, $tab);
+
+		if($result_id === 2) {
+			$this->sendCmd(__FILE__.':'.__LINE__, "en ");
+			$this->sendCmd(__FILE__.':'.__LINE__, "{$this->sd_admin_passwd_entry}");
+			$result_id = $this->expect(__FILE__.':'.__LINE__, $tab);
+		}
+
+		if($result_id !== 0) {
+			throw new SmsException("Connection Failed, can't enter in Enable mode", ERR_SD_CONNREFUSED);
+		}
+	}
+
+	public function do_store_prompt() {
+		$buffer = sendexpectone(__FILE__.':'.__LINE__, $this, 'conf t', '(config)#');
+		$buffer = sendexpectone(__FILE__.':'.__LINE__, $this, 'exit', '#');
+		$this->prompt= trim($buffer);
+		$this->prompt = substr(strrchr($buffer, "\n"), 1);
+
+		echo "Prompt found: {$this->prompt} for {$this->sd_ip_config}\n";
+	}
 }
 ?>

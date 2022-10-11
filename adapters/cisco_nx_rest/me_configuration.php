@@ -38,15 +38,29 @@ class me_configuration
 	*/
   function get_running_conf()
   {
-  	//return '';
         global $sms_sd_ctx;
         // Download the configuration file
-        $cmd = "GET#/restconf/data/Cisco-NX-OS-device:System?content=config";
+        $http_header_str = "Content-Type: application/json|Accept: application/json";
+
+        $sms_sd_ctx->http_header_list = explode("|", $http_header_str);
+        $req="{\"ins_api\": {\"version\": \"1.0\",\"type\": \"cli_conf\",\"chunk\": \"0\",\"sid\": \"sid\",\"input\": \"checkpoint file msa_backup\",\"output_format\": \"json\"}}";
+        $cmd = "POST#/ins#".$req;
         $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
-        $running_conf = preg_replace("/<\\?xml.*\\?>/",'',$sms_sd_ctx->get_raw_xml(),1);
-        $running_conf = preg_replace("/<System>/",'<System xmlns="http://cisco.com/ns/yang/cisco-nx-os-device">',$running_conf,1);
-        return $running_conf;
-  }
+
+        $sms_sd_ctx->http_header_list = explode("|", $http_header_str);
+        $req="{\"ins_api\": {\"version\": \"1.0\",\"type\": \"cli_conf\",\"chunk\": \"0\",\"sid\": \"sid\",\"input\": \"show file msa_backup\",\"output_format\": \"json\"}}";
+        $cmd = "POST#/ins#".$req;
+        $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
+        $running_conf_array = $sms_sd_ctx->get_raw_json();
+        $running_conf_array = json_decode($running_conf_array,true);
+        if (isset($running_conf_array['ins_api']['outputs']['output']['body'])){
+            $body = $running_conf_array['ins_api']['outputs']['output']['body'];
+            $body = preg_replace('/!Time:(.*)/m', '', $body);
+        }else{
+            $body=$running_conf_array;
+        }
+        return $body;
+   }
 
   /**
    *

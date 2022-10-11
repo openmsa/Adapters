@@ -12,7 +12,6 @@
  *
  *  $revision_id     SVN rev id for restore
  */
-
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
@@ -47,7 +46,7 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'WORKING', "Restoring configuration (restore revision: $revision_id)");
 
-  $ret = me_connect();
+  $ret = me_cli_connect();
   if ($ret != SMS_OK)
   {
     throw new SmsException("ME connection failed (restore revision: $revision_id)", ERR_SD_NETWORK, __FILE__ . ':' . __LINE__);
@@ -59,7 +58,7 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'WORKING', "Backuping the restored configuration (restore revision: $revision_id)");
 
-  me_disconnect();
+  me_cli_disconnect();
 
   $ret = backup_configuration($sdid, $sms_msg, 'CONF_FILE', '', $error);
   if ($ret != SMS_OK)
@@ -71,7 +70,7 @@ try
 }
 catch (Exception | Error $e)
 {
-  me_disconnect();
+  me_cli_disconnect();
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
   return SMS_OK;
