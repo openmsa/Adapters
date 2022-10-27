@@ -16,7 +16,8 @@ $apply_errors = array(
   "@Speed autonegotiation subset must not contain 1Gbps when duplex is set to half@",
   "@Error opening tftp@",
   "@Invalid input@",
-  "@Configuration replace aborted due to errors in loading the file @"
+  "@Configuration replace aborted due to errors in loading the file @",
+  "@ERROR:@"
 );
 
 ?>

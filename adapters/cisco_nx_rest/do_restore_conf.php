@@ -52,8 +52,11 @@ try
     throw new SmsException("ME connection failed (restore revision: $revision_id)", ERR_SD_NETWORK, __FILE__ . ':' . __LINE__);
   }
 
-  $restore->restore_conf();
-
+  $ret = $restore->restore_conf();
+  if (strcmp($ret, SMS_OK))  #strcmp() return 0 if egal
+  {
+    throw new SmsException("FAILED : ME restore (revision: $revision_id) failed :  $ret", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
+  }
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'WORKING', "Waiting for the ME availability (restore revision: $revision_id)");
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'WORKING', "Backuping the restored configuration (restore revision: $revision_id)");

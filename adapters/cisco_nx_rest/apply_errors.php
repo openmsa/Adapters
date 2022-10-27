@@ -8,7 +8,9 @@ $apply_errors = array(
   "@Error opening flash@",
   "@Invalid input detected@",
   "@Incomplete command@",
-  "@Ambiguous command@"
+  "@Ambiguous command@",
+  "@ERROR:@"
+
 );
 
 ?>

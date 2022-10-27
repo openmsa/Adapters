@@ -57,7 +57,7 @@ try
   }
 
   $ret = $restore->restore_conf();
-  if (strcmp($ret, SMS_OK))
+  if (strcmp($ret, SMS_OK))  #strcmp() return 0 if egal
   {
     throw new SmsException("FAILED : ME restore (revision: $revision_id) failed :  $ret", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
   }

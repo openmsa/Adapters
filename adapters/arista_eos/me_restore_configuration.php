@@ -90,6 +90,13 @@ class device_restore_configuration
             sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!!Error found for $apply_error:  $SMS_OUTPUT_BUF !!!]]\n" );
             preg_match ( "(".$apply_error.".*)", $SMS_OUTPUT_BUF, $matches );
             return  $matches[0] ;
+            #or to get full error message 
+            #list($dummy, $erreur) = preg_split($SMS_OUTPUT_BUF, $apply_error, 2);
+            #if ($erreur){
+            #  return  $erreur ;
+            #}else{
+            #  return  $SMS_OUTPUT_BUF ;
+            #}
           }
         }
 
