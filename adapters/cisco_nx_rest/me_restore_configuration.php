@@ -91,8 +91,8 @@ class device_restore_configuration
   				      return  $erreur ;
   				    }else{
   				      return  $SMS_OUTPUT_BUF ;
-              }
-  					}
+  				    }
+  				  }
   				}
 
   				unset ( $tab );
