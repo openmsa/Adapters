@@ -230,20 +230,33 @@ class TokenConnection extends DeviceConnection {
 		if($this->auth_mode != "auth-key")
 		{
 			unset ( $this->key );
-
+      
+			$network = get_network_profile();
+			$sd = &$network->SD;
+			if (isset($sd->SD_CONFIGVAR_list['USERNAME_KEY'])) {
+			  $username_key = $sd->SD_CONFIGVAR_list['USERNAME_KEY']->VAR_VALUE;
+			}else{
+			  $username_key =  "username";
+			}  
+			if (isset($sd->SD_CONFIGVAR_list['PASSWORD_KEY'])) {
+			  $password_key = $sd->SD_CONFIGVAR_list['PASSWORD_KEY']->VAR_VALUE;
+			}else{
+			  $password_key =  "password";
+			}  
+			
 			if($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2")
 			{
 				$data = array (
-						"grant_type" => "password",
-						"username" => $this->sd_login_entry,
-						"password" => $this->sd_passwd_entry
+						"grant_type"  => "password",
+						$username_key => $this->sd_login_entry,
+						$password_key => $this->sd_passwd_entry
 				);
 			}
 			else
 			{
 				$data = array (
-						"username" => $this->sd_login_entry,
-						"password" => $this->sd_passwd_entry
+						$username_key => $this->sd_login_entry,
+						$password_key => $this->sd_passwd_entry
 				);
 			}
 
