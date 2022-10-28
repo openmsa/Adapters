@@ -16,8 +16,12 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('cisco_nx_rest', 'me_connect.php');
-require_once load_once('cisco_nx_rest', 'me_restore_configuration.php');
+#require_once load_once('arista_eos', 'adaptor.php');
+require_once load_once('arista_eos', 'me_connect.php');
+require_once load_once('arista_eos', 'arista_eos_configuration.php');
+require_once load_once('arista_eos', 'me_restore_configuration.php');
+require_once "$db_objects";
+
 
 $status_type = 'RESTORE';
 
@@ -57,6 +61,8 @@ try
   {
     throw new SmsException("FAILED : ME restore (revision: $revision_id) failed :  $ret", ERR_SD_CMDFAILED, __FILE__ . ':' . __LINE__);
   }
+
+
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'WORKING', "Waiting for the ME availability (restore revision: $revision_id)");
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'WORKING', "Backuping the restored configuration (restore revision: $revision_id)");
