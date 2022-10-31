@@ -33,6 +33,7 @@ class Nfvo_connection extends GenericConnection
                 }
                 $this->auth_mode = $auth_mode;
                 if($auth_mode == 'oauth_v2'){
+echo "auth mode is oauth\n";
                         if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
                                 throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
                         }
@@ -128,7 +129,7 @@ class Nfvo_connection extends GenericConnection
                         }
                 }else if($this->auth_mode == "oauth_v2" && isset($this->key)){
                         $H = trim("Authorization: Bearer");
-                        $headers .= " -H '{$H} {$this->key}'";
+                        $headers = " -H '{$H} {$this->key}'";
                         $action[2]=preg_replace('/\/\//', '/', $action[2]);
                         $curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
                         if (isset($action[3])) {
