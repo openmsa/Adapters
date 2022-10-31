@@ -83,10 +83,16 @@ class device_restore_configuration
   				save_result_file ( $SMS_OUTPUT_BUF, "conf.error" );
 
   				foreach ( $apply_errors as $apply_error ) {
-  					if (preg_match ( $apply_error, $SMS_OUTPUT_BUF ) > 0) {
-  						sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!! $SMS_OUTPUT_BUF !!!]]\n" );
-  						return ERR_SD_CMDFAILED;
-  					}
+  				  if (preg_match ( $apply_error, $SMS_OUTPUT_BUF  ) > 0) {
+  				    $apply_error = preg_replace ('/@/','', $apply_error);
+  				    sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!!Error found for $apply_error: $SMS_OUTPUT_BUF  !!!]]\n" );
+  				    list($dummy, $erreur) = preg_split($SMS_OUTPUT_BUF, $apply_error, 2);
+  				    if ($erreur){
+  				      return  $erreur ;
+  				    }else{
+  				      return  $SMS_OUTPUT_BUF ;
+  				    }
+  				  }
   				}
 
   				unset ( $tab );

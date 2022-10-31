@@ -10,6 +10,8 @@ require_once load_once('arista_eos', 'common.php');
 require_once load_once('arista_eos', 'adaptor.php');
 require_once load_once('arista_eos', 'arista_eos_connection.php');
 require_once load_once('arista_eos', 'arista_eos_apply_conf.php');
+require_once load_once ('arista_eos', 'apply_errors.php' );
+
 require_once "$db_objects";
 
 /**
@@ -56,12 +58,14 @@ class AristaEosConfiguration
     if (!empty($running_conf))
     {
       // trimming first and last lines
-      $pos = strpos($running_conf, 'Current configuration');
+      $pos = strpos($running_conf, 'Command: show running-config');
       if ($pos !== false)
       {
-        $running_conf = substr($running_conf, $pos);
+        $running_conf = '! ' .  substr($running_conf, $pos);
+        //$running_conf = substr($running_conf, $pos);
       }
       // remove 'ntp clock-period' line
+      //$running_conf = remove_end_of_line_starting_with($running_conf, 'exc Last configuration change');
       $running_conf = remove_end_of_line_starting_with($running_conf, 'Current configuration');
       $running_conf = remove_end_of_line_starting_with($running_conf, 'ntp clock-period');
       $running_conf = remove_end_of_line_starting_with($running_conf, 'enable secret 5');
