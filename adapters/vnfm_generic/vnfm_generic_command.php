@@ -69,7 +69,7 @@ class vnfm_generic_command extends generic_command
 					$op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
 
 					foreach ($op_list as $op) {
-
+                                                sleep(2);
 						$running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
 						// Apply concerned parsers
 						foreach ($sub_parsers as $parser) {
