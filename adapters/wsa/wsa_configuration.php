@@ -123,7 +123,8 @@ class wsa_configuration
     global $sms_sd_ctx;
     global $sendexpect_result;
 
-    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "saveconfig", '[Y]>');
+    #$sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "saveconfig", '[Y]>');
+    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "saveconfig", '[1]>');
     $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "n");
 
     $tab[0] = '[Y]>';
@@ -269,7 +270,8 @@ class wsa_configuration
 
     status_progress('Checking for upgrades', 'FIRMWARE');
 
-    $buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "upgrade", "upgrade");
+    #$buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "upgrade", "upgrade");
+    $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "upgrade");
 
     $tab[0] = 'upgrading? [Y]';
     $tab[1] = 'with loadconfig. [Y]';
@@ -282,8 +284,10 @@ class wsa_configuration
     $tab[8] = $sms_sd_ctx->getPrompt();
     $tab[9] = 'loadconfig. [N]>';
     $tab[10] = 'a copy? [N]';
+    $tab[11] = 'DOWNLOADINSTALL';
 
     $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);
+    sms_log_error(__FILE__ . ':' . __LINE__ . ": After cmd upgrade index=$index\n");
 
     if ($index == 6)
     {
@@ -421,6 +425,175 @@ class wsa_configuration
           }
         }
       }
+    }  
+    if ($index == 11)
+    {   
+      //DOWNLOADINSTALL
+
+      // []> DOWNLOADINSTALL
+
+      // 1. AsyncOS 12.0.4 build 002 upgrade For Web, 2021-10-28, is a release available for Maintenance Deployment
+      // 2. AsyncOS 12.5.2 build 007 upgrade For Web, 2021-07-08, is a release available for Maintenance Deployment
+      // 3. AsyncOS 12.5.2 build 011 upgrade For Web, 2021-09-16, is a release available for Maintenance Deployment
+      // 4. AsyncOS 14.0.1 build 040 upgrade For Web, 2021-07-06, is a release available for Limited Deployment
+      // 5. AsyncOS 14.0.1 build 053 upgrade For Web, 2021-09-06, is a release available for General Availability
+      // [5]>
+      // [5]> 1
+
+      // Would you like to save the current configuration to the configuration directory before upgrading? [Y]> Y
+
+      // Would you like to email the current configuration before upgrading? [N]>
+
+      // Choose the password option:
+      // 1. Mask passwords (Files with masked passwords cannot be loaded using loadconfig command)
+      // 2. Encrypt passwords
+      // [1]> 2
+
+      // Since version 11.8, the Next Generation portal of your appliance by default uses AsyncOS API HTTP/HTTPS ports
+      // (6080/6443) and trailblazer HTTPS port (4431). You can configure the HTTPS (4431) port using the trailblazerconfig
+      // command in the CLI. Make sure that the configured HTTPS port is opened on the firewall and ensure that your DNS
+      // server can resolve the hostname that you specified for accessing the appliance.
+      // Performing an upgrade may require a reboot of the system after the upgrade is applied. You may log in again after
+      // this is done. Do you wish to proceed with the upgrade? [Y]>
+
+      // During the upgrade, you may observe messages related to IPMI. You can ignore these messages.
+      // Removing stale lock file
+      // Removed lock
+      // Downloading  application 
+
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": before cmd DOWNLOADINSTALL22\n");
+      $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "DOWNLOADINSTALL");
+      //$sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "DOWNLOADINSTALL", "DOWNLOADINSTALL");
+      sms_log_error(__FILE__ . ':' . __LINE__ . ": After cmd DOWNLOADINSTALL22, before wait 10s\n");
+       
+      // 1. AsyncOS 12.0.4 build 002 upgrade For Web, 2021-10-28, is a release available for Maintenance Deployment
+      // 2. AsyncOS 12.5.2 build 007 upgrade For Web, 2021-07-08, is a release available for Maintenance Deployment
+      // 3. AsyncOS 12.5.2 build 011 upgrade For Web, 2021-09-16, is a release available for Maintenance Deployment
+      // 4. AsyncOS 14.0.1 build 040 upgrade For Web, 2021-07-06, is a release available for Limited Deployment
+      // 5. AsyncOS 14.0.1 build 053 upgrade For Web, 2021-09-06, is a release available for General Availability
+      // [5]>
+      
+     
+      unset($tab);
+      $tab[0] = '[Y]>';
+      $tab[1] = $sms_sd_ctx->getPrompt();
+      $tab[2] ='[]>';
+      $tab[3] = 'Failure downloading upgrade list: DNS lookup failed.';
+      $tab[4] = 'Upgrade failure: upgrade already in progress.';
+      #$tab[5] ='['.$recentFirm.']>'; #we don't have this number now, we should wait a bit
+      $tab[5] =']>';
+
+      $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+      sms_log_error(__FILE__ . ':' . __LINE__ . ":  LED sendexpect_result2 =$sendexpect_result;;;\n");
+
+      if ($index == 5)
+      {
+        ##################################################
+        # TO PUT latest build version by default
+        #   $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__,'');  
+        $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '1');   #for tests upgrade 1 version by 1
+
+        // Would you like to save the current configuration to the configuration directory before upgrading? [Y]> Y
+        unset($tab);
+        $tab[0] = 'configuration directory before upgrading? [Y]>';
+        $tab[1] = '[Y]>';
+        $tab[2] = $sms_sd_ctx->getPrompt();
+        $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+        sms_log_error(__FILE__ . ':' . __LINE__ . ":  LED sendexpect_result3 =$sendexpect_result;\n");
+
+        if ($index == 0 || $index == 1)
+        {
+          $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
+        
+          // Would you like to email the current configuration before upgrading? [N]>
+          unset($tab);
+          $tab[0] = 'configuration before upgrading? [N]>';
+          $tab[1] = $sms_sd_ctx->getPrompt();
+          $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+          sms_log_error(__FILE__ . ':' . __LINE__ . ":  LED sendexpect_result4 =$sendexpect_result;;;\n");
+
+          if ($index == 0)
+          {
+            $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');        
+            // Choose the password option:
+            // 1. Mask passwords (Files with masked passwords cannot be loaded using loadconfig command)
+            // 2. Encrypt passwords
+            //[1]>
+            unset($tab);
+            $tab[0] = '[Y]>';
+            $tab[1] = $sms_sd_ctx->getPrompt();
+            $tab[2] = '2. Encrypt passwords';
+            $tab[3] = '[1]>';
+            $tab[4] = '[2]>';
+            $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+            sms_log_error(__FILE__ . ':' . __LINE__ . ":  LED sendexpect_result5 =$sendexpect_result;;;\n");
+
+            if ($index == 2 || $index == 3 || $index == 4)
+            {
+              $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '2');
+              // Since version 11.8, the Next Generation portal of your appliance by default uses AsyncOS API HTTP/HTTPS ports
+              // (6080/6443) and trailblazer HTTPS port (4431). You can configure the HTTPS (4431) port using the  trailblazerconfig
+              // command in the CLI. Make sure that the configured HTTPS port is opened on the firewall and ensure that your DNS
+              // server can resolve the hostname that you specified for accessing the appliance.
+              // Performing an upgrade may require a reboot of the system after the upgrade is applied. You may log in again after
+              // this is done. Do you wish to proceed with the upgrade? [Y]>
+      
+              unset($tab);
+              $tab[0] = 'the upgrade? [Y]>';
+              $tab[1] = $sms_sd_ctx->getPrompt();
+              $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab);
+              sms_log_error(__FILE__ . ':' . __LINE__ . ":  LED sendexpect_result6 =$sendexpect_result;;;\n");
+
+              if ($index == 0)
+              {
+                $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, '');
+
+                // Change the status for the GUI
+                status_progress('Firmware upgrade in progress..Downloading....', 'FIRMWARE');
+
+                $tab[0] = '[30]>';
+                $tab[1] = $sms_sd_ctx->getPrompt();
+
+                $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+                $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 100000);
+
+                if ($index == 0)
+                {
+                  $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "");
+                  // Update Firmware Upgrade Successful
+                  status_progress("Wait for the asset update", 'FIRMWARE');
+                  return SMS_OK;
+                }
+                else
+                {
+                  // Error occur
+                  status_progress('Upgrade failure', 'FIRMWARE');
+                  sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure\n");
+                  return ERR_SD_CMDFAILED;
+                }
+              }
+            }
+          }
+        } 
+      } 
+      elseif ($index == 2)
+      {
+        //no available firmware file 
+        return SMS_OK;
+      }
+      elseif ($index == 3)
+      {   
+        // Failure downloading upgrade list: DNS lookup failed 
+        sms_log_error(__FILE__ . ':' . __LINE__ . ": Failure downloading upgrade list: DNS lookup failed\n");
+        return ERR_SD_DNS_ERROR;
+      }
+      elseif ($index == 4)
+      {   
+        // 'Upgrade failure: upgrade already in progress.';
+        sms_log_error(__FILE__ . ':' . __LINE__ . ": Upgrade failure: upgrade already in progress.\n");
+        return ERR_SD_CMDFAILED;
+      }            
+
     }
 
     foreach ($apply_errors as $apply_error)
