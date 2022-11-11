@@ -79,6 +79,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
        }
        
        $kube_http_protocol = $sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL']->VAR_VALUE;
+       $kube_fqdn          = $sd->SD_CONFIGVAR_list['KUBE_FQDN']->VAR_VALUE;
        $kube_port          = $sd->SD_CONFIGVAR_list['KUBE_PORT']->VAR_VALUE;
        if (empty($kube_http_protocol)) {
            $kube_http_protocol = "http";
@@ -90,10 +91,20 @@ class KubernetesGenericRESTConnection extends GenericConnection
        $kube_auth_method = $sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD']->VAR_VALUE;
        $kube_token       = $sd->SD_CONFIGVAR_list['KUBE_TOKEN']->VAR_VALUE;
 
+       
+		if(isset($kube_fqdn))
+		{
+			$ip_address = $kube_fqdn;
+		}
+		else
+		{
+			$ip_address = $this->sd_ip_config;
+		}
+
        if (($action[1] == "") && ($kube_auth_method != "KUBERNETES" && $kube_auth_method != "EKS")) {
            $action[2] = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
        } else {
-           $action[2] = $kube_http_protocol . '://' . $this->sd_ip_config . ':' . $kube_port . '' . $action[2];
+           $action[2] = $kube_http_protocol . '://' . $ip_address . ':' . $kube_port . '' . $action[2];
        }
        
        $token = "";
@@ -157,7 +168,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
            }
        }
        $result                     = preg_replace("/: {\s+}/", ": {}", $result);
-       $result                     = preg_replace("/\"fieldsType\": \"FieldsV1\",\s+\"fieldsV1\":(.*)\s+/", "\"fieldsType\": \"FieldsV1\"", $result);
        //echo "%%%%%%%%%%%%%%%%%%%%% RESULT = {$result} %%%%%%%%%%%%%%%%%%%%%%%\n";
        $result                     = rtrim($result);
        $result                     = preg_replace('/xmlns="[^"]+"/', '', $result);
@@ -180,13 +190,32 @@ class KubernetesGenericRESTConnection extends GenericConnection
        }
        
        if ($this->content_type == 'application/json') {
-           $array = json_decode($response_body, true);
+            $array = json_decode($response_body, true);
+
+            // remove "fieldsType" and "fieldsV1" as it breaks xml structure
+            $items = $array["items"];
+            if (isset($items)) {
+                foreach ($items as $i => $item) {
+                    $managedFields = $item["metadata"]["managedFields"];
+                    if (isset($managedFields)) {
+                        foreach ($managedFields as $j => $managedField) {
+                            if (isset($managedField["fieldsType"])) {
+                                unset($array["items"][$i]["metadata"]["managedFields"][$j]["fieldsType"]);
+                            }
+                            if (isset($managedField["fieldsV1"])) {
+                                unset($array["items"][$i]["metadata"]["managedFields"][$j]["fieldsV1"]);
+                            }
+                        }   
+                    }
+                }
+            }
            
            // call array to xml conversion function
            $xml = arrayToXml($array, '<root></root>');
            
            $this->raw_json = $response_body;
        } elseif ($this->content_type == 'text/plain') {
+           $response_body    = preg_replace("/\"fieldsType\": \"FieldsV1\",\s+\"fieldsV1\":(.*)\s+/", "\"fieldsType\": \"FieldsV1\"", $response_body);
            $result_in_array  = explode("\n", $response_body);
            $result_in_string = "";
            $i                = 1;
