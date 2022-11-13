@@ -37,12 +37,13 @@ require_once load_once("parserd/filter/$model", 'fields.php');
 $count['bad_record'] = 0;
 $count['no_action'] = 0;
 
-function parse_line(&$line)
+function parse_line(&$fields, &$line)
+//function parse_line(&$line)
 {
   global $record_names;
   global $actions;
   global $count;
-  global $fields;
+  //global $fields;
   $result = new PARSER_RESULT();
 
   $fields_line = "id Month Day Hour orig Info";
