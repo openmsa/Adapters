@@ -123,8 +123,8 @@ class wsa_configuration
     global $sms_sd_ctx;
     global $sendexpect_result;
 
-    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "saveconfig", '[Y]>');
-    $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "n");
+    $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "saveconfig", '[1]>');
+    $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, "1");
 
     $tab[0] = '[Y]>';
     $tab[1] = $sms_sd_ctx->getPrompt();
