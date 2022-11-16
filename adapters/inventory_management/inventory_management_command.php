@@ -41,7 +41,7 @@ class inventory_management_command extends generic_command {
     }
 
     // set parsed_objects to store objects in DB
-    $this->parsed_objects = array_merge_recursive($this->parsed_objects, $crud_objects);
+    $this->parsed_objects = array_replace_recursive($this->parsed_objects, $crud_objects);
 
     debug_object_conf($this->parsed_objects);
     $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
