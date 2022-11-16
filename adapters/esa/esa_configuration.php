@@ -101,7 +101,7 @@ class esa_configuration
                 }
                 if($index === 1)
                 {
-                        $buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "3");
+                        $buffer = $sms_sd_ctx->sendexpectone(__FILE__ . ':' . __LINE__, "2");
                 }
 
     $confRunFile = explode(' ', $buffer);
