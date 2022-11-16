@@ -1,22 +1,15 @@
 <?php
-
-require_once 'smsd/sms_common.php';
-require_once 'smserror/sms_error.php';
-require_once 'smsd/sms_user_message.php';
+require_once load_once ( 'cisco_nx_rest', 'common.php' );
+require_once load_once ( 'cisco_nx_rest', 'me_connect.php' );
+require_once load_once ( 'cisco_nx_rest', 'apply_errors.php' );
 
 require_once "$db_objects";
 
 class device_restore_configuration
 {
-  var $conf_path;           // Path for previous stored configuration files
   var $sdid;                // ID of the SD to update
   var $sd;                  // Current SD
   var $running_conf;        // Current configuration of the router
-  var $previous_conf_list;  // Previous generated configuration loaded from files
-  var $conf_list;           // Current generated configuration waiting to be saved
-  var $addon_list;          // List of managed addon cards
-  var $fmc_repo;            // repository path without trailing /
-  var $fmc_ent;             // entities path without trailing /
   var $runningconf_to_restore;             //running conf retrieved from SVN /
 
   // ------------------------------------------------------------------------------------------------
@@ -62,46 +55,68 @@ class device_restore_configuration
   }
 
 
-  function restore_conf()
-  {
-    global $apply_errors;
+  function restore_conf() {
+  		global $apply_errors;
 
-    global $sms_sd_ctx;
-    $ret = SMS_OK;
+  		global $sms_sd_ctx;
+  		$ret = SMS_OK;
 
-    $file_name = "{$this->sdid}.cfg";
-    $full_name = $_SERVER['TFTP_BASE'] . "/" . $file_name;
+  		echo "SCP mode configuration\n";
 
-    $ret = save_file($this->runningconf_to_restore, $full_name);
-    if ($ret !== SMS_OK)
-    {
-      return $ret;
-    }
-    $ret = save_result_file($this->runningconf_to_restore, 'conf.applied');
-    if ($ret !== SMS_OK)
-    {
-      return $ret;
-    }
-    
-    $http_header_str = "Content-Type: application/yang.data+xml|Accept: application/yang.data+xml";
-    $sms_sd_ctx->http_header_list = explode("|", $http_header_str);
-    $cmd = "PATCH#/restconf/data/Cisco-NX-OS-device#@$full_name";
-    $ret = $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, $cmd);
+  		// Request flash space on router
+  		$file_name = "{$this->sdid}.cfg";
+  		$full_name = $_SERVER ['TFTP_BASE'] . "/" . $file_name;
 
-    if ($ret !== SMS_OK)
-    {
-      return $ret;
-    }
-    echo "restore_conf method is finished";
-    return $ret;
-  }
+  		$ret = save_file ( $this->runningconf_to_restore, $full_name );
+  		if ($ret !== SMS_OK) {
+  			return $ret;
+  		}
+  		$ret = save_result_file ( $this->runningconf_to_restore, 'conf.applied' );
+  		if ($ret !== SMS_OK) {
+  			return $ret;
+  		}
+  		try {
+  			$ret = scp_to_router ( $full_name, $file_name );
+  			if ($ret === SMS_OK) {
+  				// SCP OK
+  				$SMS_OUTPUT_BUF = copy_to_running ( "rollback running-config file $file_name" );
+  				save_result_file ( $SMS_OUTPUT_BUF, "conf.error" );
 
+  				foreach ( $apply_errors as $apply_error ) {
+  				  if (preg_match ( $apply_error, $SMS_OUTPUT_BUF  ) > 0) {
+  				    $apply_error = preg_replace ('/@/','', $apply_error);
+  				    sms_log_error ( __FILE__ . ':' . __LINE__ . ": [[!!!Error found for $apply_error: $SMS_OUTPUT_BUF  !!!]]\n" );
+  				    list($dummy, $erreur) = preg_split($SMS_OUTPUT_BUF, $apply_error, 2);
+  				    if ($erreur){
+  				      return  $erreur ;
+  				    }else{
+  				      return  $SMS_OUTPUT_BUF ;
+  				    }
+  				  }
+  				}
 
-  function wait_until_device_is_up()
-  {
-    return wait_for_device_up($this->sd->SD_IP_CONFIG);
-  }
-
+  				unset ( $tab );
+  				$tab [0] = $sms_sd_ctx->getPrompt ();
+  				$tab [1] = "]?";
+  				$tab [2] = "[confirm]";
+  				$index = sendexpect ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, "delete $file_name no-prompt", $tab );
+  				while ( $index !== 0 ) {
+  					$index = sendexpect ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, "", $tab );
+  				}
+  				echo "restore_conf method is finished";
+  				return $ret;
+  			} else {
+  				// SCP ERROR
+  				sms_log_error ( __FILE__ . ':' . __LINE__ . ":SCP Error $ret\n" );
+  				return $ret;
+  			}
+  		} catch ( Exception | Error $e ) {
+  			if (strpos ( $e->getMessage (), 'connection failed' ) !== false) {
+  				return ERR_SD_CONNREFUSED;
+  			}
+  			sms_log_error ( __FILE__ . ':' . __LINE__ . ":SCP Error $ret\n" );
+  		}
+  	}
 }
 
 ?>

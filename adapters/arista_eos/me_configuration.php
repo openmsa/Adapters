@@ -2,8 +2,8 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/pattern.php';
 
-require_once load_once('cisco_nx_rest', 'adaptor.php');
-require_once load_once('cisco_nx_rest', 'me_apply_conf.php');
+require_once load_once('arista_eos', 'adaptor.php');
+require_once load_once('arista_eos', 'me_apply_conf.php');
 
 
 require_once "$db_objects";

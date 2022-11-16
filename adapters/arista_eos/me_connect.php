@@ -7,7 +7,7 @@ require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
 require_once "$db_objects";
 require_once 'smsd/ssh_connection.php';
-require_once load_once ('cisco_nx_rest', 'common.php');
+require_once load_once ('arista_eos', 'common.php');
 
 class DeviceConnection extends GenericConnection {
   
@@ -260,12 +260,24 @@ function me_disconnect() {
 function me_cli_connect($sd_ip_addr = null, $login = null, $passwd = null, $adminpasswd = null, $port_to_use = null)
 {
   global $sms_sd_ctx;
-  $port_to_use="22";
-  if (isset($sd->SD_CONFIGVAR_list['SSH_PORT'])) {
-     $port_to_use = $sd->SD_CONFIGVAR_list['SSH_PORT']->VAR_VALUE;
+  // $port_to_use="22";
+  // if (isset($sd->SD_CONFIGVAR_list['SSH_PORT'])) {
+     // $port_to_use = $sd->SD_CONFIGVAR_list['SSH_PORT']->VAR_VALUE;
+  // }
+  if (empty($port_to_use)) {
+    $network = get_network_profile();
+    $SD = &$network->SD;
+    
+    if ($SD->SD_MANAGEMENT_PORT !== 0) {
+      $port = $SD->SD_MANAGEMENT_PORT;
+    } else {
+      $port = 22;
+    }
   }
+  
+  
 	try{
-		$sms_sd_ctx = new CiscoNXsshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
+		$sms_sd_ctx = new AristasshConnection($sd_ip_addr, $login, $passwd, $adminpasswd, $port_to_use);
 		$sms_sd_ctx->setParam("PROTOCOL", "SSH");
 	} catch (SmsException $e) {
 		return ERR_SD_CONNREFUSED;
@@ -294,12 +306,12 @@ function me_cli_disconnect()
   return SMS_OK;
 }
 
-class CiscoNXsshConnection extends SshConnection
+class AristasshConnection extends SshConnection
 {
 
 	public function do_post_connect()
 	{
-		echo "***Call cisco NX Do_post_connect***\n";
+		echo "***Call Arista Do_post_connect***\n";
 		unset($tab);
 		$tab[0] = '#';
 		$tab[1] = '$';
