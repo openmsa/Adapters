@@ -34,25 +34,26 @@ class KubernetesGenericRESTConnection extends GenericConnection
         $sd = &$network->SD;
         if (isset($sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD'])) {
             $kube_auth_method = $sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD']->VAR_VALUE;
-            echo("kube_auth_method: $kube_auth_method\n" );
+            echo ("kube_auth_method: $kube_auth_method\n");
         }
         if (isset($sd->SD_CONFIGVAR_list['TENANT_ID'])) {
             $tenant_id = $sd->SD_CONFIGVAR_list['TENANT_ID']->VAR_VALUE;
-            echo("tenant_id: $tenant_id\n" );
+            echo ("tenant_id: $tenant_id\n");
         }
         if (isset($sd->SD_CONFIGVAR_list['USER_DOMAIN_ID'])) {
             $user_domain_id    = $sd->SD_CONFIGVAR_list['USER_DOMAIN_ID']->VAR_VALUE;
-            echo("user_domain_id: $user_domain_id\n" );
+            echo ("user_domain_id: $user_domain_id\n");
         }
         if (isset($sd->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID'])) {
             $project_domain_id = $sd->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID']->VAR_VALUE;
-            echo("project_domain_id: $project_domain_id\n" );
+            echo ("project_domain_id: $project_domain_id\n");
         }
-        $cmd               = "POST##/v3/auth/tokens#{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
-        $cmd .= "\"{$user_domain_id}\"},\"name\": \"{$this->sd_login_entry}\",\"password\": \"{$this->sd_passwd_entry}\"}}}, ";
-        $cmd .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
         if ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS") {
             $cmd = "GET##/api#{}";
+        } else {
+            $cmd               = "POST##/v3/auth/tokens#{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
+            $cmd .= "\"{$user_domain_id}\"},\"name\": \"{$this->sd_login_entry}\",\"password\": \"{$this->sd_passwd_entry}\"}}}, ";
+            $cmd .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
         }
 
         $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");
