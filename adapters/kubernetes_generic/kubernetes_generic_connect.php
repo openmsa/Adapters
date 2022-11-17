@@ -89,22 +89,28 @@ class KubernetesGenericRESTConnection extends GenericConnection
         $network = get_network_profile();
         $sd = &$network->SD;
 
-        $http_protocol = $sd->SD_CONFIGVAR_list['HTTP_PROTOCOL']->VAR_VALUE;
-        if (empty($http_protocol)) {
-            $http_protocol = "http";
+        $http_protocol = "http";
+        if (isset($sd->SD_CONFIGVAR_list['HTTP_PROTOCOL'])) {
+            $http_protocol = $sd->SD_CONFIGVAR_list['HTTP_PROTOCOL']->VAR_VALUE;
         }
-
-        $kube_http_protocol = $sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL']->VAR_VALUE;
-        $kube_port          = $sd->SD_CONFIGVAR_list['KUBE_PORT']->VAR_VALUE;
-        if (empty($kube_http_protocol)) {
-            $kube_http_protocol = "http";
+        $kube_http_protocol = "http";
+        $kube_port = 80;
+        if (isset($sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL'])) {
+            $kube_http_protocol = $sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL']->VAR_VALUE;
+        }
+        if (isset($sd->SD_CONFIGVAR_list['KUBE_PORT'])) {
+            $kube_port          = $sd->SD_CONFIGVAR_list['KUBE_PORT']->VAR_VALUE;
         }
 
         $delay = EXPECT_DELAY / 1000;
 
         $action           = explode("#", $cmd);
-        $kube_auth_method = $sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD']->VAR_VALUE;
-        $kube_token       = $sd->SD_CONFIGVAR_list['KUBE_TOKEN']->VAR_VALUE;
+        if (isset($sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD'])) {
+            $kube_auth_method = $sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD']->VAR_VALUE;
+        }
+        if (isset($sd->SD_CONFIGVAR_list['KUBE_TOKEN'])) {
+            $kube_token       = $sd->SD_CONFIGVAR_list['KUBE_TOKEN']->VAR_VALUE;
+        }
 
         if (($action[1] == "") && ($kube_auth_method != "KUBERNETES" && $kube_auth_method != "EKS")) {
             $action[2] = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
@@ -174,7 +180,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
         }
         $result                     = preg_replace("/: {\s+}/", ": {}", $result);
         $result                     = preg_replace("/\"fieldsType\": \"FieldsV1\",\s+\"fieldsV1\":(.*)\s+/", "\"fieldsType\": \"FieldsV1\"", $result);
-        //echo "%%%%%%%%%%%%%%%%%%%%% RESULT = {$result} %%%%%%%%%%%%%%%%%%%%%%%\n";
         $result                     = rtrim($result);
         $result                     = preg_replace('/xmlns="[^"]+"/', '', $result);
         $headers_and_response       = explode("\n\n", $result);
