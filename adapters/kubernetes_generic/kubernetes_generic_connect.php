@@ -192,6 +192,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
             debug_dump($response_headers, "response_headers:\n");
             if (array_key_exists('Content-Type', $response_headers)) {
                 $this->content_type = $response_headers['Content-Type'];
+                echo("content_type: ".$this->content_type."\n");
                 unset($headers_and_response[0]);
                 $response_body = join("\n\n", $headers_and_response);
             }
@@ -201,7 +202,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
         } else {
             $response_body = "";
         }
-        echo("content_type" + $this->content_type +"\n");
         if ($this->content_type == 'application/json') {
             $array = json_decode($response_body, true);
 
