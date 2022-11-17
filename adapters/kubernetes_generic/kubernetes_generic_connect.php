@@ -200,7 +200,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
         } else {
             $response_body = "";
         }
-
+        echo("content_type" + $this->content_type +"\n");
         if ($this->content_type == 'application/json') {
             $array = json_decode($response_body, true);
 
