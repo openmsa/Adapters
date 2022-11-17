@@ -189,6 +189,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
             $raw_headers      = $headers_and_response[0];
             $response_body    = $headers_and_response[1];
             $response_headers = http_parse_headers($raw_headers);
+            debug_dump($response_headers, "response_headers:\n");
             if (array_key_exists('Content-Type', $response_headers)) {
                 $this->content_type = $response_headers['Content-Type'];
                 unset($headers_and_response[0]);
