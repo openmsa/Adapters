@@ -64,9 +64,9 @@ class KubernetesGenericRESTConnection extends GenericConnection
 
         $result = $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd, "");
 
-        $endPointsURL_table = $result->xpath('//token/catalog');
+        //$endPointsURL_table = $result->xpath('//token/catalog');
 
-        $this->endPointsURL = $endPointsURL_table[0];
+        //$this->endPointsURL = $endPointsURL_table[0];
     }
 
     // ------------------------------------------------------------------------------------------------

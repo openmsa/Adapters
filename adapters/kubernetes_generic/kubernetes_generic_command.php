@@ -56,15 +56,20 @@ class kubernetes_generic_command extends generic_command
         $objects = array();
         $parser_list = array();
 
-        foreach ($this->parser_list as $parser)
-        {
+        foreach ($this->parser_list as $parser) {
           $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
           $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-    	  $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
-          foreach ($path_list as $xpth) {
-            $cmd = 'GET#' . trim($op_eval) . '#' . trim($xpth);
-            $parser_list[$cmd][] = $parser;
-          }
+          if (strlen($xpath_eval) > 0) {
+            $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
+            foreach ($path_list as $xpth) {
+              $cmd = trim($op_eval) . '##' . trim($xpth);
+              $parser_list[$cmd][] = $parser;
+            }
+          } else {
+						$cmd = trim ( $op_eval );
+						// Group parsers into evaluated operations
+						$parser_list [$cmd] [] = $parser;
+					}
         }
 
         foreach ($parser_list as $op_eval => $sub_parsers)
@@ -74,7 +79,7 @@ class kubernetes_generic_command extends generic_command
 
           foreach ($op_list as $op)
           {
-
+            echo("eval_IMPORT operation:$op\n" );
             $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
             //debug_dump($sms_sd_ctx->get_raw_xml());
             // Apply concerned parsers
