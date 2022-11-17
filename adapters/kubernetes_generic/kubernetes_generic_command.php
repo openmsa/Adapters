@@ -43,7 +43,9 @@ class kubernetes_generic_command extends generic_command
 
     try
     {
+      echo("eval_IMPORT call sd_connect() \n");
       $ret = sd_connect();
+      echo("eval_IMPORT call sd_connect() : $ret \n");
       if ($ret != SMS_OK)
       {
         return $ret;
