@@ -198,7 +198,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
             debug_dump($response_headers, "response_headers:\n");
             if (array_key_exists('Content-Type', $response_headers)) {
                 $this->content_type = $response_headers['Content-Type'];
-                echo("content_type: ".$this->content_type."\n");
                 unset($headers_and_response[0]);
                 $response_body = join("\n\n", $headers_and_response);
             }
@@ -216,7 +215,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
             } else {
                 // call array to xml conversion function
                 $response = arrayToXml($array, '<root></root>');
-
                 $this->raw_json = $response_body;
             }
         } elseif ($this->content_type == 'text/plain') {
@@ -229,7 +227,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
                 $i++;
             }
             $result = "<root>$result_in_string</root>";
-            $xml    = new SimpleXMLElement($result);
+            $response    = new SimpleXMLElement($result);
         } else {
             if ($this->rest_json) {
                 throw new SmsException("$origin: Repsonse to API {$curl_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED);
@@ -237,7 +235,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
             if (empty(trim($result))) {
                 $response = new SimpleXMLElement('<root></root>');
             }
-            $xml = new SimpleXMLElement($response_body);
+            $response = new SimpleXMLElement($response_body);
         }
 
         $this->response = $response;
