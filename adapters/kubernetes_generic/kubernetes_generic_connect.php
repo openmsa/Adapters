@@ -51,7 +51,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
         if (isset($sd->SD_CONFIGVAR_list['REST_JSON'])) {
             $this->rest_json=trim($sd->SD_CONFIGVAR_list['REST_JSON']->VAR_VALUE);
             $this->json_path = new \JsonPath\JsonPath();
-            echo  "rest_generic_connect: setting REST_JSON: {$sms_sd_ctx->rest_json}\n";
+            echo  "setting REST_JSON: {$this->rest_json}\n";
         }
 
         if ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS") {
