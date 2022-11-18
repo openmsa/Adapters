@@ -113,6 +113,9 @@ class KubernetesGenericRESTConnection extends GenericConnection
         $delay = EXPECT_DELAY / 1000;
 
         $action           = explode("#", $cmd);
+        $cmd_list = preg_split('@#@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
+		debug_dump ( $cmd_list, "CMD_LIST\n" );
+
         if (isset($sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD'])) {
             $kube_auth_method = $sd->SD_CONFIGVAR_list['KUBE_AUTH_METHOD']->VAR_VALUE;
         }
