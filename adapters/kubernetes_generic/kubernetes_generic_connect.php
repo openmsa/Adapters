@@ -92,7 +92,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
     // ------------------------------------------------------------------------------------------------
     public function send($origin, $cmd)
     {
-        echo("send cmd: ".$cmd);
+        echo("send cmd: ".$cmd."\n");
         unset($this->response);
         $network = get_network_profile();
         $sd = &$network->SD;
