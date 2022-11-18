@@ -215,6 +215,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
 
         if ($this->content_type == 'application/json') {
             try {
+                debug_dump($response_body, "response_body:\n");
                 $array = json_decode($response_body, true);
             } catch ( Exception $e ) {
                 return $e->getCode ();
