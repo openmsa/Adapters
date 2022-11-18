@@ -245,6 +245,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
         $this->response = $response;
 
         // FIN AJOUT
+        debug_dump($this->response, "DEVICE RESPONSE1\n");
         debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
     }
 
