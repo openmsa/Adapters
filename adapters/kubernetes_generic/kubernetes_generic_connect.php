@@ -201,7 +201,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
             $response_body    = $headers_and_response[1];
             $response_headers = http_parse_headers($raw_headers);
             debug_dump($response_headers, "response_headers:\n");
-            debug_dump($response_body, "response_body:\n");
             if (array_key_exists('Content-Type', $response_headers)) {
                 $this->content_type = $response_headers['Content-Type'];
                 unset($headers_and_response[0]);
@@ -214,6 +213,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
             $response_body = "";
         }
 
+        debug_dump($response_body, "response_body:\n");
         if ($this->content_type == 'application/json') {
             $array = json_decode($response_body, true);
 
@@ -248,7 +248,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
         $this->response = $response;
 
         // FIN AJOUT
-        debug_dump($this->response, "DEVICE RESPONSE1\n");
         debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
     }
 
