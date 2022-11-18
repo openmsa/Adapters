@@ -72,6 +72,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
     // ------------------------------------------------------------------------------------------------
     public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true)
     {
+        echo("sendexpectone:".$cmd."\n");
         global $sendexpect_result;
         $this->send($origin, $cmd);
 
