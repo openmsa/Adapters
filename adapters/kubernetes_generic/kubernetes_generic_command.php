@@ -71,7 +71,7 @@ class kubernetes_generic_command extends generic_command
 						$parser_list [$cmd] [] = $parser;
 					}
         }
-
+        debug_dump($parser_list, "PARSER_LIST\n");
         foreach ($parser_list as $op_eval => $sub_parsers)
         {
           // Run evaluated operation
