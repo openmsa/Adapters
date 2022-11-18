@@ -261,6 +261,8 @@ class KubernetesGenericRESTConnection extends GenericConnection
     {
         global $$global_result_name;
 
+        debug_dump($tab, "expect TAB:\n");
+
         if (!isset($this->response)) {
             throw new SmsException("$origin: cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT);
         }
