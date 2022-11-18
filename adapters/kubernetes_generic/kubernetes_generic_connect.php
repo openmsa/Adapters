@@ -190,10 +190,11 @@ class KubernetesGenericRESTConnection extends GenericConnection
                 }
             }
         }
-        $result                     = preg_replace("/: {\s+}/", ": {}", $result);
-        $result                     = preg_replace("/\"fieldsType\": \"FieldsV1\",\s+\"fieldsV1\":(.*)\s+/", "\"fieldsType\": \"FieldsV1\"", $result);
+    //    $result                     = preg_replace("/: {\s+}/", ": {}", $result);
+    //    $result                     = preg_replace("/\"fieldsType\": \"FieldsV1\",\s+\"fieldsV1\":(.*)\s+/", "\"fieldsType\": \"FieldsV1\"", $result);
+    //   
+    //    $result                     = preg_replace('/xmlns="[^"]+"/', '', $result);
         $result                     = rtrim($result);
-        $result                     = preg_replace('/xmlns="[^"]+"/', '', $result);
         $headers_and_response       = explode("\n\n", $result);
         $headers_and_response_count = count($headers_and_response);
         if ($headers_and_response_count > 1) {
