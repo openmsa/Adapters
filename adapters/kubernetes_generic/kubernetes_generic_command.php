@@ -36,76 +36,58 @@ class kubernetes_generic_command extends generic_command
    * @param object $json_paramsJSON parameters of the command
    * @param domElement $elementXML DOM element of the definition of the command
    */
-  function eval_IMPORT()
-  {
-    global $sms_sd_ctx;
-    global $SMS_RETURN_BUF;
+	function eval_IMPORT() {
+		global $sms_sd_ctx;
+		global $SMS_RETURN_BUF;
 
-    try
-    {
-      echo("eval_IMPORT call sd_connect() \n");
-      $ret = sd_connect();
-      echo("eval_IMPORT call sd_connect() : $ret \n");
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+		try {
+			$ret = sd_connect ();
+			if ($ret != SMS_OK) {
+				return $ret;
+			}
 
-      if (!empty($this->parser_list))
-      {
-        $objects = array();
-        $parser_list = array();
+			if (! empty ( $this->parser_list )) {
+				$objects = array ();
+				$parser_list = array ();
 
-        foreach ($this->parser_list as $parser) {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-          if (strlen($xpath_eval) > 0) {
-            $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
-            foreach ($path_list as $xpth) {
-              $cmd = trim($op_eval) . '##' . trim($xpth);
-              $parser_list[$cmd][] = $parser;
-            }
-          } else {
+				foreach ( $this->parser_list as $parser ) {
+					$op_eval = $parser->evaluate_internal ( 'IMPORT', 'operation' );
+					$xpath_eval = $parser->evaluate_internal ( 'IMPORT', 'xpath' );
+
+					if (strlen ( $xpath_eval ) > 0) {
+						$path_list = preg_split ( '@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
+						foreach ( $path_list as $xpth ) {
+							$cmd = trim ( $op_eval ) . "##" . trim ( $xpth );
+							$parser_list [$cmd] [] = $parser;
+						}
+					} else {
 						$cmd = trim ( $op_eval );
 						// Group parsers into evaluated operations
 						$parser_list [$cmd] [] = $parser;
 					}
-        }
-        debug_dump($parser_list, "PARSER_LIST\n");
-        foreach ($parser_list as $op_eval => $sub_parsers)
-        {
-          // Run evaluated operation
-          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-          debug_dump($op_list, "op_list\n");
+				}
+				foreach ( $parser_list as $op_eval => $sub_parsers ) {
 
-          foreach ($op_list as $op)
-          {
-            echo("eval_IMPORT operation:$op\n" );
-            $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-            //debug_dump($sms_sd_ctx->get_raw_xml());
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
-            }
-          }
-        }
+					$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
+					foreach ( $sub_parsers as $parser ) {
+						$parser->parse ( $running_conf, $objects );
+					}
+				}
 
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+				$this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
 
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
-      }
+				debug_object_conf($this->parsed_objects);
+				$SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+			}
 
-      sd_disconnect();
-    }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
-    }
+			sd_disconnect ();
+		} catch ( Exception $e ) {
+			return $e->getCode ();
+		}
 
-    return SMS_OK;
-  }
+		return SMS_OK;
+	}
+
 
   /*
    * #####################################################################################
