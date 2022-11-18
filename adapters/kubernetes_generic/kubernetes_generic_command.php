@@ -76,6 +76,7 @@ class kubernetes_generic_command extends generic_command
         {
           // Run evaluated operation
           $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+          debug_dump($op_list, "op_list\n");
 
           foreach ($op_list as $op)
           {
