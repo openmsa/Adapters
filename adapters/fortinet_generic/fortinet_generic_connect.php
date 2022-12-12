@@ -53,28 +53,30 @@ function global_do_store_prompt($conn){
    if ($config_console == 'UNKNOWN') {
      // On waf, run  'config system console' with a very short timeout 10 secondes
      try {
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)',10000);
-       $config_console2 = 'OK';
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)',10000);
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)',10000);
+      $config_console2 = 'OK';
      } catch (SmsException $e) {
        $config_console2 = 'NOK';
      }
      if ($config_console2 == 'OK') {
        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+       $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
      } else {
-       //NO OK, run only blanc command to get the prompt
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, '', '#',40000);
+       //NO OK, run only blank command to get the prompt
+       $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, '', $tab,40000);
     }
   } elseif ($config_console == 'OK') {
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)',10000);
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)');
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
     if ($IS_VDOM_ENABLED) {
       //If the device is a VDOM come out of global mode and enter vdom mode
       $network  = get_network_profile();
       $SD       = &$network->SD;
       $dev_name = $SD->SD_HOSTNAME;
-      $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $ta);
+      $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config vdom', '(vdom)', 40000);
       $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, "edit $dev_name", $tab, 40000);
       $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, $cmd, $tab, 40000);
