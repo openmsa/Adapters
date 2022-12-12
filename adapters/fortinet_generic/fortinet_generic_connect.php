@@ -19,13 +19,10 @@ function global_do_store_prompt($conn){
    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)');
    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)');
    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
- 
-
-  
    $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
-   $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
-
    $get_system_status = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'get system status', $tab);
+   $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
+
    if (strpos($get_system_status, 'Virtual domain configuration: enable') !== false) {
      //IT IS A VDOM, we should run at first 'config global'
      $IS_VDOM_ENABLED = true;
