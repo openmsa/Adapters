@@ -11,6 +11,7 @@ function global_do_store_prompt($conn){
 
   $tab[0] = "$";
   $tab[1] = "#";
+  global $sendexpect_result;
 
    //1) Check if it is a VDOM and get the system status
    $IS_VDOM_ENABLED = false;
@@ -70,7 +71,7 @@ function global_do_store_prompt($conn){
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)',10000);
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)');
     $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
+    $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
     if ($IS_VDOM_ENABLED) {
       //If the device is a VDOM come out of global mode and enter vdom mode
       $network  = get_network_profile();
@@ -112,7 +113,7 @@ function global_do_store_prompt($conn){
     $buffer = " # ";
   }
 
-  $prompt = trim($buffer);
+  $prompt = trim($sendexpect_result);
   $prompt = substr(strrchr($prompt, "\n"), 1);
   sms_log_info(__FILE__." get prompt =$prompt");
   return $prompt;
