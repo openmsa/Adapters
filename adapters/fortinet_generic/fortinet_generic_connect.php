@@ -12,15 +12,17 @@ function global_do_store_prompt($conn){
    //1) Check if it is a VDOM and get the system status
    $IS_VDOM_ENABLED = false;
    //$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'execute update-now', '',10000); //no output
-   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #');
-   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)');
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)');
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
+   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
    $get_system_status = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'get system status', '#');
    if (strpos($get_system_status, 'Virtual domain configuration: enable') !== false) {
      //IT IS A VDOM, we should run at first 'config global'
      $IS_VDOM_ENABLED = true;
      try {  // VDOM is enabled for generic commands do config global
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global) #', 10000);
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)', 10000);
        $config_console = 'OK';
      } catch (SmsException $e) {
        $config_console = 'NOK';
@@ -44,13 +46,13 @@ function global_do_store_prompt($conn){
    if ($config_console == 'UNKNOWN') {
      // On waf, run  'config system console' with a very short timeout 10 secondes
      try {
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #',10000);
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)',10000);
        $config_console2 = 'OK';
      } catch (SmsException $e) {
        $config_console2 = 'NOK';
      }
      if ($config_console2 == 'OK') {
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
      } else {
        //NO OK, run only blanc command to get the prompt
