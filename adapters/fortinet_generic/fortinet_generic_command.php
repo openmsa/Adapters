@@ -35,6 +35,7 @@ class fortinet_generic_command extends generic_command
   {
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
+    global $sendexpect_result;
     $tab[0] = " $ ";
     $tab[1] = " # ";
 
