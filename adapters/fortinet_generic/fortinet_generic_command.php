@@ -76,6 +76,7 @@ class fortinet_generic_command extends generic_command
                 $running_conf .= sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op, $tab);
               }
             }
+            echo("Apply concerned parsers:\n\n".$running_conf."\n\n");
             // Apply concerned parsers
             foreach ($sub_parsers as $parser)
             {
