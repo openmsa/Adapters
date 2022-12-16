@@ -56,7 +56,7 @@ class MeConnection extends GenericConnection {
 
     if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_DOMAIN_NAME']) || isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_NAME'])) {
       $auth_array['auth']['scope'] = array();
-      $auth_array['auth']['scope']['project'] = array();
+//      $auth_array['auth']['scope']['project'] = array();
       if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_DOMAIN_NAME'])) {
         $auth_array['auth']['scope']['project']['domain'] = array();
         $auth_array['auth']['scope']['project']['domain']['name'] = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_DOMAIN_NAME']->VAR_VALUE);
@@ -98,12 +98,13 @@ class MeConnection extends GenericConnection {
     // protocol = HTTPS if authentication enable, HTTP otherwise
     if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_URL'])) {
       $this->get_token($sd);
+	echo "generating get_token";
       $this->protocol = 'https';
     } else {
       $this->protocol = 'http';
     }
 
-    $this->send(__FILE__ . ':' . __LINE__, 'GET#/');
+    //$this->send(__FILE__ . ':' . __LINE__, 'GET#/');
   }
 
   public function do_disconnect() {
@@ -181,7 +182,7 @@ class MeConnection extends GenericConnection {
     } else {
       $payload = null;
     }
-
+    echo "Curl => $rest_cmd\n$url\n$http_op\n$payload\n";
     $this->execute_curl_command ($origin, $rest_cmd, $http_op, $url, $payload);
   }
 
@@ -208,13 +209,18 @@ class MeConnection extends GenericConnection {
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->conn_timeout);
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->conn_timeout);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $this->http_header_list[$http_op]);
+   
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     if (!empty($payload)) {
       curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
     }
+    $info = curl_getinfo($ch);
+    debug_dump($info, "CURL REQ:\n");
 
     $ret = curl_exec($ch);
+
+    debug_dump($ret, "CURL RET:\n");
 
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $header_size = curl_getinfo($ch , CURLINFO_HEADER_SIZE);

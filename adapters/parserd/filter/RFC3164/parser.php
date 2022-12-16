@@ -48,7 +48,7 @@ function parse_line(&$fields, &$line)
   $fields_line = "id Month Day Hour orig Info";
 
   $line = trim($line);
-
+  echo("LINE:". $line ."\n");
   //FOR ES
   if ($line[0] != '#')
   {
