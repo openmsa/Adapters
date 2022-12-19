@@ -112,7 +112,6 @@ if ($ret !== SMS_OK)
   return $ret;
 }
 
-$on_error_fct = 'cisco_isr_disconnect';
 $result = '';
 
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'conf t', '(config)#');
@@ -127,7 +126,7 @@ if ($index == 1)
   sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'yes', '(config)#');
 }
 
-sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, '!configure trustpoint/PKI end point', '(config)#');
+// configure trustpoint/PKI end point
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'crypto pki trustpoint PKI', '(ca-trustpoint)#');
 
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'enrollment retry count 5', '(ca-trustpoint)#');
@@ -151,13 +150,13 @@ sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'hash sha256', '(ca-t
 
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'exit', '(config)#');
 
-sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, '! Get CA Certificate', '(config)#');
+// get CA Certificate
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'crypto ca authenticate PKI', 'accept this certificate? [yes/no]:');
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'yes', '(config)#');
 
 if (!empty($params['password']))
 {
-    sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, '!Device certificate enrolment', '(config)#');
+    // Device certificate enrolment
     sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'crypto ca enroll PKI',          'Password:');
     sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $params['password'],             'Re-enter password:');
     sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $params['password'],             'IP address in the subject name? [no]:');
@@ -203,7 +202,6 @@ if (! $cert_found || (strpos($cert_buf, 'Status: Available') === false))
     $ret = ERR_SD_CERTGEN;
 }
 
-unset($on_error_fct);
 cisco_isr_disconnect();
 
 $response = "[\"show_crypto_pki_certificate_log\":\"$buf\"]";
