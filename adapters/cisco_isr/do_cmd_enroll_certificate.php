@@ -167,16 +167,40 @@ if (!empty($params['password']))
 
 sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', $sms_sd_ctx->getPrompt());
 
-$buf = '';
+$cert_found = false;
+$cert_buf = '';
 if (!empty($params['password']))
 {
-    $buf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'show crypto pki certificates verbose PKI');
-    $pos = strpos($buf, 'Name: '.$params['cert_CN_attribute']);
-    if (($pos === false) || (strpos($buf, 'Status: Available', $pos) === false))
+    /* need to check if the certificate is received or not */
+    $count = 18; // 3 minutes
+    while ($count > 0)
     {
-      sms_log_error(" ENROLL_CERTIFICATE: Unable to find crypto ca authenticate Key");
-      $ret = ERR_SD_CERTGEN;
+        /* retrieve the list of certificate in the router */
+        $buf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'show crypto pki certificates verbose PKI');
+
+        $startpos = strpos($buf, 'Name: '.$params['cert_CN_attribute']);
+        if ($startpos !== false)
+        {
+            $cert_found = true;
+            $cert_buf = substr($buf, $startpos);
+            // next Name:
+            $endpos = strpos($cert_buf, 'Name: ', 1);
+
+            if ($endpos !== false)
+            {
+                $cert_buf = substr_replace($cert_buf, '', $endpos);
+            }
+            break ;
+        }
+        sleep(10);
+        $count--;
     }
+}
+
+if (! $cert_found || (strpos($cert_buf, 'Status: Available') === false))
+{
+    sms_log_error(" ENROLL_CERTIFICATE: Unable to find crypto ca authenticate Key");
+    $ret = ERR_SD_CERTGEN;
 }
 
 unset($on_error_fct);
