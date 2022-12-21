@@ -83,7 +83,7 @@ class nokia_vsd_command extends generic_command
           }
         }
 
-        $this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
+        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
 
         debug_object_conf($this->parsed_objects);
         $SMS_RETURN_BUF = object_to_json($this->parsed_objects);

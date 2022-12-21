@@ -1,12 +1,4 @@
 <?php
-/*
- * Version: $Id$
- * Created: Apr 28, 2011
- * Available global variables
- * $sms_csp pointer to csp context to send response to user
- * $sms_sd_ctx pointer to sd_ctx context to retreive usefull field(s)
- * $SMS_RETURN_BUF string buffer containing the result
- */
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_command.php';
 
@@ -70,7 +62,7 @@ class cisco_nx_rest_command extends generic_command {
 					}
 				}
 
-				$this->parsed_objects = array_merge_recursive($this->parsed_objects, $objects);
+				$this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
 
 				debug_object_conf($this->parsed_objects);
 				$SMS_RETURN_BUF = object_to_json($this->parsed_objects);
@@ -84,7 +76,6 @@ class cisco_nx_rest_command extends generic_command {
 		return SMS_OK;
 	}
 	function eval_CREATE() {
-		global $SMS_RETURN_BUF;
 		echo "eval_CREATE()\n";
 		return $this->eval_OPERATON ( $this->create_list );
 	}
@@ -96,9 +87,9 @@ class cisco_nx_rest_command extends generic_command {
 		echo "apply_device_CREATE({$params})\n";
 		return $this->apply_device_UPDATE ( $params );
 	}
+
 	function eval_UPDATE() {
 		echo "eval_UPDATE()\n";
-		global $SMS_RETURN_BUF;
 		return $this->eval_OPERATON ( $this->update_list );
 	}
 
@@ -115,79 +106,48 @@ class cisco_nx_rest_command extends generic_command {
 		}
 		return $ret;
 	}
+
 	private function eval_OPERATON($list) {
-		echo "eval_UPDATE()\n";
 		global $SMS_RETURN_BUF;
 
 		foreach ( $list as $name ) {
 
-			$endpoint_str = trim ( $name->evaluate_operation () );
-			$endpoints = explode ( "##", $endpoint_str );
-			$xpath_str = trim ( $name->evaluate_xpath () );
-			$xpaths = explode ( "##", $xpath_str );
+            $operation_str = trim ( $name->evaluate_operation () );
+            $operations = explode ( "##", $operation_str );
 
-			$xml_conf_str = trim ( $name->evaluate_xml () );
-			$xml_conf_str = str_replace ( "\n", '', $xml_conf_str );
+            $xpath_str = trim ( $name->evaluate_xpath () );
+            $xpaths = explode ( "##", $xpath_str );
 
-			$xml_configs = explode ( "##", $xml_conf_str );
-			if (! empty ( $endpoint_str )) {
+            $xml_conf_str = trim ( $name->evaluate_xml () );
+            $xml_conf_str = str_replace ( "\n", '', $xml_conf_str );
+            $xml_configs = explode ( "##", $xml_conf_str );
 
-				if (count ( $xpaths ) != count ( $endpoints )) {
-					throw new SmsException ( "End points are not as many as Xpaths" );
-				} else {
-					$i = 0;
-					foreach ( $xml_configs as $xml_conf ) {
-						if (! empty ( $xml_conf )) {
-							$conf = $endpoints [$i];
-							$conf .= '#' . $xpaths [$i];
-							// separate data with '#'
-							$conf .= '#' . $xml_conf;
+            if (! empty ( $operation_str )) {
+                if (count ( $xpaths ) != count ( $operations )) {
+                    throw new SmsException ( "Operations are not as many as Xpaths" );
+                } else {
+                    foreach ( $operations as $i => $operation ) {
+                        $conf = $operation . '##' . $xpaths[$i];
+                        if (! empty ( $xml_configs[$i])) {
+                            $xml_conf_str = str_replace("\n", '', $xml_configs[$i]);
+                            $conf .= '##' . $xml_conf_str;
+                        }
+                        $conf .= "\n";
+                    }
+                    $this->configuration .= $conf;
+                }
+            }
+        }
 
-							$this->configuration .= "{$conf}\n";
-							$SMS_RETURN_BUF .= "{$conf}\n";
-						}
-						$i += 1;
-					}
-				}
-			}
-		}
+		$SMS_RETURN_BUF = $this->configuration;
 		debug_dump ( $SMS_RETURN_BUF, "SMS_RETURN_BUF\n" );
 		return SMS_OK;
 	}
 
-
 	function eval_DELETE() {
-		global $SMS_RETURN_BUF;
+		echo "eval_DELETE()\n";
+		return $this->eval_OPERATON ( $this->delete_list );
 
-		foreach ( $this->delete_list as $delete ) {
-                        $operation_str = trim ( $delete->evaluate_operation () );
-                        $operations = explode ( "##", $operation_str );
-
-                        $xpath_str = trim ( $delete->evaluate_xpath () );
-                        $xpaths = explode ( "##", $xpath_str );
-
-                        $xml_conf_str = trim ( $delete->evaluate_xml () );
-                        $xml_conf_str = str_replace ( "\n", '', $xml_conf_str );
-                        $xml_configs = explode ( "##", $xml_conf_str );
-
-                        if (! empty ( $operation_str )) {
-                                 if (count ( $xpaths ) != count ( $operations )) {
-                                        throw new SmsException ( "Operations are not as many as Xpaths" );
-                                } else {
-				       foreach ( $operations as $i => $operation )
-							{
-							    $conf = $operation . '##' . $xpaths[$i];
-							    $xml_conf_str = str_replace("\n", '', $xml_configs[$i]);
-							    if (! empty ( $xml_conf_str )) {
-								$conf .= "' -d'".$xml_conf_str;
-							    }
-							    $this->configuration .= "{$conf}\n";
-							}
-						}
-                        }
-                }
-		 $SMS_RETURN_BUF = $this->configuration;
-		return SMS_OK;
 	}
 
 	/**

@@ -315,6 +315,11 @@ class CiscoNXsshConnection extends SshConnection
 		if($result_id !== 0) {
 			throw new SmsException("Connection Failed, can't enter in Enable mode", ERR_SD_CONNREFUSED);
 		}
+		# to get large output without More prompt
+		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal length 0",'#');
+		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal width 0",'#');
+		$this->sendexpectone(__FILE__.':'.__LINE__, "terminal exec prompt no-timestamp",'#');
+    
 	}
 
 	public function do_store_prompt() {

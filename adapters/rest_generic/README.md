@@ -9,6 +9,10 @@ The list of configuration that can we used is available below
 
 # Available configuration variables
 
+## REST_JSON
+set to 1 when using JSON REST API Microservices. 
+By default the adapter will transform the API JSON formatted responses to XML.
+
 ## PROTOCOL
 Use this configuration to select the protocol for the REST API requests
 * values: http, https
