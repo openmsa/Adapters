@@ -126,8 +126,9 @@ class cisco_nx_rest_command extends generic_command {
                 if (count ( $xpaths ) != count ( $operations )) {
                     throw new SmsException ( "Operations are not as many as Xpaths" );
                 } else {
+                    $conf = '';
                     foreach ( $operations as $i => $operation ) {
-                        $conf = $operation . '##' . $xpaths[$i];
+                        $conf .= $operation . '##' . $xpaths[$i];
                         if (! empty ( $xml_configs[$i])) {
                             $xml_conf_str = str_replace("\n", '', $xml_configs[$i]);
                             $conf .= '##' . $xml_conf_str;
