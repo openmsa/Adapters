@@ -39,45 +39,38 @@ class nec_pflow_pfcscapi_command extends generic_command
     global $apply_conf;
     $apply_conf = 1;
     //-------------
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
+      return $ret;
+    }
+
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+
+      foreach ($this->parser_list as $parser)
       {
-        return $ret;
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+        $cmd = trim($op_eval);
+
+        sms_log_debug(15, "Operation: " . $cmd);
+        sms_log_debug(15, "Xpath_eval: " . $xpath_eval);
+
+        $running_conf = $sms_sd_ctx->curl($cmd, $xpath_eval, null);
+
+        sms_log_info("Running configuration: " . $running_conf);
+        $parser->parse($running_conf, $objects);
       }
 
-      if (!empty($this->parser_list))
-      {
-        $objects = array();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
 
-        foreach ($this->parser_list as $parser)
-        {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-          $cmd = trim($op_eval);
-
-          sms_log_debug(15, "Operation: " . $cmd);
-          sms_log_debug(15, "Xpath_eval: " . $xpath_eval);
-
-          $running_conf = $sms_sd_ctx->curl($cmd, $xpath_eval, null);
-
-          sms_log_info("Running configuration: " . $running_conf);
-          $parser->parse($running_conf, $objects);
-        }
-
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
-      }
-
-      sd_disconnect();
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }

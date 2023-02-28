@@ -42,78 +42,71 @@ class apic_command extends generic_command
     $url_devices = $connect->get_url_import_devices();
     $url_policy =  $connect->get_url_policy();
 
-    try
+    if (!empty($this->parser_list))
     {
-      if (!empty($this->parser_list))
+      $objects = array();
+      // One operation groups several parsers
+      foreach ($this->parser_list as $operation => $parsers)
       {
-        $objects = array();
-        // One operation groups several parsers
-        foreach ($this->parser_list as $operation => $parsers)
+        $sub_list = array();
+        foreach($parsers as $parser)
         {
-          $sub_list = array();
-          foreach($parsers as $parser)
-          {
-            $op_eval = $parser->eval_operation();
-            // Group parsers into evaluated operations
-            $sub_list["$op_eval"][] = $parser;
-          }
-
-          foreach ($sub_list as $op_eval => $sub_parsers)
-          {
-            // Run evaluated operation
-            $running_conf = '';
-            $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-            foreach ($op_list as $op)
-            {
-              if ($op == "get devices") {
-
-              	$ch = curl_init();
-              	curl_setopt($ch, CURLOPT_URL, $url_devices);
-              	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-              	curl_setopt($ch, CURLOPT_VERBOSE, 1);
-              	$devices = curl_exec ($ch);
-              	sms_log_error(" =============================== DEVICES Config : $devices ========================================\n");
-
-              	$running_conf = get_config_line($devices);
-              	sms_log_error("=================================== \n $running_conf \n =================================\n");
-
-              } else if ($op == "get policy") {
-                sms_log_error(" Import POLICY LIST \n");
-
-                sms_log_error(" =============================== POLICY LIST : $url_policy ========================================\n");
-
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url_policy);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_VERBOSE, 1);
-                $policy = curl_exec ($ch);
-
-                $running_conf = get_config_line($policy);
-
-                sms_log_error("=================================== \n $running_conf \n =================================\n");
-
-              } else {
-                sms_log_error(" Missing commande to IMPORT Flow/Node \n");
-
-              }
-            }
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
-            }
-          }
+          $op_eval = $parser->eval_operation();
+          // Group parsers into evaluated operations
+          $sub_list["$op_eval"][] = $parser;
         }
 
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+        foreach ($sub_list as $op_eval => $sub_parsers)
+        {
+          // Run evaluated operation
+          $running_conf = '';
+          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+          foreach ($op_list as $op)
+          {
+            if ($op == "get devices") {
 
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+            	$ch = curl_init();
+            	curl_setopt($ch, CURLOPT_URL, $url_devices);
+            	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            	curl_setopt($ch, CURLOPT_VERBOSE, 1);
+            	$devices = curl_exec ($ch);
+            	sms_log_error(" =============================== DEVICES Config : $devices ========================================\n");
+
+            	$running_conf = get_config_line($devices);
+            	sms_log_error("=================================== \n $running_conf \n =================================\n");
+
+            } else if ($op == "get policy") {
+              sms_log_error(" Import POLICY LIST \n");
+
+              sms_log_error(" =============================== POLICY LIST : $url_policy ========================================\n");
+
+              $ch = curl_init();
+              curl_setopt($ch, CURLOPT_URL, $url_policy);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+              curl_setopt($ch, CURLOPT_VERBOSE, 1);
+              $policy = curl_exec ($ch);
+
+              $running_conf = get_config_line($policy);
+
+              sms_log_error("=================================== \n $running_conf \n =================================\n");
+
+            } else {
+              sms_log_error(" Missing commande to IMPORT Flow/Node \n");
+
+            }
+          }
+          // Apply concerned parsers
+          foreach ($sub_parsers as $parser)
+          {
+            $parser->parse($running_conf, $objects);
+          }
+        }
       }
-    }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
+
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
 
     return SMS_OK;

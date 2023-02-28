@@ -35,47 +35,43 @@ class f5_bigip_command extends generic_command {
         global $sms_sd_ctx;
         global $SMS_RETURN_BUF;
 
-        try {
-            $ret = sd_connect ();
-            if ($ret != SMS_OK) {
-                return $ret;
-            }
-            if (! empty ( $this->parser_list )) {
-                $objects = array ();
-                // One operation groups several parsers
-                foreach ( $this->parser_list as $operation => $parsers ) {
-                    $sub_list = array ();
-                    foreach ( $parsers as $parser ) {
-                        $op_eval = $parser->eval_operation ();
-                        // Group parsers into evaluated operations
-                        $sub_list ["$op_eval"] [] = $parser;
-                    }
-
-                    foreach ( $sub_list as $op_eval => $sub_parsers ) {
-                        // Run evaluated operation
-                        $running_conf = '';
-                        $op_list = preg_split ( '@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY );
-                        foreach ( $op_list as $op ) {
-                            $running_conf .= sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op );
-                        }
-                        echo "RUNNING\n{$running_conf}\n";
-                        // Apply concerned parsers
-                        foreach ( $sub_parsers as $parser ) {
-                            $parser->parse ( $running_conf, $objects );
-                        }
-                    }
+        $ret = sd_connect ();
+        if ($ret != SMS_OK) {
+            return $ret;
+        }
+        if (! empty ( $this->parser_list )) {
+            $objects = array ();
+            // One operation groups several parsers
+            foreach ( $this->parser_list as $operation => $parsers ) {
+                $sub_list = array ();
+                foreach ( $parsers as $parser ) {
+                    $op_eval = $parser->eval_operation ();
+                    // Group parsers into evaluated operations
+                    $sub_list ["$op_eval"] [] = $parser;
                 }
 
-                $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-                debug_object_conf($this->parsed_objects);
-                $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+                foreach ( $sub_list as $op_eval => $sub_parsers ) {
+                    // Run evaluated operation
+                    $running_conf = '';
+                    $op_list = preg_split ( '@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY );
+                    foreach ( $op_list as $op ) {
+                        $running_conf .= sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op );
+                    }
+                    echo "RUNNING\n{$running_conf}\n";
+                    // Apply concerned parsers
+                    foreach ( $sub_parsers as $parser ) {
+                        $parser->parse ( $running_conf, $objects );
+                    }
+                }
             }
 
-            sd_disconnect ();
-        } catch ( Exception | Error $e ) {
-            return $e->getCode ();
+            $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+            debug_object_conf($this->parsed_objects);
+            $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
         }
+
+        sd_disconnect ();
 
         return SMS_OK;
     }

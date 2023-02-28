@@ -39,59 +39,53 @@ class lanner_ipmi_command extends generic_command
     global $SMS_RETURN_BUF;
     $network = get_network_profile();
     $SD = &$network->SD;
-    try
+
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+      return $ret;
+    }
 
-      if (!empty($this->parser_list))
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      // One operation groups several parsers
+      foreach ($this->parser_list as $operation => $parsers)
       {
-        $objects = array();
-        // One operation groups several parsers
-        foreach ($this->parser_list as $operation => $parsers)
+        $sub_list = array();
+        foreach ($parsers as $parser)
         {
-          $sub_list = array();
-          foreach ($parsers as $parser)
-          {
-            $op_eval = $parser->eval_operation();
-            // Group parsers into evaluated operations
-            $sub_list["$op_eval"][] = $parser;
-          }
-
-          foreach ($sub_list as $op_eval => $sub_parsers)
-          {
-            // Run evaluated operation
-            $running_conf = '';
-            $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-            foreach ($op_list as $op)
-	    $op = "ipmitool -I lanplus -H {$SD->SD_IP_CONFIG} -U '{$SD->SD_LOGIN_ENTRY}' -P '{$SD->SD_PASSWD_ENTRY}' ".$op;
-            {
-              $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-            }
-
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
-            }
-          }
+          $op_eval = $parser->eval_operation();
+          // Group parsers into evaluated operations
+          $sub_list["$op_eval"][] = $parser;
         }
 
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+        foreach ($sub_list as $op_eval => $sub_parsers)
+        {
+          // Run evaluated operation
+          $running_conf = '';
+          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+          foreach ($op_list as $op)
+          {
+            $op = "ipmitool -I lanplus -H {$SD->SD_IP_CONFIG} -U '{$SD->SD_LOGIN_ENTRY}' -P '{$SD->SD_PASSWD_ENTRY}' ".$op;
+            $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+          }
 
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+          // Apply concerned parsers
+          foreach ($sub_parsers as $parser)
+          {
+            $parser->parse($running_conf, $objects);
+          }
+        }
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }
