@@ -38,85 +38,78 @@ class versa_director_command extends generic_command
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+      return $ret;
+    }
 
-      if (!empty($this->parser_list))
-      {
-        $objects = array();
-        $parser_list = array();
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      $parser_list = array();
 
-        foreach ($this->parser_list as $parser)
+      foreach ($this->parser_list as $parser)
+      {
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+
+        // Rechercher tous les objets et les rajouter à la liste des commandes à passer
+	  // Cas special pour certains objets nécessitant de faire plusieurs GET pour récupérer tous les objets (dépendances)
+	  // Un ! est mis en sépateur de chaque requete dans la REST Command du formulaire
+	  $list_objects = explode("!",  $op_eval);
+
+        // trouver tous les UUID pour faire les GET
+        foreach ($list_objects as $single_object)
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+	      if ($single_object != '') {
+				$cmd = 'GET#' . trim($single_object);
+				$parser_list[$cmd][] = $parser;
+				}
+        }
 
-          // Rechercher tous les objets et les rajouter à la liste des commandes à passer
-		  // Cas special pour certains objets nécessitant de faire plusieurs GET pour récupérer tous les objets (dépendances)
-		  // Un ! est mis en sépateur de chaque requete dans la REST Command du formulaire
-		  $list_objects = explode("!",  $op_eval);
-
-          // trouver tous les UUID pour faire les GET
-          foreach ($list_objects as $single_object)
-          {
-		      if ($single_object != '') {
-					$cmd = 'GET#' . trim($single_object);
-					$parser_list[$cmd][] = $parser;
-					}
-          }
-
-  /*        $uuid = $parser->evaluate_internal('IMPORT', 'json_params');
-          if ($uuid != '0')
-          { // un seul objet à importer avec l'uuid donné en entrée
-            echo ("UN SEUL OBJET\n");
-            if ($uuid == '') // Cas avec import sur la base d'un nom humain et pas d'un UUID
-              $parser_list[$cmd][] = $parser;
-            else
-              $parser_list[$cmd . "/" . $uuid][] = $parser;
-          }
-          else
-          { // sinon parser tous les objets
-            echo ("LISTE d'OBJET\n");
+/*        $uuid = $parser->evaluate_internal('IMPORT', 'json_params');
+        if ($uuid != '0')
+        { // un seul objet à importer avec l'uuid donné en entrée
+          echo ("UN SEUL OBJET\n");
+          if ($uuid == '') // Cas avec import sur la base d'un nom humain et pas d'un UUID
             $parser_list[$cmd][] = $parser;
-          }*/
-          // Group parsers into evaluated operations
+          else
+            $parser_list[$cmd . "/" . $uuid][] = $parser;
         }
-
-        foreach ($parser_list as $op_eval => $sub_parsers)
-        {
-          // Run evaluated operation
-          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-
-          foreach ($op_list as $op)
-          {
-
-            $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-            //debug_dump($sms_sd_ctx->get_raw_xml());
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
-            }
-          }
-        }
-
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+        else
+        { // sinon parser tous les objets
+          echo ("LISTE d'OBJET\n");
+          $parser_list[$cmd][] = $parser;
+        }*/
+        // Group parsers into evaluated operations
       }
 
-      sd_disconnect();
+      foreach ($parser_list as $op_eval => $sub_parsers)
+      {
+        // Run evaluated operation
+        $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+
+        foreach ($op_list as $op)
+        {
+
+          $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+          //debug_dump($sms_sd_ctx->get_raw_xml());
+          // Apply concerned parsers
+          foreach ($sub_parsers as $parser)
+          {
+            $parser->parse($running_conf, $objects);
+          }
+        }
+      }
+
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }
@@ -244,7 +237,6 @@ class versa_director_command extends generic_command
 
     foreach ($this->delete_list as $delete)
     {
-
 	  // Cas special pour certains objets nécessitant de faire plusieurs CREATE pour créer une sequence
 	  // Un ! est mis en sépateur de chaque requete dans la REST Command du formulaire
 	  $list_commands_rest = explode("!",  $delete->evaluate_operation());

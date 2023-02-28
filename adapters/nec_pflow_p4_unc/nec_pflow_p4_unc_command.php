@@ -35,57 +35,50 @@ class nec_pflow_p4_unc_command extends generic_command
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+      return $ret;
+    }
 
-      if (!empty($this->parser_list))
-      {
-        $objects = array();
-        $parser_list = array();
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      $parser_list = array();
 
-        foreach ($this->parser_list as $parser)
+      foreach ($this->parser_list as $parser)
+      {
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+        echo "Xpath_eval: " . $xpath_eval . "\n";
+
+        $cmd = trim($op_eval);
+
+        echo "Operation: " . $cmd . "\n";
+        echo "Xpath_eval: " . $xpath_eval . "\n";
+
+        if ($cmd == 'FAKE')
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-          echo "Xpath_eval: " . $xpath_eval . "\n";
+          $result = arrayToXml(json_decode($xpath_eval, true));
+          debug_dump($result, "FAKE RESPONSE\n");
 
-          $cmd = trim($op_eval);
-
-          echo "Operation: " . $cmd . "\n";
-          echo "Xpath_eval: " . $xpath_eval . "\n";
-
-          if ($cmd == 'FAKE')
-          {
-            $result = arrayToXml(json_decode($xpath_eval, true));
-            debug_dump($result, "FAKE RESPONSE\n");
-
-            $running_conf = $result;
-          }
-          else
-          {
-            $running_conf = $sms_sd_ctx->curl($cmd, $xpath_eval, null); //'/api/routing/static');
-          }
-
-          $parser->parse($running_conf, $objects);
+          $running_conf = $result;
+        }
+        else
+        {
+          $running_conf = $sms_sd_ctx->curl($cmd, $xpath_eval, null); //'/api/routing/static');
         }
 
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+        $parser->parse($running_conf, $objects);
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }

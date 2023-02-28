@@ -28,50 +28,46 @@ class cisco_nx_rest_command extends generic_command {
 		global $sms_sd_ctx;
 		global $SMS_RETURN_BUF;
 
-		try {
-			$ret = sd_connect ();
-			if ($ret != SMS_OK) {
-				return $ret;
-			}
+		$ret = sd_connect ();
+		if ($ret != SMS_OK) {
+			return $ret;
+		}
 
-			if (! empty ( $this->parser_list )) {
-				$objects = array ();
-				$parser_list = array ();
+		if (! empty ( $this->parser_list )) {
+			$objects = array ();
+			$parser_list = array ();
 
-				foreach ( $this->parser_list as $parser ) {
-					$op_eval = $parser->evaluate_internal ( 'IMPORT', 'operation' );
-					$xpath_eval = $parser->evaluate_internal ( 'IMPORT', 'xpath' );
+			foreach ( $this->parser_list as $parser ) {
+				$op_eval = $parser->evaluate_internal ( 'IMPORT', 'operation' );
+				$xpath_eval = $parser->evaluate_internal ( 'IMPORT', 'xpath' );
 
-					if (strlen ( $xpath_eval ) > 0) {
-						$path_list = preg_split ( '@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
-						foreach ( $path_list as $xpth ) {
-							$cmd = trim ( $op_eval ) . "##" . trim ( $xpth );
-							$parser_list [$cmd] [] = $parser;
-						}
-					} else {
-						$cmd = trim ( $op_eval );
-						// Group parsers into evaluated operations
+				if (strlen ( $xpath_eval ) > 0) {
+					$path_list = preg_split ( '@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY );
+					foreach ( $path_list as $xpth ) {
+						$cmd = trim ( $op_eval ) . "##" . trim ( $xpth );
 						$parser_list [$cmd] [] = $parser;
 					}
+				} else {
+					$cmd = trim ( $op_eval );
+					// Group parsers into evaluated operations
+					$parser_list [$cmd] [] = $parser;
 				}
-				foreach ( $parser_list as $op_eval => $sub_parsers ) {
+			}
+			foreach ( $parser_list as $op_eval => $sub_parsers ) {
 
-					$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
-					foreach ( $sub_parsers as $parser ) {
-						$parser->parse ( $running_conf, $objects );
-					}
+				$running_conf = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $op_eval, "" );
+				foreach ( $sub_parsers as $parser ) {
+					$parser->parse ( $running_conf, $objects );
 				}
-
-				$this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-				debug_object_conf($this->parsed_objects);
-				$SMS_RETURN_BUF = object_to_json($this->parsed_objects);
 			}
 
-			sd_disconnect ();
-		} catch ( Exception $e ) {
-			return $e->getCode ();
+			$this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+			debug_object_conf($this->parsed_objects);
+			$SMS_RETURN_BUF = object_to_json($this->parsed_objects);
 		}
+
+		sd_disconnect ();
 
 		return SMS_OK;
 	}
