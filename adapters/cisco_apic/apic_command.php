@@ -70,6 +70,9 @@ class apic_command extends generic_command
             	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             	curl_setopt($ch, CURLOPT_VERBOSE, 1);
             	$devices = curl_exec ($ch);
+
+            	curl_close($ch);
+
             	sms_log_error(" =============================== DEVICES Config : $devices ========================================\n");
 
             	$running_conf = get_config_line($devices);
@@ -85,6 +88,8 @@ class apic_command extends generic_command
               curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
               curl_setopt($ch, CURLOPT_VERBOSE, 1);
               $policy = curl_exec ($ch);
+
+              curl_close($ch);
 
               $running_conf = get_config_line($policy);
 
