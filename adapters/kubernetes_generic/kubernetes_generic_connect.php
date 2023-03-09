@@ -151,7 +151,13 @@ class KubernetesGenericRESTConnection extends GenericConnection
             if ($ret !== SMS_OK) {
                 throw new SmsException("Failed to get Token", $ret);
             }
-            $json = json_decode($output_array[0], true);
+            $resp = '';
+            foreach($output_array as $line) {
+              if ($line !== 'SMS_OK') {
+                $resp .= $line;
+              }
+            }
+            $json = json_decode($resp, true);
             $token = $json['status']['token'];
         }
 
@@ -160,7 +166,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
         if ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS") {
             $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} --header \"Authorization: Bearer {$token}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
         }
-
 
         if (isset($action[3]) && ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS")) {
             $curl_cmd .= " -d '{$action[3]}'";
