@@ -28,6 +28,11 @@ switch ($sd->SD_CONFIGVAR_list['cloudService']->VAR_VALUE) {
       $end_point = $sd->SD_CONFIGVAR_list['cluster_endpoint']->VAR_VALUE;
     }
     break;
+  case 'kubernetes':
+    if (!empty($sd->SD_CONFIGVAR_list['KUBE_SERVER_IP'])) {
+      $end_point = $sd->SD_CONFIGVAR_list['KUBE_SERVER_IP']->VAR_VALUE;
+    }
+    break;
   default:
     sms_log_error("Unknown cloudService\n");
     return ERR_CONFIG_VAR_UNDEFINED;
