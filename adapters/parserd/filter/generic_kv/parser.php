@@ -24,11 +24,12 @@ $count['bad_record'] = 0;
 $count['no_action'] = 0;
 
 function parse_line(&$fields, &$line) {
-
-	$result = new PARSER_RESULT();
-
+  
+  $result = new PARSER_RESULT();
+  
 	$line = trim($line);
   $line = utf8_encode($line); // useful when Japanese characters are present in the logs
+	debug_dump($line, '$line');
 	//--------------------------------------------------------------------------------
 	/* 1 - parse the line */
   $records = get_records($line);
