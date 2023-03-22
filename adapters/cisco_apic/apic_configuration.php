@@ -58,6 +58,8 @@ function get_running_conf()
 	  curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	  $responses = curl_exec ($ch);
 
+	  curl_close($ch);
+
 	  $running_conf = get_config_line($responses);
 	  $this->running_conf = $running_conf;
 	  return $this->running_conf;

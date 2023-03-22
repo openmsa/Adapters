@@ -421,20 +421,32 @@ class fortinet_generic_configuration
     //ex : $command= execute restore image tftp Fortinet_firmware/FWB_VM-64bit-v600-build0398-FORTINET.out 10.30.18.155
     $command = "execute restore image tftp $tftp_dir_light/$firmware_file $tftp_server_addr";
     status_progress("Will run on the device: $command", $status_type);
-
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $command, '(y/n)', 15000);
-
+    $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, $command);
+    
     //Answer to This operation will replace the current firmware version!  Do you want to continue? (y/n)y
     status_progress("Checking image", $status_type);
     try
     {
-      //Check if we got an error, if the file is OK the device will reboot
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'y', 'Command fail', 300000);
+      unset($tab);
+      $tab[0] = "(y/n)";
+      $tab[1] = "Command failed";
+      $tab[2] = 'Transfer timed out';
+      $index =  0;
+      $loop=0;
+      while ($index == 0 && $loop++<5)
+      {
+         # if Image file uploaded is marked as a Feature image, are you sure you want to upgrade? need anwers Y 2 more times :
+         //sms_log_error(__FILE__ . ':' . __LINE__ . " before wait loop=$loop\n");
+         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 300000);
+         
+         if($index === 0){
+           $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, "y");  #not used sendCmd because we should not send the 'enter' after y
+         }
+      }
+      //sms_log_error(__FILE__ . ':' . __LINE__ . " end all loop=$loop index=$index\n");
 
-      // This is the error case, we are still connected, retrieve the error and bye bye
-      $status_message = "Firmware update error1: $buffer";
-      sms_log_error(__FILE__ . ':' . __LINE__ . " : $status_message\n");
-      if (strpos($buffer, 'Transfer timed out') !== false)
+      //Check if we got an error, if the file is OK the device will reboot
+      if ($index == 2)
       {
         return ERR_SD_CMDTMOUT;
       }
