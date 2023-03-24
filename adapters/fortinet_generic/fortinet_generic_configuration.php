@@ -435,9 +435,9 @@ class fortinet_generic_configuration
       $loop=0;
       while ($index == 0 && $loop++<5)
       {
-         # if Image file uploaded is marked as a Feature image, are you sure you want to upgrade? need anwers Y 2 more times :
+         # if Image file uploaded is marked as a Feature image, are you sure you want to upgrade? need anwers Y 2 more times  and more time for UTM HA with 'Send image to HA secondary':
          //sms_log_error(__FILE__ . ':' . __LINE__ . " before wait loop=$loop\n");
-         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 300000);
+         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 600000);
          
          if($index === 0){
            $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, "y");  #not used sendCmd because we should not send the 'enter' after y
