@@ -1,0 +1,1 @@
+# JUJU Webapp adapter.
