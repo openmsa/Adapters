@@ -82,12 +82,11 @@ function parse_line(&$fields, &$line) {
     $count['bad_record']++;
     $parse_failed = true;
   }
-  debug_dump($records, 'RECORDS\n');
 
 
 	//--------------------------------------------------------------------------------
 	/* 1 - parse the line */
-  $records = get_records($line);
+  $records = get_records($records, $line);
   if ($records === false)
   {
     return false;
@@ -130,9 +129,10 @@ function parse_line(&$fields, &$line) {
  * @param unknown $line
  * @return boolean|unknown
  */
-function get_records(&$line)
+function get_records(&$records, &$line)
 {
   global $count;
+  debug_dump($records, 'get_records RECORDS\n');
 
   $pattern = "@(?<name>[\w]+)=(?<value>[A-Za-z0-9_()./:-]+)|(?<namestr>[\w]+)=\"(?<valuestr>[^\"]*)\"@";
   if (preg_match_all($pattern, $line, $records_tmp) > 0)
