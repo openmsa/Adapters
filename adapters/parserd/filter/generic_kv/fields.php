@@ -91,25 +91,23 @@ function set_fields(&$fields, &$records)
 	$fields['subtype'] = 'DOCKER';
 
   if (!empty($records['type'])) {
-    $fields['scope'] = $records['Type'];
+    $fields['docker_event/type'] = $records['type'];
   }
   if (!empty($records['status'])) {
-    $fields['status'] = $records['status'];
+    $fields['docker_event/status'] = $records['status'];
   }
   if (!empty($records['from'])) {
     $from = $records['from'];
     $pieces = explode(":", $from);
-    $fields['service'] = $pieces[0];
-    $fields['image'] =  $from;
+    $fields['docker_event/service'] = $pieces[0];
+    $fields['docker_event/image'] =  $from;
   }
   if (!empty($records['ID'])) {
-    $fields['container_id'] = $records['ID'];
+    $fields['docker_event/container_id'] = $records['ID'];
   }
   if (!empty($records['action'])) {
-    $fields['action'] = $records['action'];
+    $fields['docker_event/action'] = $records['action'];
   }
-  if (!empty($records['scope'])) {
-    $fields['scope'] = $records['scope'];
-  }
+
 }
 ?>
