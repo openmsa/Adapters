@@ -29,7 +29,7 @@ function parse_line(&$fields, &$line) {
   
 	$line = trim($line);
   $line = utf8_encode($line); // useful when Japanese characters are present in the logs
-	debug_dump($line, "\n$line:\n");
+	debug_dump($line, "\nLINE:\n");
 	//--------------------------------------------------------------------------------
 	/* 1 - parse the line */
   $records = get_records($line);
