@@ -90,14 +90,14 @@ function set_fields(&$fields, &$records)
 	$fields['Type'] = 'VNOC';
 	$fields['subtype'] = 'DOCKER';
 
-  if (!empty($records['Type'])) {
+  if (!empty($records['type'])) {
     $fields['scope'] = $records['Type'];
   }
-  if (!empty($records['Status'])) {
-    $fields['status'] = $records['Status'];
+  if (!empty($records['status'])) {
+    $fields['status'] = $records['status'];
   }
-  if (!empty($records['From'])) {
-    $from = $records['From'];
+  if (!empty($records['from'])) {
+    $from = $records['from'];
     $pieces = explode(":", $from);
     $fields['service'] = $pieces[0];
     $fields['image'] =  $from;
@@ -105,8 +105,11 @@ function set_fields(&$fields, &$records)
   if (!empty($records['ID'])) {
     $fields['container_id'] = $records['ID'];
   }
-  if (!empty($records['Action'])) {
-    $fields['action'] = $records['Action'];
+  if (!empty($records['action'])) {
+    $fields['action'] = $records['action'];
+  }
+  if (!empty($records['scope'])) {
+    $fields['scope'] = $records['scope'];
   }
 }
 ?>
