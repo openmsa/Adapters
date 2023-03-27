@@ -68,6 +68,8 @@ function format_timezone($raw_timezone, $timezone)
 function set_fields(&$fields, &$records)
 {
   global $timezone;
+  
+	debug_dump($records, "\set_fields RECORDS:\n");
 
   $fields['rawlog'] = $records['rawlog'];
 
