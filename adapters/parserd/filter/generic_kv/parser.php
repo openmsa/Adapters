@@ -30,6 +30,61 @@ function parse_line(&$fields, &$line) {
 	$line = trim($line);
   $line = utf8_encode($line); // useful when Japanese characters are present in the logs
 	debug_dump($line, "\nLINE:\n");
+
+
+
+  $fields_line = "id Month Day Hour orig Info";
+  $record_names = preg_split("@\s+@", $fields_line);
+	debug_dump($record_names, "\nRECORD_NAME:\n");
+  $end_matches = 0;
+
+  if (preg_match_all('/\s*("[^"]*"|<[^>]*>|\S+)/', $line, $records_tmp, PREG_OFFSET_CAPTURE) > 0)
+  {
+    $index = 0;
+    foreach ($record_names as $record_name)
+    {
+    	if(empty($records_tmp[1][$index])){
+    		$val = null;
+    	}else{
+    		$val = $records_tmp[1][$index][0];
+    		$end_matches = max($end_matches, $records_tmp[1][$index][1]);
+    	}
+
+      $index += 1;
+      if (strpos($val, '"') === 0)
+      {
+        // quoted value
+        $val = substr($val, 1, strlen($val) - 2);
+      }
+      if($val == '-')
+      {
+      	$val = '';
+      }
+      $records[$record_name] = $val;
+    }
+
+    // Info is last field and contains all the rest
+    if (!empty($records['Info']))
+    {
+      if ($records['Info'] == 'Info:')
+      {
+        $records['Info'] = substr($line, $end_matches + 5);
+      }
+      else
+      {
+        $records['Info'] = substr($line, $end_matches);
+      }
+    }
+  }
+  else
+  {
+    // bad record
+    $count['bad_record']++;
+    $parse_failed = true;
+  }
+  debug_dump($records, 'RECORDS\n');
+
+
 	//--------------------------------------------------------------------------------
 	/* 1 - parse the line */
   $records = get_records($line);
