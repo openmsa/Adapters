@@ -89,7 +89,7 @@ function set_fields(&$fields, &$records)
   // - TYPE
   if (isset($records['Type']))
   {
-    $fields['type'] = $records['type'];
+    $fields['type'] = $records['Type'];
   }
   // - SUB TYPE
   if (isset($records['Status']))
