@@ -73,53 +73,28 @@ function set_fields(&$fields, &$records)
 
   $fields['rawlog'] = $records['rawlog'];
 
-  // - DATE
-  if (isset($records['date']))
-  {
-    $fields['date'] = $records['date'];
-  }
-  else
-  {
-    $fields['date'] = date('Y-m-d');
-  }
-  $fields['date'] .= 'T';
-  if (isset($records['time']))
-  {
-    $fields['date'] .= $records['time'];
-  }
-  else
-  {
-    $fields['date'] .= date('H:i:s');
-  }
-
-  if (isset($records['timezone']))
-  {
-    $tz = format_timezone($records['timezone'], $timezone);
-  }
-  else if (isset($records['tz'])) 
-  {
-    $tz = $records['tz'];
-  }
-  else
-  {
-    $tz = $timezone;
-  }
-  $fields['date'] .= $tz;
+  //-------------------------------
+	//----     Date
+	//-------------------------------
+	if (empty($records['timestamp'])) {
+		$fields['Date'] = date('Y-m-d\TH:i:s');
+	} else if (!empty($records['date']) && !empty($records['time'])) {
+		$fields['Date'] = $records['date'] . 'T' . $records['time'];
+	}
 
   // - HOSTNAME
-  if (isset($records['devname']))
-  {
-    $fields['hostname'] = $records['devname'];
-  }
+	if (!empty($records['orig'])) {
+		$fields['hostname'] = str_replace(':', '', $records['orig']);
+	}
   // - TYPE
-  if (isset($records['type']))
+  if (isset($records['Type']))
   {
     $fields['type'] = $records['type'];
   }
   // - SUB TYPE
-  if (isset($records['subtype']))
+  if (isset($records['Status']))
   {
-    $fields['subtype'] = $records['subtype'];
+    $fields['subtype'] = $records['Status'];
   
   }
 }
