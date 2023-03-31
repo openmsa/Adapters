@@ -94,6 +94,8 @@ function parse_line(&$fields, &$line) {
 	//--------------------------------------------------------------------------------
 	/* 1 - parse the line */
   $records = get_records($records, $line);
+  debug_dump($records, "\nRECORDS:\n");
+
   if ($records === false)
   {
     return false;
@@ -140,10 +142,9 @@ function get_records(&$records, &$line)
 {
   global $count;
 
-  debug_dump($records, 'get_records RECORDS\n');
 	if (isset($records['Info'])) {
     $info = $records['Info'];
-    $pattern = "@(?<name>[\w]+)=(?<value>[A-Za-z0-9_()./:-]+)|(?<namestr>[\w]+)=\"(?<valuestr>[^\"]*)\"@";
+    $pattern = "@(?<name>[\.\w]+)=(?<value>[A-Za-z0-9_()./:-]+)|(?<namestr>[\.\w]+)=\"(?<valuestr>[^\"]*)\"@";
     if (preg_match_all($pattern, $info, $records_tmp) > 0)
     {
       //it's mean that $line is a type of log
@@ -187,67 +188,5 @@ function get_records(&$records, &$line)
       return false;
     }
   }
-  return $records;
-}
-
-/**
- * Call binary version of the parser
- */
-function get_records3(&$line)
-{
-  global $count;
-
-  $records_line = sms_parse_name_value_log($line);
-  $records_tmp = explode('|', $records_line);
-  for ($i = 0; $i < sizeof($records_tmp); $i+=2) {
-    if (!empty($records_tmp[$i])) {
-      $records[$records_tmp[$i]] = $records_tmp[$i+1];
-    }
-  }
-  $count['full_ok']++;
-  $records['rawlog'] = $line;
-
-  return $records;
-}
-
-/**
- * Call simplified regex
- * @param unknown $line
- * @return unknown
- */
-function get_records2(&$line)
-{
-  global $count;
-
-  $pattern = "@(?<name>[a-z]+)=(?<value>[^ ]+)|(?<namestr>[a-z]+)=\"(?<valuestr>[^\"]*)\"@";
-  if (preg_match_all($pattern, $line, $records_tmp) > 0)
-  {
-    //it's mean that $line is a type of log
-    //the next step is to write value in an array
-    //in case ?<name>[\w]+)=(?<value>[A-Za-z0-9_:-]+) works, name is on $records_tmp[1][$i] and value $records_tmp[2][$i]
-    //whereas when (?<namestr>[\w]+)=\"(?<valuestr>[^\"]+) works, name is on $records_tmp[3][$i] and value $records_tmp[4][$i]
-    for ($i = 0; $i < sizeof($records_tmp[0]); $i++)
-    {
-      if (!empty($records_tmp[1][$i]))
-      {
-        // priority to first value
-        if (empty($records[$records_tmp[1][$i]]))
-        {
-            $records[$records_tmp[1][$i]] = $records_tmp[2][$i];
-        }
-      }
-      else
-      {
-        // priority to first value
-        if (empty($records[$records_tmp[3][$i]]))
-        {
-            $records[$records_tmp[3][$i]] = $records_tmp[4][$i];
-        }
-      }
-    }
-  }
-  
-  $count['full_ok']++;
-  $records['rawlog'] = $line;
   return $records;
 }

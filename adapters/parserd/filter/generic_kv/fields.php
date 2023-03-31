@@ -109,7 +109,7 @@ function set_fields(&$fields, &$records)
     $fields['docker_event/image'] =  $from;
   }
   if (!empty($records['ID'])) {
-    $fields['docker_event/container_id'] = $records['ID'];
+    $fields['docker_event/id'] = $records['ID'];
   }
   if (!empty($records['action'])) {
     $fields['docker_event/action'] = $records['action'];
