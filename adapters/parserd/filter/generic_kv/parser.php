@@ -81,8 +81,8 @@ function parse_line(&$fields, &$line) {
       $parse_failed = true;
       echo("No message found in the log: $line\n");
       return false;
-    }  
-  }
+    }    
+ }
   else
   {
     // bad record
