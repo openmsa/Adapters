@@ -90,6 +90,12 @@ function set_fields(&$fields, &$records)
 	$fields['Type'] = 'VNOC';
 	$fields['subtype'] = 'DOCKER';
 
+  if (!empty($records['scope'])) {
+    $fields['docker_event/scope'] = $records['scope'];
+  }
+  if (!empty($records['name'])) {
+    $fields['docker_event/name'] = $records['name'];
+  }
   if (!empty($records['type'])) {
     $fields['docker_event/type'] = $records['type'];
   }

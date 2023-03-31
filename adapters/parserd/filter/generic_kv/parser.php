@@ -75,6 +75,13 @@ function parse_line(&$fields, &$line) {
         $records['Info'] = substr($line, $end_matches);
       }
     }
+    else
+    {
+      // bad record
+      $parse_failed = true;
+      echo("No message found in the log: $line\n");
+      return false;
+    }  
   }
   else
   {
