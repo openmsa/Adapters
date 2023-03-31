@@ -144,9 +144,11 @@ function get_records(&$records, &$line)
 
 	if (isset($records['Info'])) {
     $info = $records['Info'];
+    debug_dump($info, "\nINFO:\n");
     $pattern = "@(?<name>[\.\w]+)=(?<value>[A-Za-z0-9_()./:-]+)|(?<namestr>[\.\w]+)=\"(?<valuestr>[^\"]*)\"@";
     if (preg_match_all($pattern, $info, $records_tmp) > 0)
     {
+      debug_dump($records_tmp, "\nRECORDS TMP:\n");
       //it's mean that $line is a type of log
       //the next step is to write value in an array
       //in case ?<name>[\w]+)=(?<value>[A-Za-z0-9_:-]+) works, name is on $records_tmp[1][$i] and value $records_tmp[2][$i]
