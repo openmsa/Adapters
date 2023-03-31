@@ -114,6 +114,12 @@ function set_fields(&$fields, &$records)
   if (!empty($records['action'])) {
     $fields['docker_event/action'] = $records['action'];
   }
+  if (!empty($records['updatestate.new'])) {
+    $fields['docker_event/updatestate.new'] = $records['updatestate.new'];
+  }
+  if (!empty($records['updatestate.old'])) {
+    $fields['docker_event/updatestate.old'] = $records['updatestate.old'];
+  }
 
 }
 ?>
