@@ -157,18 +157,10 @@ function get_records(&$records, &$line)
       {
         if (!empty($records_tmp[1][$i]))
         {
-          if (strpos($records_tmp[1][$i], 'date') !== false)
+          // priority to first value
+          if (empty($records[$records_tmp[1][$i]]))
           {
-            // Special case for logs fetched with REST API
-            $records['date'] = $records_tmp[2][$i];
-          }
-          else
-          {
-            // priority to first value
-            if (empty($records[$records_tmp[1][$i]]))
-            {
-              $records[$records_tmp[1][$i]] = $records_tmp[2][$i];
-            }
+            $records[$records_tmp[1][$i]] = $records_tmp[2][$i];
           }
         }
         else
