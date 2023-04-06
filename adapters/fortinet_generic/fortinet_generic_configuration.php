@@ -242,6 +242,47 @@ class fortinet_generic_configuration
 	  return wait_for_device_up ($this->sd->SD_IP_CONFIG, 60, 300);
 	}
 
+        function set_additional_vars()
+        {
+                if (!empty($this->sd->SD_CONFIGVAR_list['DCGROUP']))
+                {
+                        $dc_group = $this->sd->SD_CONFIGVAR_list['DCGROUP']->VAR_VALUE; // Name of the datacenter
+                        $node = $this->sd->SD_NODE_NAME; // Name of the node
+                        $datacenter_mapping_file = $_SERVER['FMC_REPOSITORY'] . '/Datafiles/DataCenterMapping/mapping.ini';
+                        if (file_exists($datacenter_mapping_file))
+                        {
+                                $data_center_mapping = parse_ini_file($datacenter_mapping_file, true);
+                                if ($data_center_mapping === false || empty($data_center_mapping[$dc_group]) || empty($data_center_mapping[$dc_group][$node]))
+                                {
+                                        $data_center_ip = $this->sd->SD_NODE_IP_ADDR;
+                                }
+                                else
+                                {
+                                        $data_center_ip = $data_center_mapping[$dc_group][$node];
+                                }
+                        }
+                        else
+                        {
+                                $data_center_ip = $this->sd->SD_NODE_IP_ADDR;
+                        }
+                }
+                else
+                {
+                        $data_center_ip = $this->sd->SD_NODE_IP_ADDR;
+                }
+                $this->additional_vars = array();
+                $this->additional_vars['DATACENTER_IP'] = $data_center_ip;
+                echo "data_center_ip: $data_center_ip\n";
+        }
+
+        function get_additional_vars($key = null)
+        {
+                if (!empty($key))
+                {
+                        return $this->additional_vars[$key];
+                }
+                return $this->additional_vars;
+        }
 
   function get_current_firmware_version()
   {
@@ -435,9 +476,9 @@ class fortinet_generic_configuration
       $loop=0;
       while ($index == 0 && $loop++<5)
       {
-         # if Image file uploaded is marked as a Feature image, are you sure you want to upgrade? need anwers Y 2 more times :
+         # if Image file uploaded is marked as a Feature image, are you sure you want to upgrade? need anwers Y 2 more times  and more time for UTM HA with 'Send image to HA secondary':
          //sms_log_error(__FILE__ . ':' . __LINE__ . " before wait loop=$loop\n");
-         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 300000);
+         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 600000);
          
          if($index === 0){
            $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, "y");  #not used sendCmd because we should not send the 'enter' after y
