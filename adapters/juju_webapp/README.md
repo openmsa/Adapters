@@ -4,5 +4,6 @@ ME | VALUE | DESCRIPTION | REQUIRED |
 | ------ | ------ | ------ | ------ |
 | HTTP_PORT | 8200 | |Yes |
 | AUTH_MODE | basic | | Yes |
+| REST_JSON | 1 | | Yes |
 ~
 
