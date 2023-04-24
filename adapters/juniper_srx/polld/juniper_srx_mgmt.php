@@ -32,7 +32,7 @@ try
 	$buffer = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, "show version");
 
 	$show_version_patterns = array(
-	    'firmware' => '@JUNOS Software.*\[(?<firmware>[^\]]+)\]@',
+	    'firmware' => '@(Junos: |JUNOS Software\s?\S*\s?\[?)(?<firmware>\d+\.\S+\.\d+)\]?@',
 	    'model' => '@Model:\s+(?<model>.*)@',
 	);
 

@@ -247,6 +247,47 @@ class fortinet_generic_configuration
 	  return wait_for_device_up ($this->sd->SD_IP_CONFIG, 60, 300);
 	}
 
+        function set_additional_vars()
+        {
+                if (!empty($this->sd->SD_CONFIGVAR_list['DCGROUP']))
+                {
+                        $dc_group = $this->sd->SD_CONFIGVAR_list['DCGROUP']->VAR_VALUE; // Name of the datacenter
+                        $node = $this->sd->SD_NODE_NAME; // Name of the node
+                        $datacenter_mapping_file = $_SERVER['FMC_REPOSITORY'] . '/Datafiles/DataCenterMapping/mapping.ini';
+                        if (file_exists($datacenter_mapping_file))
+                        {
+                                $data_center_mapping = parse_ini_file($datacenter_mapping_file, true);
+                                if ($data_center_mapping === false || empty($data_center_mapping[$dc_group]) || empty($data_center_mapping[$dc_group][$node]))
+                                {
+                                        $data_center_ip = $this->sd->SD_NODE_IP_ADDR;
+                                }
+                                else
+                                {
+                                        $data_center_ip = $data_center_mapping[$dc_group][$node];
+                                }
+                        }
+                        else
+                        {
+                                $data_center_ip = $this->sd->SD_NODE_IP_ADDR;
+                        }
+                }
+                else
+                {
+                        $data_center_ip = $this->sd->SD_NODE_IP_ADDR;
+                }
+                $this->additional_vars = array();
+                $this->additional_vars['DATACENTER_IP'] = $data_center_ip;
+                echo "data_center_ip: $data_center_ip\n";
+        }
+
+        function get_additional_vars($key = null)
+        {
+                if (!empty($key))
+                {
+                        return $this->additional_vars[$key];
+                }
+                return $this->additional_vars;
+        }
 
   function get_current_firmware_version()
   {
@@ -426,20 +467,32 @@ class fortinet_generic_configuration
     //ex : $command= execute restore image tftp Fortinet_firmware/FWB_VM-64bit-v600-build0398-FORTINET.out 10.30.18.155
     $command = "execute restore image tftp $tftp_dir_light/$firmware_file $tftp_server_addr";
     status_progress("Will run on the device: $command", $status_type);
-
-    sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $command, '(y/n)', 15000);
-
+    $sms_sd_ctx->sendCmd(__FILE__ . ':' . __LINE__, $command);
+    
     //Answer to This operation will replace the current firmware version!  Do you want to continue? (y/n)y
     status_progress("Checking image", $status_type);
     try
     {
-      //Check if we got an error, if the file is OK the device will reboot
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'y', 'Command fail', 300000);
+      unset($tab);
+      $tab[0] = "(y/n)";
+      $tab[1] = "Command failed";
+      $tab[2] = 'Transfer timed out';
+      $index =  0;
+      $loop=0;
+      while ($index == 0 && $loop++<5)
+      {
+         # if Image file uploaded is marked as a Feature image, are you sure you want to upgrade? need anwers Y 2 more times  and more time for UTM HA with 'Send image to HA secondary':
+         //sms_log_error(__FILE__ . ':' . __LINE__ . " before wait loop=$loop\n");
+         $index = $sms_sd_ctx->expect(__FILE__ . ':' . __LINE__, $tab, 600000);
+         
+         if($index === 0){
+           $sms_sd_ctx->send(__FILE__ . ':' . __LINE__, "y");  #not used sendCmd because we should not send the 'enter' after y
+         }
+      }
+      //sms_log_error(__FILE__ . ':' . __LINE__ . " end all loop=$loop index=$index\n");
 
-      // This is the error case, we are still connected, retrieve the error and bye bye
-      $status_message = "Firmware update error1: $buffer";
-      sms_log_error(__FILE__ . ':' . __LINE__ . " : $status_message\n");
-      if (strpos($buffer, 'Transfer timed out') !== false)
+      //Check if we got an error, if the file is OK the device will reboot
+      if ($index == 2)
       {
         return ERR_SD_CMDTMOUT;
       }

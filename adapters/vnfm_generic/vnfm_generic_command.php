@@ -270,5 +270,6 @@ class vnfm_generic_command extends generic_command
                 }
                 return SMS_OK;
         }
+
 }
 

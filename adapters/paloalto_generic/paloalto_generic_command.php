@@ -42,47 +42,43 @@ class paloalto_generic_command extends generic_command
         global $sms_sd_ctx;
         global $SMS_RETURN_BUF;
 
-        try {
-            $ret = sd_connect();
-            if ($ret != SMS_OK) {
-                return $ret;
+        $ret = sd_connect();
+        if ($ret != SMS_OK) {
+            return $ret;
+        }
+
+        if (!empty($this->parser_list)) {
+            $objects = array();
+            $parser_list = array();
+
+            foreach ($this->parser_list as $parser) {
+                $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+                $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+                $cmd = trim($op_eval) . '&xpath=' . urlencode(trim($xpath_eval));
+                // Group parsers into evaluated operations
+                $parser_list[$cmd][] = $parser;
             }
 
-            if (!empty($this->parser_list)) {
-                $objects = array();
-                $parser_list = array();
-
-                foreach ($this->parser_list as $parser) {
-                    $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-                    $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-                    $cmd = trim($op_eval) . '&xpath=' . urlencode(trim($xpath_eval));
-                    // Group parsers into evaluated operations
-                    $parser_list[$cmd][] = $parser;
-                }
-
-                foreach ($parser_list as $op_eval => $sub_parsers) {
-                    // Run evaluated operation
-                    $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-                    foreach ($op_list as $op) {
-                        $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-                        //debug_dump($sms_sd_ctx->get_raw_xml());
-                        // Apply concerned parsers
-                        foreach ($sub_parsers as $parser) {
-                            $parser->parse($running_conf, $objects);
-                        }
+            foreach ($parser_list as $op_eval => $sub_parsers) {
+                // Run evaluated operation
+                $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+                foreach ($op_list as $op) {
+                    $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+                    //debug_dump($sms_sd_ctx->get_raw_xml());
+                    // Apply concerned parsers
+                    foreach ($sub_parsers as $parser) {
+                        $parser->parse($running_conf, $objects);
                     }
                 }
-
-                $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-                debug_object_conf($this->parsed_objects);
-                $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
             }
 
-            sd_disconnect();
-        } catch (Exception $e) {
-            return $e->getCode();
+            $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+            debug_object_conf($this->parsed_objects);
+            $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
         }
+
+        sd_disconnect();
 
         return SMS_OK;
     }

@@ -83,9 +83,11 @@ function global_do_store_prompt($conn){
   } elseif ($config_console == 'WAIT') {
 
     //After reboot, the UTM or WAF device check the license, and during this time we can not run the 'config system console', we have to wait a bit
+    //Run 'execute update-now' to force the licence check
+    $conn->sendCmd(__FILE__ . ':' . __LINE__, 'execute update-now');
     $bad_console = true;
     $loop_count = 0;
-    while ($bad_console && $loop_count++ < 10 ) {
+    while ($bad_console && $loop_count++ < 20 ) {
       try {
         $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)',60000);
         $bad_console = false;
@@ -93,9 +95,10 @@ function global_do_store_prompt($conn){
         $err      = $e->getMessage();
         $err_code = $e->getCode();
         sms_log_error(__FILE__." wait valid license loop $loop_count, error=$err, (err_code=$err_code)");
-        if ($err_code != ERR_SD_CMDTMOUT || $loop_count == 10) {
+        if ($err_code != ERR_SD_CMDTMOUT || $loop_count == 20) {
           $status_message = "Connection : $err";
-          //return $err_code;
+          sleep(10);
+          //After 'execute update-now', when the license change from Pending to Valid, the connect is closed, we have to reconnect, so throw a exception to get new connection, i.e force fortinet_generic_connect to exit
           throw new SmsException($status_message, $err_code);
         }
       }
@@ -106,13 +109,14 @@ function global_do_store_prompt($conn){
     //NO OK, run only blanc command to get the prompt
     $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, '', $tab, 40000);
   }
-  if (empty($buffer)) {
-    $buffer = " # ";
-  }
 
   $prompt = trim($sendexpect_result);
   $prompt = substr(strrchr($prompt, "\n"), 1);
+  if (empty($prompt)) {
+    $prompt = " # ";
+  }
   sms_log_info(__FILE__." get prompt =$prompt");
+
   return $prompt;
 }
 
@@ -174,7 +178,7 @@ class FortinetGenericsshConnection extends SshConnection
     while (($index == 0 || $index == 1 || $index == 2 || $index == 3 || $index == 4) && $loop_count < 6) {
       // case for regular prompt for password or prompt for old password:
       if (($index == 0 || $index == 1)) {
-      	$this->sendCmd(__FILE__.':'.__LINE__, "$this->sd_passwd_entry");
+        $this->sendCmd(__FILE__.':'.__LINE__, "$this->sd_passwd_entry");
       }
       if ($index == 2 || $index == 3 || $index == 4) {
       // case for prompt for new password.
@@ -272,4 +276,3 @@ function fortinet_generic_disconnect()
 }
 
 ?>
-

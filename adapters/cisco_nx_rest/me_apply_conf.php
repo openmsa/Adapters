@@ -22,6 +22,7 @@ function me_apply_conf($configuration)
     // Save the configuration applied on the router
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
+    $ret = SMS_OK;
         
     $line = get_one_line($configuration);
     while ($line !== false)
