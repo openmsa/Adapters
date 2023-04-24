@@ -19,6 +19,9 @@ function prov_license_upload($sms_csp, $sdid, $sms_sd_info, $stage)
   global $sms_sd_ctx;
   global $sendexpect_result;
 
+
+  $conf = new fortinet_generic_configuration($sdid);
+  $datacenter_ip = $conf->get_additional_vars('DATACENTER_IP');
   $tftp_Server_Address = $datacenter_ip;
   $tmp_dir = "{$SD->SDID}_" . rand(100000, 999999);
   $tftp_dir = $_SERVER['TFTP_BASE'] . "/" . $tmp_dir;
