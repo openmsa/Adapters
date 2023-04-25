@@ -109,7 +109,8 @@ function prov_action_step($sms_csp, $sdid, $sms_sd_info, $stage)
     if($disconnecting){
         $initial_wait_time = 60;
     } else {
-        $initial_wait_time = 300;
+        //$initial_wait_time = 300;
+        $initial_wait_time = 120;
     }
     $ret = $conf->wait_until_device_is_up($initial_wait_time);
     if ($ret == SMS_OK)
