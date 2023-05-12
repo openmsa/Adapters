@@ -26,8 +26,8 @@ require_once "$db_objects";
 
 
 if (isset($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
-  echo "CUSTOM_MNGT_IP: using custome management port: " . $custom_mngt_ip . "\n";
   $ipaddr = trim($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
+  echo "CUSTOM_MNGT_IP: using custome management port: " . $ipaddr . "\n";
 }
 
 $is_ztd = false;
