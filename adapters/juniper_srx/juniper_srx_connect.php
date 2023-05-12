@@ -193,7 +193,10 @@ function juniper_srx_connect($sd_ip_addr = null, $login = null, $passwd = null, 
     global $model_data;
     $data = json_decode($model_data, true);
     $class = $data['class'];
-    
+
+    $network = get_network_profile();
+	$sd = &$network->SD;
+
 	if (isset($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
         $custom_mngt_ip = trim($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
         echo "CUSTOM_MNGT_IP: using custome management port: " . $custom_mngt_ip . "\n";
