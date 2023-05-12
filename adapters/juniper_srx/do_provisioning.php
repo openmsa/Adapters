@@ -25,10 +25,7 @@ require_once load_once('juniper_srx', 'provisioning_stages.php');
 require_once "$db_objects";
 
 
-if (isset($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
-  $ipaddr = trim($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
-  echo "CUSTOM_MNGT_IP: using custome management port: " . $ipaddr . "\n";
-}
+
 
 $is_ztd = false;
 
@@ -47,6 +44,11 @@ if ($SD->SD_MANAGEMENT_PORT !== 0)
 else
 {
   $port = 22;
+}
+
+if (isset($SD->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
+  $ipaddr = trim($SD->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
+  echo "CUSTOM_MNGT_IP: using custome management port: " . $ipaddr . "\n";
 }
 
 // -------------------------------------------------------------------------------------
