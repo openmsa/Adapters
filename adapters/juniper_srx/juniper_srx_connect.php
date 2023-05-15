@@ -199,12 +199,27 @@ function juniper_srx_connect($sd_ip_addr = null, $login = null, $passwd = null, 
 
 	if (isset($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
         $custom_mngt_ip = trim($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
-        echo "CUSTOM_MNGT_IP: using custome management port: " . $custom_mngt_ip . "\n";
+        echo "CUSTOM_MNGT_IP: using custom management port: " . $custom_mngt_ip . "\n";
         $sms_sd_ctx = new $class($custom_mngt_ip, $login, $passwd, $port_to_use);
     } 
     else {
         $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
     }
+
+	if (isset($sd->SD_CONFIGVAR_list['CUSTOM_LOGIN'])) {
+        $custom_login = trim($sd->SD_CONFIGVAR_list['CUSTOM_LOGIN']->VAR_VALUE);
+        echo "CUSTOM_LOGIN: using custom login: " . $custom_login . "\n";
+        $sms_sd_ctx->sd_login_entry = $custom_login;
+    } 
+
+    if (isset($sd->SD_CONFIGVAR_list['CUSTOM_PASSWORD'])) {
+        $custom_password = trim($sd->SD_CONFIGVAR_list['CUSTOM_PASSWORD']->VAR_VALUE);
+        echo "CUSTOM_LOGIN: using custom password: " . $custom_password . "\n";
+        $sms_sd_ctx->sd_passwd_entry = $custom_password;
+    } 
+
+    echo "**** CUSTOM parameters: " . $custom_mngt_ip . " ". $custom_login ." ". $custom_password ."\n";
+
 
     $sms_sd_ctx->juniper_srx_manage_menu($sms_sd_ctx->getLogin(), $sms_sd_ctx->getPassword());
     

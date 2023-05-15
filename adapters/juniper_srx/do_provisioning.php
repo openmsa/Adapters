@@ -48,9 +48,16 @@ else
 
 if (isset($SD->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
   $ipaddr = trim($SD->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
-  echo "CUSTOM_MNGT_IP: using custome management port: " . $ipaddr . "\n";
+  echo "CUSTOM_MNGT_IP: using custom management IP: " . $ipaddr . "\n";
 }
-
+if (isset($SD->SD_CONFIGVAR_list['CUSTOM_LOGIN'])) {
+  $login = trim($SD->SD_CONFIGVAR_list['CUSTOM_LOGIN']->VAR_VALUE);
+  echo "CUSTOM_LOGIN: using custom management login: " . $login . "\n";
+}
+if (isset($SD->SD_CONFIGVAR_list['CUSTOM_PASSWORD'])) {
+  $passwd = trim($SD->SD_CONFIGVAR_list['CUSTOM_PASSWORD']->VAR_VALUE);
+  echo "CUSTOM_PASSWORD: using custom management passwd: " . $passwd . "\n";
+}
 // -------------------------------------------------------------------------------------
 // USER PARAMETERS CHECK
 // -------------------------------------------------------------------------------------
