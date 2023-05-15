@@ -193,8 +193,29 @@ function juniper_srx_connect($sd_ip_addr = null, $login = null, $passwd = null, 
     global $model_data;
     $data = json_decode($model_data, true);
     $class = $data['class'];
-    
-    $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
+
+    $network = get_network_profile();
+	$sd = &$network->SD;
+
+	if (isset($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']) 
+        && isset($sd->SD_CONFIGVAR_list['CUSTOM_LOGIN']) 
+        && isset($sd->SD_CONFIGVAR_list['CUSTOM_PASSWORD'])) {
+
+        $custom_mngt_ip = trim($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
+        echo "CUSTOM_MNGT_IP: using custom management IP: " . $custom_mngt_ip . "\n";
+
+        $custom_login = trim($sd->SD_CONFIGVAR_list['CUSTOM_LOGIN']->VAR_VALUE);
+        echo "CUSTOM_LOGIN: using custom login: " . $custom_login . "\n";
+
+        $custom_password = trim($sd->SD_CONFIGVAR_list['CUSTOM_PASSWORD']->VAR_VALUE);
+        echo "CUSTOM_PASSWORD: using custom password: " . $custom_password . "\n";
+
+        $sms_sd_ctx = new $class($custom_mngt_ip, $custom_login, $custom_password, $port_to_use);
+    } 
+    else {
+        $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
+    }
+
     $sms_sd_ctx->juniper_srx_manage_menu($sms_sd_ctx->getLogin(), $sms_sd_ctx->getPassword());
     
     return SMS_OK;

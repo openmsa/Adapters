@@ -1,5 +1,7 @@
 <?php
 
+require_once "$db_objects";
+
 // -------------------------------------------------------------------------------------
 // INITIAL CONNECTION
 // -------------------------------------------------------------------------------------
@@ -9,6 +11,7 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
   global $login;
   global $passwd;
   global $port;
+
 
   /**
    *
