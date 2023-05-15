@@ -13,11 +13,6 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
   global $port;
 
 
-//  if (isset($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP'])) {
-//    $ipaddr = trim($sd->SD_CONFIGVAR_list['CUSTOM_MNGT_IP']->VAR_VALUE);
-//    echo "CUSTOM_MNGT_IP: using custome management port: " . $ipaddr . "\n";
-//  } 
-
   /**
    *
    * Wait for a device to be up (ssh prompt)
