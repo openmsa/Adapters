@@ -44,17 +44,21 @@ class fortinet_generic_configuration
 
     $tab[0] = "$";
     $tab[1] = "#";
+    $tab[2] = "(global) #";
+    $tab[3] = "(global) $";
+    $tab[4] = "(vdom) $";
+    $tab[5] = "(vdom) $";
   
         $temp_buffer=sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'get system status');
         if(strpos($temp_buffer, 'Virtual domain configuration: enable') !== false){
           //If VDOM is enabled get out of vdom and go into config global to take config backup
           $temp_buffer = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', $tab);
-          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', '(global)', 40000);
+          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', $tab, 40000);
           $msa_ip = $_SERVER['SMS_ADDRESS_IP'];
           $dev_id=$this->sd->SDID;
           $tmp_conf_file="$dev_id"."_running.conf";
           $cmd="execute backup config tftp $tmp_conf_file $msa_ip";
-          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, '(global)',4000);
+          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, $tab,4000);
         	if(strpos($temp_buffer, 'Send config file to tftp server OK') !== false){
         	    $backup_file_path="/opt/sms/spool/tftp/"."$tmp_conf_file";
         		$running_conf = file_get_contents ($backup_file_path);
@@ -65,7 +69,7 @@ class fortinet_generic_configuration
         		$running_conf="$list[0]$remaining_conf";
         		//config backedup, go back to root vdom
         		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', $tab,4000);
-        		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config vdom', '(vdom)', 40000);
+        		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config vdom', $tab, 40000);
         		$cmd = "edit root";
         		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, $tab, 40000);
         		$tmp_file_cleanup_cmd = "rm -f $backup_file_path";
