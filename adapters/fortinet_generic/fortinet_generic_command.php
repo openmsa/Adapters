@@ -35,9 +35,6 @@ class fortinet_generic_command extends generic_command
   {
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
-    global $sendexpect_result;
-    $tab[0] = " $ ";
-    $tab[1] = " # ";
 
     try
     {
@@ -74,11 +71,9 @@ class fortinet_generic_command extends generic_command
               }
               else
               {
-                $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op, $tab);
-                $running_conf .= $sendexpect_result;
+                $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op, " # ");
               }
             }
-            echo("Apply concerned parsers:\n".$running_conf."\n");
             // Apply concerned parsers
             foreach ($sub_parsers as $parser)
             {
