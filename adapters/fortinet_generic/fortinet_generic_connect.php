@@ -9,25 +9,15 @@ require_once "$db_objects";
 
 function global_do_store_prompt($conn){
 
-  $tab[0] = "$";
-  $tab[1] = "#";
-  global $sendexpect_result;
-
    //1) Check if it is a VDOM and get the system status
    $IS_VDOM_ENABLED = false;
    //$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'execute update-now', '',10000); //no output
-   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)');
-   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)');
-   $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-   $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
-   $get_system_status = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'get system status', $tab);
-   $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
-
+   $get_system_status = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'get system status', '#');
    if (strpos($get_system_status, 'Virtual domain configuration: enable') !== false) {
      //IT IS A VDOM, we should run at first 'config global'
      $IS_VDOM_ENABLED = true;
      try {  // VDOM is enabled for generic commands do config global
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)', 10000);
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global) #', 10000);
        $config_console = 'OK';
      } catch (SmsException $e) {
        $config_console = 'NOK';
@@ -51,33 +41,31 @@ function global_do_store_prompt($conn){
    if ($config_console == 'UNKNOWN') {
      // On waf, run  'config system console' with a very short timeout 10 secondes
      try {
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)',10000);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)',10000);
-      $config_console2 = 'OK';
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #',10000);
+       $config_console2 = 'OK';
      } catch (SmsException $e) {
        $config_console2 = 'NOK';
      }
      if ($config_console2 == 'OK') {
-       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-       $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
      } else {
-       //NO OK, run only blank command to get the prompt
-       $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, '', $tab,40000);
+       //NO OK, run only blanc command to get the prompt
+       $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, '', '#',40000);
     }
   } elseif ($config_console == 'OK') {
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config global', '(global)',10000);
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)');
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-    $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #');
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
     if ($IS_VDOM_ENABLED) {
       //If the device is a VDOM come out of global mode and enter vdom mode
       $network  = get_network_profile();
       $SD       = &$network->SD;
       $dev_name = $SD->SD_HOSTNAME;
-      $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
-      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config vdom', '(vdom)', 40000);
-      $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, "edit $dev_name", $tab, 40000);
-      $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, $cmd, $tab, 40000);
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config vdom', '(vdom) #', 40000);
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, "edit $dev_name", '#', 40000);
+      $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, $cmd, '#', 40000);
 
     }
   } elseif ($config_console == 'WAIT') {
@@ -89,7 +77,7 @@ function global_do_store_prompt($conn){
     $loop_count = 0;
     while ($bad_console && $loop_count++ < 20 ) {
       try {
-        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console)',60000);
+        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'config system console', '(console) #',60000);
         $bad_console = false;
       } catch (SmsException $e) {
         $err      = $e->getMessage();
@@ -103,14 +91,14 @@ function global_do_store_prompt($conn){
         }
       }
     }
-    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console)');
-    $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, 'end', $tab);
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'set output standard', '(console) #');
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, 'end', '#');
   } else {
     //NO OK, run only blanc command to get the prompt
-    $buffer = sendexpect(__FILE__ . ':' . __LINE__, $conn, '', $tab, 40000);
+    $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $conn, '', '#',40000);
   }
 
-  $prompt = trim($sendexpect_result);
+  $prompt = trim($buffer);
   $prompt = substr(strrchr($prompt, "\n"), 1);
   if (empty($prompt)) {
     $prompt = " # ";
