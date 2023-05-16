@@ -42,46 +42,36 @@ class fortinet_generic_configuration
         {
                 global $sms_sd_ctx;
 
-    $tab[0] = "$";
-    $tab[1] = "#";
-    $tab[2] = "(global) #";
-    $tab[3] = "(global) $";
-    $tab[4] = "(vdom) $";
-    $tab[5] = "(vdom) $";
-  
         $temp_buffer=sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'get system status');
         if(strpos($temp_buffer, 'Virtual domain configuration: enable') !== false){
           //If VDOM is enabled get out of vdom and go into config global to take config backup
-          echo("VDOM enabled in system status\n");
-          $temp_buffer = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', $tab);
-          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', $tab, 40000);
+          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', '#');
+          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', '(global) #', 40000);
           $msa_ip = $_SERVER['SMS_ADDRESS_IP'];
           $dev_id=$this->sd->SDID;
           $tmp_conf_file="$dev_id"."_running.conf";
           $cmd="execute backup config tftp $tmp_conf_file $msa_ip";
-          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, $tab,4000);
-        	if(strpos($temp_buffer, 'Send config file to tftp server OK') !== false) {
-        	    $backup_file_path="/opt/sms/spool/tftp/"."$tmp_conf_file";
-        		$running_conf = file_get_contents ($backup_file_path);
-        		//remove all text between "config vpn certificate local" and "end" including these two lines
-        		$list= explode("config vpn certificate local",$running_conf);
-        		$remaining_conf= strstr($list[1],"end");
-        		$remaining_conf = substr($remaining_conf,3);
-        		$running_conf="$list[0]$remaining_conf";
-        		//config backedup, go back to root vdom
-        		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', $tab,4000);
-        		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config vdom', $tab, 40000);
-        		$cmd = "edit root";
-        		$buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, $tab, 40000);
-        		$tmp_file_cleanup_cmd = "rm -f $backup_file_path";
-        		shell_exec($tmp_file_cleanup_cmd);
-        		}
-          else {
-        		   throw new SmsException("", ERR_SD_CMDTMOUT);
-        	}
+          $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, '(global) #',4000);
+                if(strpos($temp_buffer, 'Send config file to tftp server OK') !== false){
+                    $backup_file_path="/opt/sms/spool/tftp/"."$tmp_conf_file";
+                        $running_conf = file_get_contents ($backup_file_path);
+                        //remove all text between "config vpn certificate local" and "end" including these two lines
+                        $list= explode("config vpn certificate local",$running_conf);
+                        $remaining_conf= strstr($list[1],"end");
+                        $remaining_conf = substr($remaining_conf,3);
+                        $running_conf="$list[0]$remaining_conf";
+                        //config backedup, go back to root vdom
+                        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', '#',4000);
+                        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config vdom', '(vdom) #', 40000);
+                        $cmd = "edit root";
+                        $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd, '#', 40000);
+                        $tmp_file_cleanup_cmd = "rm -f $backup_file_path";
+                        shell_exec($tmp_file_cleanup_cmd);
+                        }else{
+                           throw new SmsException("", ERR_SD_CMDTMOUT);
+                        }
 
-        	$IS_VDOM_ENABLED=true;
-
+                        $IS_VDOM_ENABLED=true;
         }else{
 
                 $running_conf = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, 'show');
@@ -129,12 +119,10 @@ class fortinet_generic_configuration
                 return SMS_OK;
         }
 
-	//------------------------------------------------------------------------------------------------
-	function restore_conf()
-	{
-		global $sms_sd_ctx;
-    $tab[0] = "$";
-    $tab[1] = "#";
+        //------------------------------------------------------------------------------------------------
+        function restore_conf()
+        {
+                global $sms_sd_ctx;
 
                 //$this->conf_to_restore
                 $filename = "{$_SERVER['TFTP_BASE']}/{$this->sdid}.cfg";
@@ -145,8 +133,8 @@ class fortinet_generic_configuration
         if(strpos($temp_buffer, 'Virtual domain configuration: enable') !== false){
 
            //If VDOM is enabled get out of vdom and go into config global to take config backup
-           $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', $tab);
-           $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', '(global)', 40000);
+           $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'end', '#');
+           $temp_buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, 'config global', '(global) #', 40000);
            $IS_VDOM_ENABLED=true;
         }
 
