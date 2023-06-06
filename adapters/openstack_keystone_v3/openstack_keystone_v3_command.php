@@ -189,11 +189,9 @@ class openstack_keystone_v3_command extends generic_command
 
       $xml_conf_str = trim($update->evaluate_xml());
       $xml_conf_str = str_replace("\n", '', $xml_conf_str);
-
       $xml_configs = explode("##", $xml_conf_str);
       if (!empty($endpoint_str))
       {
-
         if (count($xpaths) != count($endpoints))
         {
           throw new SmsException("End points are not as many as Xpaths");
@@ -203,8 +201,8 @@ class openstack_keystone_v3_command extends generic_command
           $i = 0;
           foreach ($xml_configs as $xml_conf)
           {
-            if (!empty($xml_conf))
-            {
+//            if (!empty($xml_conf))
+  //          {
               $conf = $endpoints[$i];
               $conf .= '#' . $xpaths[$i];
               // separate data with '#'
@@ -212,7 +210,7 @@ class openstack_keystone_v3_command extends generic_command
 
               $this->configuration .= "{$conf}\n";
               $SMS_RETURN_BUF .= "{$conf}\n";
-            }
+    //        }
             $i += 1;
           }
         }
