@@ -194,6 +194,15 @@ function vmware_vsphere_connect($sd_ip_addr = null, $login = null, $passwd = nul
 {
   global $sms_sd_ctx;
 
+  $network = get_network_profile();
+  $sd = &$network->SD;
+  if (isset($sd->SD_CONFIGVAR_list['FQDN_FOR_DA']))
+  {
+      $fqdn = trim($sd->SD_CONFIGVAR_list['FQDN_FOR_DA']->VAR_VALUE);  
+      echo("Found fqdn for this VMWare, to be used to connect: ".$fqdn."\n");
+      $sd_ip_addr = $fqdn;
+  }
+	
   $sms_sd_ctx = new VMWareVsphereRESTConnection($sd_ip_addr, $login, $passwd, $port_to_use);
   return SMS_OK;
 }
