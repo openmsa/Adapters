@@ -38,6 +38,11 @@ switch ($sd->SD_CONFIGVAR_list['cloudService']->VAR_VALUE) {
       $end_point = $sd->SD_CONFIGVAR_list['cluster_ip']->VAR_VALUE;
     }
     break;
+  case 'openstack':
+    if (!empty($sd->SD_CONFIGVAR_list['fixed_ip'])) {
+       $end_point = $sd->SD_CONFIGVAR_list['fixed_ip']->VAR_VALUE;
+    }
+    break;
   default:
     sms_log_error("Unknown cloudService\n");
     return ERR_CONFIG_VAR_UNDEFINED;
