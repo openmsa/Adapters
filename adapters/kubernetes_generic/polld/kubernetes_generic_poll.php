@@ -39,8 +39,8 @@ switch ($sd->SD_CONFIGVAR_list['cloudService']->VAR_VALUE) {
     }
     break;
   case 'openstack':
-    if (!empty($sd->SD_CONFIGVAR_list['fixed_ip'])) {
-       $end_point = $sd->SD_CONFIGVAR_list['fixed_ip']->VAR_VALUE;
+    if (!empty($sd->SD_CONFIGVAR_list['instance_id_url'])) {
+       $end_point = $sd->SD_CONFIGVAR_list['instance_id_url']->VAR_VALUE;
     }
     break;
   default:
