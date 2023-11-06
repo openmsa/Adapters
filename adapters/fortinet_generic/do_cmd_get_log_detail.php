@@ -68,8 +68,8 @@ if (!empty($msg_id)) {
         if ($ret === 0 && file_exists($output_file)) {
             $detail_json = file_get_contents($output_file);
             //echo "RESULT JSON ============================>".$detail_log."\n";
-            unlink($output_file);
         }
+        unlink($output_file);
         if (!$detail_json || $detail_json == "nulldata") {
             return ERR_LOCAL_CMD;
         }
