@@ -158,7 +158,8 @@ class DeviceConnection extends GenericConnection {
 		$aws_sigv4="";
 		if (isset($this->aws_sigv4)) {
 			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
-			$aws_sigv4_new= $this->aws_sigv4;
+			#$aws_sigv4_new= $this->aws_sigv4;
+			$aws_sigv4_new = 10
 
 		}
 
@@ -173,7 +174,7 @@ class DeviceConnection extends GenericConnection {
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_AWS_SIGV4,123);
+		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 50);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 50 );
 		if (count($cmd_list) >2 ) {
