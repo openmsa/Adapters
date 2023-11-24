@@ -171,9 +171,7 @@ class DeviceConnection extends GenericConnection {
 		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 50);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 50 );
-		curl_setopt($ch, CURLOPT_POSTFIELDS, [
-			'timestamp' => $timestamp
-		]);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $timestamp);
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
