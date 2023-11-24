@@ -158,7 +158,7 @@ class DeviceConnection extends GenericConnection {
 		$aws_sigv4="";
 		if (isset($this->aws_sigv4)) {
 			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
-			$aws_sigv4_new=" '".$this->aws_sigv4."' ";
+			$aws_sigv4_new= $this->aws_sigv4;
 
 		}
 
