@@ -165,13 +165,13 @@ class DeviceConnection extends GenericConnection {
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
-		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-		curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
-		if (count($cmd_list) >2 ) {
-			$rest_payload = $cmd_list[2];
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
-		}
+		//curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
+		//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+		//curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
+		//if (count($cmd_list) >2 ) {
+		//	$rest_payload = $cmd_list[2];
+		//	curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
+		//}
 		$ret = curl_exec($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		return $httpCode
