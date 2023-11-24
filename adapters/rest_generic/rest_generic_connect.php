@@ -187,7 +187,9 @@ class DeviceConnection extends GenericConnection {
 		// $ret = exec_local ( $origin, $curl_cmd, $output_array );
 		$ret = curl_exec($ch);
 		$info = curl_getinfo($ch);
-        echo "info $info";
+		foreach ($info as $value) {
+			echo $value . "\n";
+		}
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed $info", $ret );
