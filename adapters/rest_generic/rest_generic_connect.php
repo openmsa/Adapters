@@ -163,8 +163,8 @@ class DeviceConnection extends GenericConnection {
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		//echo $url
-		$connectTimeout = "{$this->conn_timeout}"
-		$maxTime = "{$this->conn_timeout}"
+		// $connectTimeout = "{$this->conn_timeout}"
+		// $maxTime = "{$this->conn_timeout}"
 		//curl_setopt($ch, CURLOPT_URL, $url );
 		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
