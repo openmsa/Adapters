@@ -186,9 +186,11 @@ class DeviceConnection extends GenericConnection {
 	protected function execute_curl_command($origin, $rest_cmd, $ch) {
 		// $ret = exec_local ( $origin, $curl_cmd, $output_array );
 		$ret = curl_exec($ch);
+		$info = curl_getinfo($ch);
+        echo "info $info";
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
-			throw new SmsException ( "Call to API Failed $ret", $ret );
+			throw new SmsException ( "Call to API Failed $info", $ret );
 		}
 
 		$result = '';
