@@ -115,29 +115,36 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		if ($this->auth_mode == "BASIC") {
-			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-			$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+			$auth = $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+			// $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+			// $auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
+			// $H = trim($this->auth_header);
+			// $headers .= " -H '{$H} {$this->key}'";
+			// $headers_new .= "'{$H} {$this->key}'";
 			$H = trim($this->auth_header);
-			$headers .= " -H '{$H} {$this->key}'";
-			$headers_new .= "'{$H} {$this->key}'";
+			$headers[] = "Authorization: {$H} {$this->key}";
 
 		//	echo ("send(): headers= {$headers}\n");
 		// https://tools.ietf.org/html/rfc6750
 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
-                        $H = trim($this->auth_header);
-                        $headers .= " -H '{$H} {$this->key}'";
-						$headers_new .= "'{$H} {$this->key}'";
+                        // $H = trim($this->auth_header);
+                        // $headers .= " -H '{$H} {$this->key}'";
+						// $headers_new .= "'{$H} {$this->key}'";
+						$H = trim($this->auth_header);
+						$headers[] = "Authorization: {$H} {$this->key}";
 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
-                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-						$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+                        // $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+						// $auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+						$auth = $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 
                 }
 
 		foreach($this->http_header_list as $header) {
-			$H = trim($header);
-			$headers .= " -H '{$H}'";
-			$headers_new .= "'{$H}'";
+			// $H = trim($header);
+			// $headers .= " -H '{$H}'";
+			// $headers_new .= "'{$H}'";
+			$headers[] = $header;
 		}
 
 		if(isset($this->fqdn))
@@ -151,8 +158,9 @@ class DeviceConnection extends GenericConnection {
 
 		$aws_sigv4="";
 		if (isset($this->aws_sigv4)) {
-			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
-			$aws_sigv4_new=" '".$this->aws_sigv4."' ";
+			// $aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
+			// $aws_sigv4_new=" '".$this->aws_sigv4."' ";
+			$aws_sigv4=" '".$this->aws_sigv4."' ";
 
 		}
 
@@ -163,10 +171,10 @@ class DeviceConnection extends GenericConnection {
 		$connectTimeout = "{$this->conn_timeout}"
 		$maxTime = "{$this->conn_timeout}"
 		curl_setopt($ch, CURLOPT_URL, $url );
-		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
+		curl_setopt($ch, CURLOPT_USERPWD, $auth);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
-		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
 		if (count($cmd_list) >2 ) {
@@ -181,6 +189,7 @@ class DeviceConnection extends GenericConnection {
 	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
 		//$ret = exec_local ( $origin, $curl_cmd, $output_array );
 		$ret = curl_exec($ch);
+
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed $httpCode", $ret );
