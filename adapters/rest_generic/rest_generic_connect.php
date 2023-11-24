@@ -163,7 +163,8 @@ class DeviceConnection extends GenericConnection {
 		$timestamp = time();
 		echo "time $timestamp";
 		$ch = curl_init();
-		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		//$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
 		//echo $url
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
