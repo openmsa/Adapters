@@ -91,269 +91,145 @@ class DeviceConnection extends GenericConnection {
 		return $this->raw_xml;
 	}
 
-// 	public function send($origin, $rest_cmd) {
-// 		unset ( $this->response );
-// 		echo ("send(): rest_cmd = ".$rest_cmd."\n");
-// 		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
-// 		debug_dump ( $cmd_list, "CMD_LIST\n" );
+	public function send($origin, $rest_cmd) {
+		unset ( $this->response );
+		echo ("send(): rest_cmd = ".$rest_cmd."\n");
+		$cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
+		debug_dump ( $cmd_list, "CMD_LIST\n" );
 
-// 		$http_op = $cmd_list[0];
-// 		$rest_path = "";
-// 		if (count($cmd_list) >1 ) {
-// 			$rest_path = $cmd_list[1];
-// 		}
+		$http_op = $cmd_list[0];
+		$rest_path = "";
+		if (count($cmd_list) >1 ) {
+			$rest_path = $cmd_list[1];
+		}
 
-// 		$headers = "";
-// 		$auth = "";
+		$headers = "";
+		$auth = "";
 
-// 		echo("auth_mode= ".$this->auth_mode."\n");
-//                 if (isset($this->auth_header)) {
-//                         echo("auth_header= ".$this->auth_header."\n");
-//                 }
-// 		if (isset($this->key)) {
-// 	                echo("key= ".$this->key."\n");
-// 		}
-
-// 		if ($this->auth_mode == "BASIC") {
-// 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-// 			$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-// 		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
-// 			$H = trim($this->auth_header);
-// 			$headers .= " -H '{$H} {$this->key}'";
-// 			$headers_new .= "'{$H} {$this->key}'";
-
-// 		//	echo ("send(): headers= {$headers}\n");
-// 		// https://tools.ietf.org/html/rfc6750
-// 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
-//                         $H = trim($this->auth_header);
-//                         $headers .= " -H '{$H} {$this->key}'";
-// 						$headers_new .= "'{$H} {$this->key}'";
-// 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
-//                         $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-// 						$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-
-//                 }
-
-// 		foreach($this->http_header_list as $header) {
-// 			$H = trim($header);
-// 			$headers .= " -H '{$H}'";
-// 			$headers_new .= "'{$H}'";
-// 		}
-
-// 		if(isset($this->fqdn))
-// 		{
-// 			$ip_address = $this->fqdn;
-// 		}
-// 		else
-// 		{
-// 			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
-// 		}
-
-// 		$aws_sigv4="";
-// 		if (isset($this->aws_sigv4)) {
-// 			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
-// 			$aws_sigv4_new=" '".$this->aws_sigv4."' ";
-
-// 		}
-
-// 		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
-// 		#\$ch = curl_init();
-// 		//$url = "{$this->protocol}://{$ip_address}{$rest_path}";
-// 		//echo $url
-// 		//$connectTimeout = "{$this->conn_timeout}"
-// 		//$maxTime = "{$this->conn_timeout}"
-// 		//curl_setopt($ch, CURLOPT_URL, $url );
-// 		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
-// 		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
-// 		//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
-// 		//curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
-// 		//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-// 		//curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
-// 		//if (count($cmd_list) >2 ) {
-// 		//	$rest_payload = $cmd_list[2];
-// 		//	curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
-// 		//}
-// 		//$ret = curl_exec($ch);
-// 		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-// 		//return $httpCode
-// 		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd );
-// 	}
-
-// 	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
-// 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
-// 		//$ret = curl_exec($ch);
-// 		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-// 		if ($ret !== SMS_OK) {
-// 			throw new SmsException ( "Call to API Failed $ret", $ret );
-// 		}
-
-// 		$result = '';
-// 		foreach ( $output_array as $line ) {
-// 			if ($line !== 'SMS_OK') {
-// 				if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
-// 					$result .= "{$line}\n";
-// 				} else {
-// 					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
-// 						$cmd_quote = str_replace ( "\"", "'", $result );
-// 						$cmd_return = str_replace ( "\n", "", $cmd_quote );
-// 						throw new SmsException ( "$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
-// 					}
-// 				}
-// 			}
-// 		}
-
-// 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
-// 		if (strpos($curl_cmd, "Content-Type: application/json")) {
-// 	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
-// 			$array = json_decode ( $result, true );
-// 			if (isset ( $array ['sid'] )) {
-// 				$this->key = $array ['sid'];
-// 			}
-// 			if ($this->rest_json) {
-//                 $response = $array;
-// 			} else {
-//                 // call array to xml conversion function
-//                 $response = arrayToXml ($array, '<root></root>');
-// 			}
-// 		} else {
-// 		    if ($this->rest_json) {
-// 		        throw new SmsException ("$origin: Repsonse to API {$rest_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED );
-// 		    }
-// 		    if (empty(trim($result))) {
-// 		        $response = new SimpleXMLElement('<root></root>');
-// 		    }
-// 		}
-//         $this->response = $response;
-
-// 		debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
-// 	}
-
-// }
-public function send($origin, $rest_cmd) {
-    unset($this->response);
-    echo("send(): rest_cmd = " . $rest_cmd . "\n");
-    $cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
-    debug_dump($cmd_list, "CMD_LIST\n");
-
-    $http_op = $cmd_list[0];
-    $rest_path = "";
-    if (count($cmd_list) > 1) {
-        $rest_path = $cmd_list[1];
-    }
-
-    
-    $headers_new = "";
-    $auth_new = "";
-    $aws_sigv4_new = "";
-
-    echo("auth_mode= " . $this->auth_mode . "\n");
-    if (isset($this->auth_header)) {
-        echo("auth_header= " . $this->auth_header . "\n");
-    }
-    if (isset($this->key)) {
-        echo("key= " . $this->key . "\n");
-    }
-
-    if ($this->auth_mode == "BASIC") {
-       
-        $auth_new = $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-    } else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
-       
-        $headers_new .= "'{$H} {$this->key}'";
-    // https://tools.ietf.org/html/rfc6750
-    } else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
-       
-        $headers_new .= "'{$H} {$this->key}'";
-    } else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)) {
-      
-        $auth_new = $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-    }
-
-    foreach ($this->http_header_list as $header) {
-       
-        $headers_new .= "'{$H}'";
-    }
-
-    if (isset($this->fqdn)) {
-        $ip_address = $this->fqdn;
-    } else {
-        $ip_address = $this->sd_ip_config . ":" . $this->sd_management_port;
-    }
-
-    $aws_sigv4 = "";
-    if (isset($this->aws_sigv4)) {
-       
-        $aws_sigv4_new = " '{$this->aws_sigv4}'";
-    }
-
-    $ch = curl_init();
-    $url = "{$this->protocol}://{$ip_address}{$rest_path}";
-    $connectTimeout = $this->conn_timeout;
-    $maxTime = $this->conn_timeout;
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [$headers_new]);
-    curl_setopt($ch, CURLOPT_AWS_SIGV4, $aws_sigv4_new);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
-    if (count($cmd_list) > 2) {
-        $rest_payload = $cmd_list[2];
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
-    }
-	var_dump($ch);
-
-    $this->execute_curl_command($origin, $rest_cmd, $ch);
-}
-
-protected function execute_curl_command($origin, $rest_cmd, $ch) {
-    $ret = curl_exec($ch);
-
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    if ($ret !== SMS_OK) {
-        throw new SmsException("Call to API Failed $httpCode", $ret);
-    }
-
-    $result = '';
-    foreach ($output_array as $line) {
-        if ($line !== 'SMS_OK') {
-            if (strpos($line, 'HTTP_CODE') !== 0) {
-                $result .= "{$line}\n";
-            } else {
-                if (strpos($line, 'HTTP_CODE=20') !== 0) {
-                    $cmd_quote = str_replace("\"", "'", $result);
-                    $cmd_return = str_replace("\n", "", $cmd_quote);
-                    throw new SmsException("$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
+		echo("auth_mode= ".$this->auth_mode."\n");
+                if (isset($this->auth_header)) {
+                        echo("auth_header= ".$this->auth_header."\n");
                 }
-            }
-        }
-    }
+		if (isset($this->key)) {
+	                echo("key= ".$this->key."\n");
+		}
 
-    $result = preg_replace('/xmlns="[^"]+"/', '', $result);
-    if (strpos($curl_cmd, "Content-Type: application/json")) {
-        $result = preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
-        $array = json_decode($result, true);
-        if (isset($array['sid'])) {
-            $this->key = $array['sid'];
-        }
-        if ($this->rest_json) {
-            $response = $array;
-        } else {
-            // call array to xml conversion function
-            $response = arrayToXml($array, '<root></root>');
-        }
-    } else {
-        if ($this->rest_json) {
-            throw new SmsException("$origin: Repsonse to API {$rest_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED);
-        }
-        if (empty(trim($result))) {
-            $response = new SimpleXMLElement('<root></root>');
-        }
-    }
-    $this->response = $response;
+		if ($this->auth_mode == "BASIC") {
+			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+			$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
+			$H = trim($this->auth_header);
+			$headers .= " -H '{$H} {$this->key}'";
+			$headers_new .= "'{$H} {$this->key}'";
 
-    debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
+		//	echo ("send(): headers= {$headers}\n");
+		// https://tools.ietf.org/html/rfc6750
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
+                        $H = trim($this->auth_header);
+                        $headers .= " -H '{$H} {$this->key}'";
+						$headers_new .= "'{$H} {$this->key}'";
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
+                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+						$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+
+                }
+
+		foreach($this->http_header_list as $header) {
+			$H = trim($header);
+			$headers .= " -H '{$H}'";
+			$headers_new .= "'{$H}'";
+		}
+
+		if(isset($this->fqdn))
+		{
+			$ip_address = $this->fqdn;
+		}
+		else
+		{
+			$ip_address = $this->sd_ip_config.":".$this->sd_management_port;
+		}
+
+		$aws_sigv4="";
+		if (isset($this->aws_sigv4)) {
+			$aws_sigv4=" --aws-sigv4 '".$this->aws_sigv4."' ";
+			$aws_sigv4_new=" '".$this->aws_sigv4."' ";
+
+		}
+
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		#\$ch = curl_init();
+		//$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		//echo $url
+		//$connectTimeout = "{$this->conn_timeout}"
+		//$maxTime = "{$this->conn_timeout}"
+		//curl_setopt($ch, CURLOPT_URL, $url );
+		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
+		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
+		//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
+		//curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
+		//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+		//curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
+		//if (count($cmd_list) >2 ) {
+		//	$rest_payload = $cmd_list[2];
+		//	curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
+		//}
+		//$ret = curl_exec($ch);
+		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		//return $httpCode
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd );
+	}
+
+	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
+		$ret = exec_local ( $origin, $curl_cmd, $output_array );
+		//$ret = curl_exec($ch);
+		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($ret !== SMS_OK) {
+			throw new SmsException ( "Call to API Failed $ret", $ret );
+		}
+
+		$result = '';
+		foreach ( $output_array as $line ) {
+			if ($line !== 'SMS_OK') {
+				if (strpos ( $line, 'HTTP_CODE' ) !== 0) {
+					$result .= "{$line}\n";
+				} else {
+					if (strpos ( $line, 'HTTP_CODE=20' ) !== 0) {
+						$cmd_quote = str_replace ( "\"", "'", $result );
+						$cmd_return = str_replace ( "\n", "", $cmd_quote );
+						throw new SmsException ( "$origin: Call to API {$rest_cmd} Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED );
+					}
+				}
+			}
+		}
+
+		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
+		if (strpos($curl_cmd, "Content-Type: application/json")) {
+	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+			$array = json_decode ( $result, true );
+			if (isset ( $array ['sid'] )) {
+				$this->key = $array ['sid'];
+			}
+			if ($this->rest_json) {
+                $response = $array;
+			} else {
+                // call array to xml conversion function
+                $response = arrayToXml ($array, '<root></root>');
+			}
+		} else {
+		    if ($this->rest_json) {
+		        throw new SmsException ("$origin: Repsonse to API {$rest_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED );
+		    }
+		    if (empty(trim($result))) {
+		        $response = new SimpleXMLElement('<root></root>');
+		    }
+		}
+        $this->response = $response;
+
+		debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
+	}
+
 }
+
 
 
 class GenericBASICConnection extends DeviceConnection {
