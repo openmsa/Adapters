@@ -156,11 +156,11 @@ class DeviceConnection extends GenericConnection {
 
 		}
 
-		//$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
-		$ch = curl_init();
-		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
-		$connectTimeout = "{$this->conn_timeout}"
-		$maxTime = "{$this->conn_timeout}"
+		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		//$ch = curl_init();
+		//$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		//$connectTimeout = "{$this->conn_timeout}"
+		//$maxTime = "{$this->conn_timeout}"
 		//curl_setopt($ch, CURLOPT_URL, $url );
 		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
@@ -175,12 +175,13 @@ class DeviceConnection extends GenericConnection {
 		//$ret = curl_exec($ch);
 		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		//return $httpCode
-		//$this->execute_curl_command ( $origin, $rest_cmd, $ch );
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd );
 	}
 
-	protected function execute_curl_command($origin, $rest_cmd, $ch) {
-		$ret = curl_exec($ch);
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
+		$ret = exec_local ( $origin, $curl_cmd, $output_array );
+		//$ret = curl_exec($ch);
+		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed $ret", $ret );
 		}
