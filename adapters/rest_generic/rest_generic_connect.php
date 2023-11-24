@@ -163,16 +163,13 @@ class DeviceConnection extends GenericConnection {
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		//echo $url
-		$connectTimeout = 50;
-		$maxTime = 50;
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 50);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 50 );
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
