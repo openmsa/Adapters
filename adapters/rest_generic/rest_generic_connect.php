@@ -172,7 +172,9 @@ class DeviceConnection extends GenericConnection {
 			$rest_payload = $cmd_list[2];
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
 		}
-
+		$ret = curl_exec($ch);
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		return $httpCode
 		$this->execute_curl_command ( $origin, $rest_cmd, $ch );
 	}
 
