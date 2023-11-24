@@ -165,27 +165,27 @@ class DeviceConnection extends GenericConnection {
 		//echo $url
 		$connectTimeout = 50;
 		$maxTime = 50;
-		//curl_setopt($ch, CURLOPT_URL, $url );
-		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
-		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
-		//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
-		//curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
-		//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-		//curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
-		//if (count($cmd_list) >2 ) {
-		//	$rest_payload = $cmd_list[2];
-		//	curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
-		//}
+		curl_setopt($ch, CURLOPT_URL, $url );
+		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
+		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
+		if (count($cmd_list) >2 ) {
+			$rest_payload = $cmd_list[2];
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
+		}
 		//$ret = curl_exec($ch);
 		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		//return $httpCode
-		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd );
+		$this->execute_curl_command ( $origin, $rest_cmd, $ch );
 	}
 
-	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
-		$ret = exec_local ( $origin, $curl_cmd, $output_array );
-		//$ret = curl_exec($ch);
-		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	protected function execute_curl_command($origin, $rest_cmd, $ch) {
+		// $ret = exec_local ( $origin, $curl_cmd, $output_array );
+		$ret = curl_exec($ch);
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed $ret", $ret );
 		}
@@ -206,7 +206,7 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
-		if (strpos($curl_cmd, "Content-Type: application/json")) {
+		if (strpos($ch, "Content-Type: application/json")) {
 	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
