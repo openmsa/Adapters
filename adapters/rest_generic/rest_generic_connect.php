@@ -241,8 +241,7 @@ public function send($origin, $rest_cmd) {
         $rest_path = $cmd_list[1];
     }
 
-    $headers = "";
-    $auth = "";
+    
     $headers_new = "";
     $auth_new = "";
     $aws_sigv4_new = "";
@@ -256,25 +255,22 @@ public function send($origin, $rest_cmd) {
     }
 
     if ($this->auth_mode == "BASIC") {
-        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+       
         $auth_new = $this->sd_login_entry . ":" . $this->sd_passwd_entry;
     } else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
-        $H = trim($this->auth_header);
-        $headers .= " '{$H} {$this->key}'";
+       
         $headers_new .= "'{$H} {$this->key}'";
     // https://tools.ietf.org/html/rfc6750
     } else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
-        $H = trim($this->auth_header);
-        $headers .= " '{$H} {$this->key}'";
+       
         $headers_new .= "'{$H} {$this->key}'";
     } else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)) {
-        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+      
         $auth_new = $this->sd_login_entry . ":" . $this->sd_passwd_entry;
     }
 
     foreach ($this->http_header_list as $header) {
-        $H = trim($header);
-        $headers .= " '{$H}'";
+       
         $headers_new .= "'{$H}'";
     }
 
@@ -286,7 +282,7 @@ public function send($origin, $rest_cmd) {
 
     $aws_sigv4 = "";
     if (isset($this->aws_sigv4)) {
-        $aws_sigv4 = " '{$this->aws_sigv4}'";
+       
         $aws_sigv4_new = " '{$this->aws_sigv4}'";
     }
 
@@ -305,6 +301,7 @@ public function send($origin, $rest_cmd) {
         $rest_payload = $cmd_list[2];
         curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
     }
+	var_dump($ch);
 
     $this->execute_curl_command($origin, $rest_cmd, $ch);
 }
