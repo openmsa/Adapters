@@ -161,10 +161,10 @@ class DeviceConnection extends GenericConnection {
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		$connectTimeout = "{$this->conn_timeout}"
 		$maxTime = "{$this->conn_timeout}"
-		curl_setopt($ch, CURLOPT_URL, $url );
-		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
+		//curl_setopt($ch, CURLOPT_URL, $url );
+		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
+		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
+		//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
 		//curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
 		//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
 		//curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
@@ -172,10 +172,10 @@ class DeviceConnection extends GenericConnection {
 		//	$rest_payload = $cmd_list[2];
 		//	curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
 		//}
-		$ret = curl_exec($ch);
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		return $httpCode
-		$this->execute_curl_command ( $origin, $rest_cmd, $ch );
+		//$ret = curl_exec($ch);
+		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		//return $httpCode
+		//$this->execute_curl_command ( $origin, $rest_cmd, $ch );
 	}
 
 	protected function execute_curl_command($origin, $rest_cmd, $ch) {
