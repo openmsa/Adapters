@@ -120,6 +120,7 @@ class DeviceConnection extends GenericConnection {
 		if ($this->auth_mode == "BASIC") {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 			$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+			echo "Auth values $auth_new";
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H} {$this->key}'";
@@ -135,7 +136,7 @@ class DeviceConnection extends GenericConnection {
 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
                         $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 						$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-						echo "Auth values $auth_new";
+						
 
                 }
 
