@@ -156,35 +156,34 @@ class DeviceConnection extends GenericConnection {
 
 		}
 
-		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
-		$ch = curl_init();
-		//$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		//$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
+		$curl_cmd = curl_init();
+		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		//echo $url
-		//$connectTimeout = "{$this->conn_timeout}"
-		//$maxTime = "{$this->conn_timeout}"
-		//curl_setopt($ch, CURLOPT_URL, $url );
-		//curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
-		//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
-		//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
-		//curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
-		//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-		//curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
-		//if (count($cmd_list) >2 ) {
-		//	$rest_payload = $cmd_list[2];
-		//	curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
-		//}
-		//$ret = curl_exec($ch);
-		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$connectTimeout = "{$this->conn_timeout}"
+		$maxTime = "{$this->conn_timeout}"
+		curl_setopt($ch, CURLOPT_URL, $url );
+		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_new);
+		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
+		if (count($cmd_list) >2 ) {
+			$rest_payload = $cmd_list[2];
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
+		}
+		
 		//return $httpCode
 		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd );
 	}
 
 	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
-		$ret = exec_local ( $origin, $curl_cmd, $output_array );
-		//$ret = curl_exec($ch);
-		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		//$ret = exec_local ( $origin, $curl_cmd, $output_array );
+		$ret = curl_exec($ch);
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
-			throw new SmsException ( "Call to API Failed $ret", $ret );
+			throw new SmsException ( "Call to API Failed $httpCode", $ret );
 		}
 
 		$result = '';
