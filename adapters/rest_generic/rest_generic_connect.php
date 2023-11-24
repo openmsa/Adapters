@@ -157,7 +157,7 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
-		$ch = curl_init();
+		#$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		echo $url
 		//$connectTimeout = "{$this->conn_timeout}"
