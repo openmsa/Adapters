@@ -171,8 +171,6 @@ class DeviceConnection extends GenericConnection {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $maxTime);
 		if (count($cmd_list) >2 ) {
