@@ -161,6 +161,7 @@ class DeviceConnection extends GenericConnection {
 
 		//$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		$timestamp = time();
+		echo "time $timestamp";
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		//echo $url
@@ -171,7 +172,6 @@ class DeviceConnection extends GenericConnection {
 		curl_setopt($ch, CURLOPT_AWS_SIGV4,$aws_sigv4_new);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 50);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 50 );
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $timestamp);
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
