@@ -105,6 +105,9 @@ class DeviceConnection extends GenericConnection {
 
 		$headers = "";
 		$auth = "";
+		$headers_new = "";
+		$auth_new = "";
+		$aws_sigv4_new = "";
 
 		echo("auth_mode= ".$this->auth_mode."\n");
                 if (isset($this->auth_header)) {
