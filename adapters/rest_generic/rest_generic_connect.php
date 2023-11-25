@@ -164,17 +164,13 @@ class DeviceConnection extends GenericConnection {
 		//$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
-		// Add AWS SigV4 headers manually
-		$headers_new[] = 'Authorization: AWS4-HMAC-SHA256 Credential=' . $auth;
-		$headers_new[] = 'X-Amz-Date: ' . gmdate('Ymd\THis\Z');
-		$headers_new[] = 'X-Amz-Security-Token: ' . $aws_sigv4;
 		echo "Headers $headers_new"
 		//$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array($headers_new));
-		#curl_setopt($ch, CURLOPT_AWS_SIGV4, $aws_sigv4_new);
+		curl_easy_setopt($ch, CURLOPT_AWS_SIGV4, $aws_sigv4_new);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 50);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 50 );
 		if (count($cmd_list) >2 ) {
