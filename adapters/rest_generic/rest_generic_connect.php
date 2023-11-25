@@ -165,16 +165,11 @@ class DeviceConnection extends GenericConnection {
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		//$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
-		echo $url;
-		echo "Headers $headers_new";
-		echo "AWS $aws_sigv4_new";
-		echo "url $url";
-		echo "rest $rest_payload";
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array($headers_new));
-		curl_setopt($ch, CURLOPT_AWS_SIGV4, 10);
+		curl_setopt($ch, CURLOPT_AWS_SIGV4, $aws_sigv4_new);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 50);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 50 );
 		if (count($cmd_list) >2 ) {
