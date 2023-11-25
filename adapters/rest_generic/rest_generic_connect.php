@@ -167,7 +167,7 @@ class DeviceConnection extends GenericConnection {
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		//$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
-		echo $url
+		//echo $url
 		//echo "Headers $headers_new";
 		//echo "AWS $aws_sigv4"
 		//echo "url $url"
@@ -195,7 +195,7 @@ class DeviceConnection extends GenericConnection {
 		$ret = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		echo "Using print_r():\n";
-		print_r($info);
+		//print_r($info);
 		// foreach ($info as $value) {
 		// 	echo $value . "\n";
 		// }
