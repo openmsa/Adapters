@@ -164,6 +164,8 @@ class DeviceConnection extends GenericConnection {
 		//$curl_cmd = "curl " . $auth . " -X {$http_op} -sw '\nHTTP_CODE=%{http_code}' {$headers} {$aws_sigv4} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$this->protocol}://{$ip_address}{$rest_path}'";
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		$version = curl_version();
+		echo "version $version";
 		//$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
@@ -187,14 +189,13 @@ class DeviceConnection extends GenericConnection {
 		// $ret = exec_local ( $origin, $curl_cmd, $output_array );
 		$ret = curl_exec($ch);
 		$info = curl_getinfo($ch);
-		echo "Using print_r():\n";
 		//print_r($info);
 		// foreach ($info as $value) {
 		// 	echo $value . "\n";
 		// }
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($ret !== SMS_OK) {
-			throw new SmsException ( "Call to API Failed $info", $ret );
+			throw new SmsException ( "Call to API Failed", $ret );
 		}
 
 		$result = '';
