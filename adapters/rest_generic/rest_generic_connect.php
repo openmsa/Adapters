@@ -166,6 +166,9 @@ class DeviceConnection extends GenericConnection {
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
 		$version = curl_version();
 		echo "version $version";
+		foreach ($version as $value) {
+		 	echo $value . "\n";
+		}
 		//$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
