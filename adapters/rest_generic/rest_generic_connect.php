@@ -171,7 +171,7 @@ class DeviceConnection extends GenericConnection {
 		echo "Headers $headers_new";
 		//echo "AWS $aws_sigv4"
 		echo "url $url"
-		echo "http $http_op"
+		//echo "http $http_op"
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_USERPWD, $auth_new);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_op);
