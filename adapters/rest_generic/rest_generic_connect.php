@@ -120,7 +120,6 @@ class DeviceConnection extends GenericConnection {
 		if ($this->auth_mode == "BASIC") {
 			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
 			$auth_new =  $this->sd_login_entry . ":" . $this->sd_passwd_entry;
-			echo "Auth values $auth_new";
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H} {$this->key}'";
@@ -166,6 +165,12 @@ class DeviceConnection extends GenericConnection {
 		echo "time $timestamp";
 		$ch = curl_init();
 		$url = "{$this->protocol}://{$ip_address}{$rest_path}";
+		echo "Headers $headers_new";
+		echo "AWS $aws_sigv4"
+		echo "url $url"
+		echo "http $http_op"
+		echo "rest $rest_payload"
+
 		//$url = "https://api.eu-west-2.outscale.com/api/v1/CheckAuthentication";
 		//echo $url
 		curl_setopt($ch, CURLOPT_URL, $url );
