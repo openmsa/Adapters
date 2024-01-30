@@ -1,7 +1,7 @@
-REST adaptor for Netbox
+REST adaptor for GENIE Atm device
 =======================
 
-API doc: https://netbox.readthedocs.io/en/stable/
+API doc: https://www.genie-networks.com/genieatm/
 
 The REST adaptor for GENIE Atm device based on the Generic REST adator and will allow you to use REST / GENIE vendor and model on the UI. 
 
