@@ -80,13 +80,9 @@ $health_path = 'vnflcm/api_versions';
   {
     global $health_path;
 
-    //$url = "$PROTOCOL://$ME_IP:$HTTP_PORT/$BASE_URL_MS/$health_path";
-     $url = "$PROTOCOL://$ME_IP:$HTTP_PORT";
-    if (!(empty($BASE_URL_MS)) && ($BASE_URL_MS !== '/')){
-        $url .= "/$BASE_URL_MS";
-    }
-    $url .= "/$health_path";
-
+    $url = "$PROTOCOL://";
+    if (! isset($BASE_URL_MS)) $BASE_URL_MS = '/';
+    $url .= preg_replace("!/+!", "/", "$ME_IP:$HTTP_PORT/$BASE_URL_MS/$health_path");
     // sms_log_info(basename(__FILE__, '.php') . " polling: $url");
 
     $ch = curl_init();
