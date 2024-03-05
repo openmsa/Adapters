@@ -18,5 +18,5 @@ jobs:
 
       - name: Lint PHP file
         run: |
-          find adapters -type f -name '*.php' -exec php -l {} \; | grep -v 'No syntax errors' > /tmp/php_lint.out
-          [ -s /tmp/php_lint.out ] && cat /tmp/php_lint.out && exit 1
+          find adapters -type f -name '*.php' -exec php -l {} \; | grep -v 'No syntax errors' > /tmp/php_lint.out || :
+          [ -s /tmp/php_lint.out ] && cat /tmp/php_lint.out && exit 1 || exit 0
