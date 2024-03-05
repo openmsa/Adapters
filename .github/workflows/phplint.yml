@@ -1,0 +1,22 @@
+name: PHP Linting
+on:
+  push:
+    paths:
+      - 'adapters/**'
+jobs:
+  phplint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP runtime
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          coverage: none
+
+      - name: Lint PHP file
+        run: |
+          find adapters -type f -name '*.php' -exec php -l {} \; | grep -v 'No syntax errors' > /tmp/php_lint.out
+          [ -s /tmp/php_lint.out ] && cat /tmp/php_lint.out && exit 1
