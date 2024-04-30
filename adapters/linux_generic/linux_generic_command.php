@@ -137,9 +137,9 @@ class linux_generic_command extends generic_command
   function eval_UPDATE()
    {
     global $SMS_RETURN_BUF;
-    foreach ($this->create_list as $create)
+    foreach ($this->update_list as $update)
     {
-      $conf = $create->evaluate();
+      $conf = $update->evaluate();
       $this->configuration .= "\n";
       $this->configuration .= $conf;
       $SMS_RETURN_BUF  = $this->configuration;
