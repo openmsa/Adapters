@@ -34,7 +34,7 @@ class Nfvo_connection extends GenericConnection
                         $auth_mode = trim($sd->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE);
                 }
                 $this->auth_mode = $auth_mode;
-                if($auth_mode == 'oauth_v2'){
+                if($auth_mode == 'oauth_v2') {
 echo "auth mode is oauth\n";
                         if (!isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
                                 throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
@@ -122,14 +122,15 @@ echo "auth mode is oauth\n";
                 $delay = EXPECT_DELAY / 1000;
 
                 $action = explode("#", $cmd);
+                debug_dump(action, "send() action: \n");
 
                 //Add if oauth
-                if($this->auth_mode == "oauth_v2" && !isset($this->key)){
+                if($this->auth_mode == "oauth_v2" && !isset($this->key)) {
                         $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -k '{$action[1]}'";
                         if (isset($action[2])) {
                                 $curl_cmd .= " -d '{$action[2]}'";
                         }
-                }else if($this->auth_mode == "oauth_v2" && isset($this->key)){
+                } else if($this->auth_mode == "oauth_v2" && isset($this->key)) {
                         $H = trim("Authorization: Bearer");
                         $headers = " -H '{$H} {$this->key}'";
                         $action[2]=preg_replace('/\/\//', '/', $action[2]);
@@ -138,8 +139,7 @@ echo "auth mode is oauth\n";
                                 $curl_cmd .= " -d '{$action[3]}'";
                         }
 
-                }
-                else{
+                } else {
                         // SI pas de endpoints, on prend keystone par defaut.
                         // if ($action[1] == "")
                         // {
@@ -147,7 +147,7 @@ echo "auth mode is oauth\n";
                         $action[2] = $this->protocol.'://' . $this->sd_ip_config . ':' . $http_port . $action[2];
                         // }
 
-                        // TODO TEST validité champ ACTION[]
+                        // TODO TEST validite champ ACTION[]
                         $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' -u {$this->sd_login_entry}:{$this->sd_passwd_entry} --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: {$sol003_api_version}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
                         if (isset($action[3])) {
                                 $curl_cmd .= " -d '{$action[3]}'";
