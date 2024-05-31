@@ -24,6 +24,7 @@ class Nfvo_connection extends GenericConnection
                 //$this->endPointsURL = $endPointsURL_table[0];
                 //Adding Oauth2.0 implementation
                 $data = "";
+                global $sms_sd_ctx;
 
         $network = get_network_profile();
         $sd = &$network->SD;

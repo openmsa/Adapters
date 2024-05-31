@@ -4,6 +4,27 @@ require_once 'smsd/generic_connection.php';
 // Same script for nfvo and nfvm, differ only with following var:
 // for nfvo: 'vnfpkgm/api_versions'; for vnfm: 'vnflcm/api_versions'
 $health_path = 'vnflcm/api_versions';
+//----------------------------------------------
+function getHeaders($respHeaders) {
+    $headers = array();
+
+    $headerText = substr($respHeaders, 0, strpos($respHeaders, "\r\n\r\n"));
+echo "getting header text: $headerText\n";
+    foreach (explode("\r\n", $headerText) as $i => $line) {
+        if ($i === 0) {
+            $headers['http_code'] = $line;
+        } else {
+		echo "naveen--$line\n";
+            list ($key, $value) = explode(': ', $line);
+
+            $headers[$key] = $value;
+        }
+    }
+
+    return $headers;
+}
+
+
 
   // ---------------------------------------------------------------------------
   function curl_json_output($raw_output)
@@ -33,9 +54,13 @@ $health_path = 'vnflcm/api_versions';
   }
 
   // ---------------------------------------------------------------------------
-  function get_token($SIGNIN_REQ_PATH, $data)
+  function get_token($SIGNIN_REQ_PATH, $data,$auth_mode)
   {
-    $http_data = http_build_query($data);
+    if($auth_mode == 'oauth_v2'){
+      $http_data = http_build_query($data);
+    }else if($auth_mode =='keystone'){
+      $http_data = $data;
+    }
 
     $url = $SIGNIN_REQ_PATH;
 
@@ -50,7 +75,10 @@ $health_path = 'vnflcm/api_versions';
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $http_data);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
+    if($auth_mode == 'keystone'){
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json'));
+    }
     $ret = curl_exec($ch);
     // sms_log_info(basename(__FILE__, '.php') . " polling $url with get_token() ret: $ret");
     if (curl_errno($ch))
@@ -69,14 +97,21 @@ $health_path = 'vnflcm/api_versions';
       return false;
     }
 
-    // print_r($ret); echo "\n";
-    curl_close($ch);
+    if($auth_mode == 'oauth_v2'){
+      curl_close($ch);
+      return curl_json_output($ret)->access_token;
+    }else if($auth_mode == 'keystone'){
+echo "===================================\n";
+      curl_close($ch);
+$nav=url_json_output($ret)->X-Subject-Token;
+echo "papin: $nav \n";
+      return $tok;
+    }
 
-    return curl_json_output($ret)->access_token;
   }
 
   // ---------------------------------------------------------------------------
-  function get_health($PROTOCOL, $ME_IP, $HTTP_PORT, $BASE_URL_MS, $TOKEN)
+  function get_health($PROTOCOL, $ME_IP, $HTTP_PORT, $BASE_URL_MS, $TOKEN, $auth_mode)
   {
     global $health_path;
 
@@ -92,10 +127,16 @@ $health_path = 'vnflcm/api_versions';
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    if($auth_mode =='oauth_v2'){
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Content-Type: application/json',
         'Accept:application/json',
         "Authorization: Bearer $TOKEN"));
+    }else if($auth_mode == 'keystone'){
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json', 'Accept:application/json',
+        "X-Auth-Token: $TOKEN"));
+    }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
@@ -150,16 +191,25 @@ $PROTOCOL        = $SD->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE;
 $HTTP_PORT       = $SD->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
 $BASE_URL_MS     = trim($SD->SD_CONFIGVAR_list['BASE_URL_MS']->VAR_VALUE, '/');
 $SIGNIN_REQ_PATH = $SD->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
+$AUTH_TYPE = $SD->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE;
+$tenant_id = $SD->SD_CONFIGVAR_list['TENANT_ID']->VAR_VALUE;
+$user_domain_id = $SD->SD_CONFIGVAR_list['USER_DOMAIN_ID']->VAR_VALUE;
+$project_domain_id = $SD->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID']->VAR_VALUE;
 
 // we get the bearer token
 $credentials = array('grant_type' => 'client_credentials',
                      'client_id'  => $ME_USER_NAME,
                      'client_secret' => $ME_PASSWORD);
+if($AUTH_TYPE == 'keystone'){
+	$credentials = "{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
+    $credentials .= "\"{$user_domain_id}\"},\"name\": \"{$ME_USER_NAME}\",\"password\": \"{$ME_PASSWORD}\"}}},";
+    $credentials .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
+}
 
-$token = get_token($SIGNIN_REQ_PATH, $credentials);
+$token = get_token($SIGNIN_REQ_PATH, $credentials, $AUTH_TYPE);
 // sms_log_info(basename(__FILE__, '.php') . " polling token: $token");
 
-$ret = get_health($PROTOCOL, $ME_IP, $HTTP_PORT, $BASE_URL_MS, $token);
+$ret = get_health($PROTOCOL, $ME_IP, $HTTP_PORT, $BASE_URL_MS, $token, $AUTH_TYPE);
 
 return $ret;
 ?>
