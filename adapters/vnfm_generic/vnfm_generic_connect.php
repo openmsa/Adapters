@@ -18,6 +18,8 @@ class Nfvo_connection extends GenericConnection
 
         private $raw_json;
 
+        public $sign_in_req_path;
+
         // ------------------------------------------------------------------------------------------------
         public function do_connect()
         {
