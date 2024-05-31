@@ -122,7 +122,7 @@ echo "auth mode is oauth\n";
                 $delay = EXPECT_DELAY / 1000;
 
                 $action = explode("#", $cmd);
-                debug_dump(action, "send() action: \n");
+                debug_dump($action, "send() action: \n");
 
                 //Add if oauth
                 if($this->auth_mode == "oauth_v2" && !isset($this->key)) {
