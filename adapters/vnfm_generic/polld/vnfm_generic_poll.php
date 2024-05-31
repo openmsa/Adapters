@@ -62,6 +62,9 @@ echo "getting header text: $headerText\n";
       $http_data = $data;
     }
 
+    debug_dump($http_data, "get_token() http_data\n");
+
+
     $url = $SIGNIN_REQ_PATH;
 
     $ch = curl_init();
@@ -79,6 +82,8 @@ echo "getting header text: $headerText\n";
       curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Content-Type: application/json'));
     }
+    debug_dump($ch, "get_token() curl comman\n");
+
     $ret = curl_exec($ch);
     // sms_log_info(basename(__FILE__, '.php') . " polling $url with get_token() ret: $ret");
     if (curl_errno($ch))
