@@ -187,7 +187,7 @@ foreach ($needed_conf_vars as $conf_var_name)
     $missing_conf_vars[] = $conf_var_name;
   }
 }
-if (!empty($missing_conf_vars))
+if (empty($missing_conf_vars))
 {
   sms_log_error("Error: missing config vars for polling: " . implode(', ', $missing_conf_vars));
   return ERR_SD_NOT_CONFIGURED;
