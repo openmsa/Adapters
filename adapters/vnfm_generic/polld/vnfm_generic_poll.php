@@ -168,14 +168,14 @@ echo "papin: $nav \n";
   // ---------------------------------------------------------------------------
 
 
-$PROTOCOL;
-$HTTP_PORT;
-$BASE_URL_MS;
-$SIGNIN_REQ_PATH; 
-$AUTH_TYPE;
-$tenant_id;
-$user_domain_id;
-$project_domain_id;
+$PROTOCOL="";
+$HTTP_PORT="";
+$BASE_URL_MS="";
+$SIGNIN_REQ_PATH=""; 
+$AUTH_TYPE="";
+$tenant_id="";
+$user_domain_id="";
+$project_domain_id="";
 
 $network = get_network_profile();
 $SD = &$network->SD;
