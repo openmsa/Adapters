@@ -10,14 +10,11 @@ function getHeaders($respHeaders) {
     $headers = array();
 
     $headerText = substr($respHeaders, 0, strpos($respHeaders, "\r\n\r\n"));
-echo "getting header text: $headerText\n";
     foreach (explode("\r\n", $headerText) as $i => $line) {
         if ($i === 0) {
             $headers['http_code'] = $line;
         } else {
-		echo "naveen--$line\n";
             list ($key, $value) = explode(': ', $line);
-
             $headers[$key] = $value;
         }
     }
@@ -91,7 +88,7 @@ echo "getting header text: $headerText\n";
     $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
     $header_raw = substr($ret, 0, $header_size);
     $headers = getHeaders($header_raw);
-    debug_dump($headers, "get_token() headers: \n");
+//    debug_dump($headers, "get_token() headers: \n");
     // sms_log_info(basename(__FILE__, '.php') . " polling $url with get_token() ret: $ret");
     if (curl_errno($ch))
     {
@@ -113,7 +110,6 @@ echo "getting header text: $headerText\n";
       curl_close($ch);
       return curl_json_output($ret)->access_token;
     } else if ($auth_mode == 'keystone') {
-      echo "===================================\n";
       curl_close($ch);
       $token=$headers['X-Subject-Token'];
       return $token;
