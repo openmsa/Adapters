@@ -189,6 +189,7 @@ $ME_USER_NAME = $SD->SD_LOGIN_ENTRY;
 $ME_PASSWORD  = $SD->SD_PASSWD_ENTRY;
 
 // the configuration vars
+debug_dump($SD->SD_CONFIGVAR_list[], "SD_CONFIGVAR_list");
 $missing_conf_vars = array();
 $needed_conf_vars = array('PROTOCOL', 'HTTP_PORT', 'BASE_URL_MS', 'SIGNIN_REQ_PATH');
 
