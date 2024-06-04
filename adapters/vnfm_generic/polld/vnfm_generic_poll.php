@@ -66,7 +66,6 @@ echo "getting header text: $headerText\n";
 
     debug_dump($http_data, "get_token() http_data\n");
 
-
     $url = $SIGNIN_REQ_PATH;
     debug_dump($url, "get_token() url\n");
 
@@ -82,8 +81,8 @@ echo "getting header text: $headerText\n";
     curl_setopt($ch, CURLOPT_POSTFIELDS, $http_data);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     if($auth_mode == 'keystone'){
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json'));
+      curl_setopt($ch, CURLOPT_HEADER, true);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
     }
     
     $ret = curl_exec($ch);
