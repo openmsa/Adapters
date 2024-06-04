@@ -57,11 +57,10 @@ echo "getting header text: $headerText\n";
   function get_token($SIGNIN_REQ_PATH, $data, $auth_mode)
   {
     debug_dump($auth_mode, "get_token() auth_mode\n");
-    debug_dump($data, "get_token() data\n");
     $http_data ="";
-    if($auth_mode == 'oauth_v2'){
+    if($auth_mode == 'oauth_v2') {
       $http_data = http_build_query($data);
-    }else if($auth_mode =='keystone'){
+    }else if($auth_mode =='keystone') {
       $http_data = $data;
     }
 
@@ -69,6 +68,7 @@ echo "getting header text: $headerText\n";
 
 
     $url = $SIGNIN_REQ_PATH;
+    debug_dump($url, "get_token() url\n");
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -105,14 +105,14 @@ echo "getting header text: $headerText\n";
       return false;
     }
 
-    if($auth_mode == 'oauth_v2'){
+    if ($auth_mode == 'oauth_v2') {
       curl_close($ch);
       return curl_json_output($ret)->access_token;
-    }else if($auth_mode == 'keystone'){
-echo "===================================\n";
+    } else if ($auth_mode == 'keystone') {
+      echo "===================================\n";
       curl_close($ch);
-$nav=url_json_output($ret)->X-Subject-Token;
-echo "papin: $nav \n";
+      $nav=url_json_output($ret)->X-Subject-Token;
+      echo "papin: $nav \n";
       return $tok;
     }
 
@@ -190,12 +190,7 @@ $ME_PASSWORD  = $SD->SD_PASSWD_ENTRY;
 
 // the configuration vars
 $SD_CONFIGVAR_list = $SD->SD_CONFIGVAR_list;
-echo("SD_CONFIGVAR_list\n");
-print_r($SD_CONFIGVAR_list);
-foreach ($SD_CONFIGVAR_list as $var)
-{
-  debug_dump($var, "VAR\n");
-}
+
 $missing_conf_vars = array();
 $needed_conf_vars = array('PROTOCOL', 'HTTP_PORT', 'BASE_URL_MS', 'SIGNIN_REQ_PATH');
 
@@ -216,7 +211,6 @@ if (!empty($missing_conf_vars))
 
 if (isset($SD_CONFIGVAR_list['PROTOCOL'])) {
   $PROTOCOL        = $SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE;
-  echo("PROTOCOL : ".$PROTOCOL."\n");
 }
 if (isset($SD->SD_CONFIGVAR_list['HTTP_PORT'])) {
   $HTTP_PORT       = $SD->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
@@ -245,10 +239,11 @@ if (isset($SD->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID'])) {
 $credentials = array('grant_type' => 'client_credentials',
                      'client_id'  => $ME_USER_NAME,
                      'client_secret' => $ME_PASSWORD);
-if($AUTH_TYPE == 'keystone'){
+
+if($AUTH_TYPE == 'keystone') {
 	$credentials = "{\"auth\": {\"identity\": {\"methods\": [\"password\"], \"password\": {\"user\": {\"domain\": {\"name\":";
-    $credentials .= "\"{$user_domain_id}\"},\"name\": \"{$ME_USER_NAME}\",\"password\": \"{$ME_PASSWORD}\"}}},";
-    $credentials .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
+  $credentials .= "\"{$user_domain_id}\"},\"name\": \"{$ME_USER_NAME}\",\"password\": \"{$ME_PASSWORD}\"}}},";
+   $credentials .= "\"scope\": {\"project\": {\"domain\": {\"name\": \"{$project_domain_id}\"}, \"id\": \"{$tenant_id}\"}}}}";
 }
 
 $token = get_token($SIGNIN_REQ_PATH, $credentials, $AUTH_TYPE);
