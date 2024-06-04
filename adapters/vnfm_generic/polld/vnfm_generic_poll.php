@@ -54,8 +54,10 @@ echo "getting header text: $headerText\n";
   }
 
   // ---------------------------------------------------------------------------
-  function get_token($SIGNIN_REQ_PATH, $data,$auth_mode)
+  function get_token($SIGNIN_REQ_PATH, $data, $auth_mode)
   {
+    debug_dump($auth_mode, "get_token() auth_mode\n");
+    debug_dump($data, "get_token() data\n");
     $http_data ="";
     if($auth_mode == 'oauth_v2'){
       $http_data = http_build_query($data);
