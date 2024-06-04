@@ -218,26 +218,26 @@ if (isset($SD_CONFIGVAR_list['PROTOCOL'])) {
   $PROTOCOL        = $SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE;
   echo("PROTOCOL : ".$PROTOCOL."\n");
 }
-if (isset($sd->SD_CONFIGVAR_list['HTTP_PORT'])) {
+if (isset($SD->SD_CONFIGVAR_list['HTTP_PORT'])) {
   $HTTP_PORT       = $SD->SD_CONFIGVAR_list['HTTP_PORT']->VAR_VALUE;
 }
-if (isset($sd->SD_CONFIGVAR_list['BASE_URL_MS'])) {
+if (isset($SD->SD_CONFIGVAR_list['BASE_URL_MS'])) {
   $BASE_URL_MS     = trim($SD->SD_CONFIGVAR_list['BASE_URL_MS']->VAR_VALUE, '/');
 }
-if (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
+if (isset($SD->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
   $SIGNIN_REQ_PATH = $SD->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
 }
-if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
+if (isset($SD->SD_CONFIGVAR_list['AUTH_MODE'])) {
   $AUTH_TYPE = $SD->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE;
   echo("AUTH_TYPE : ".$AUTH_TYPE."\n");
 }
-if (isset($sd->SD_CONFIGVAR_list['TENANT_ID'])) {
+if (isset($SD->SD_CONFIGVAR_list['TENANT_ID'])) {
   $tenant_id = $SD->SD_CONFIGVAR_list['TENANT_ID']->VAR_VALUE;
 }
-if (isset($sd->SD_CONFIGVAR_list['USER_DOMAIN_ID'])) {
+if (isset($SD->SD_CONFIGVAR_list['USER_DOMAIN_ID'])) {
   $user_domain_id = $SD->SD_CONFIGVAR_list['USER_DOMAIN_ID']->VAR_VALUE;
 }
-if (isset($sd->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID'])) {
+if (isset($SD->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID'])) {
   $project_domain_id = $SD->SD_CONFIGVAR_list['PROJECT_DOMAIN_ID']->VAR_VALUE;
 }
 
