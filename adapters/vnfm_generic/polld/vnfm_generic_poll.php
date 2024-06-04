@@ -88,7 +88,7 @@ echo "getting header text: $headerText\n";
     
     $ret = curl_exec($ch);
     $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    $header = substr($response, 0, $header_size);
+    $header = substr($ret, 0, $header_size);
 
     debug_dump($header, "get_token() header: \n");
     // sms_log_info(basename(__FILE__, '.php') . " polling $url with get_token() ret: $ret");
