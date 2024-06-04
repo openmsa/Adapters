@@ -114,7 +114,7 @@ echo "getting header text: $headerText\n";
     } else if ($auth_mode == 'keystone') {
       echo "===================================\n";
       curl_close($ch);
-      $nav=url_json_output($ret)->X-Subject-Token;
+      $nav=curl_json_output($ret)->X-Subject-Token;
       echo "papin: $nav \n";
       return $tok;
     }
