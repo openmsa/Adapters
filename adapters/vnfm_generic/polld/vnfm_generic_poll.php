@@ -4,6 +4,7 @@ require_once 'smsd/generic_connection.php';
 // Same script for nfvo and nfvm, differ only with following var:
 // for nfvo: 'vnfpkgm/api_versions'; for vnfm: 'vnflcm/api_versions'
 $health_path = 'vnflcm/api_versions';
+
 //----------------------------------------------
 function getHeaders($respHeaders) {
     $headers = array();
@@ -88,9 +89,9 @@ echo "getting header text: $headerText\n";
     
     $ret = curl_exec($ch);
     $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    $header = substr($ret, 0, $header_size);
-
-    debug_dump($header, "get_token() header: \n");
+    $header_raw = substr($ret, 0, $header_size);
+    $headers = getHeaders($header_raw);
+    debug_dump($headers, "get_token() headers: \n");
     // sms_log_info(basename(__FILE__, '.php') . " polling $url with get_token() ret: $ret");
     if (curl_errno($ch))
     {
