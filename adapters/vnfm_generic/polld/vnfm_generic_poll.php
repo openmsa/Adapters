@@ -221,6 +221,7 @@ if (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
 }
 if (isset($sd->SD_CONFIGVAR_list['AUTH_MODE'])) {
   $AUTH_TYPE = $SD->SD_CONFIGVAR_list['AUTH_MODE']->VAR_VALUE;
+  echo("AUTH_TYPE : ".$AUTH_TYPE."\n");
 }
 if (isset($sd->SD_CONFIGVAR_list['TENANT_ID'])) {
   $tenant_id = $SD->SD_CONFIGVAR_list['TENANT_ID']->VAR_VALUE;
