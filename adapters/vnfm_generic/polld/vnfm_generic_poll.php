@@ -190,7 +190,8 @@ $ME_PASSWORD  = $SD->SD_PASSWD_ENTRY;
 
 // the configuration vars
 $SD_CONFIGVAR_list = $SD->SD_CONFIGVAR_list;
-debug_dump($SD_CONFIGVAR_list, "SD_CONFIGVAR_list\n");
+echo("SD_CONFIGVAR_list\n");
+print_r($SD_CONFIGVAR_list);
 foreach ($SD_CONFIGVAR_list as $var)
 {
   debug_dump($var, "VAR\n");
