@@ -214,8 +214,8 @@ if (!empty($missing_conf_vars))
   return ERR_SD_NOT_CONFIGURED;
 }
 
-if (isset($sd->SD_CONFIGVAR_list['PROTOCOL'])) {
-  $PROTOCOL        = $SD->SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE;
+if (isset($SD_CONFIGVAR_list['PROTOCOL'])) {
+  $PROTOCOL        = $SD_CONFIGVAR_list['PROTOCOL']->VAR_VALUE;
   echo("PROTOCOL : ".$PROTOCOL."\n");
 }
 if (isset($sd->SD_CONFIGVAR_list['HTTP_PORT'])) {
