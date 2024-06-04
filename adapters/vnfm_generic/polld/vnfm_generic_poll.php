@@ -5,7 +5,6 @@ require_once 'smsd/generic_connection.php';
 // for nfvo: 'vnfpkgm/api_versions'; for vnfm: 'vnflcm/api_versions'
 $health_path = 'vnflcm/api_versions';
 
-//----------------------------------------------
 function getHeaders($respHeaders) {
     $headers = array();
 
@@ -22,11 +21,7 @@ function getHeaders($respHeaders) {
     return $headers;
 }
 
-
-
-  // ---------------------------------------------------------------------------
-  function curl_json_output($raw_output)
-  {
+function curl_json_output($raw_output)  {
     $json_ret = json_decode($raw_output);
     if (json_last_error() !== JSON_ERROR_NONE)
     {
@@ -51,9 +46,7 @@ function getHeaders($respHeaders) {
     return $json_ret;
   }
 
-  // ---------------------------------------------------------------------------
-  function get_token($SIGNIN_REQ_PATH, $data, $auth_mode)
-  {
+function get_token($SIGNIN_REQ_PATH, $data, $auth_mode) {
     debug_dump($auth_mode, "get_token() auth_mode\n");
     $http_data ="";
     if($auth_mode == 'oauth_v2') {
@@ -148,7 +141,7 @@ function getHeaders($respHeaders) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
     $ret = curl_exec($ch);
-    // sms_log_info(basename(__FILE__, '.php') . " polling: <$ME_IP> with ret: $ret");
+    sms_log_info(basename(__FILE__, '.php') . " polling: <$ME_IP> with ret: $ret");
 
     if (curl_errno($ch))
     {
