@@ -81,12 +81,16 @@ echo "getting header text: $headerText\n";
     curl_setopt($ch, CURLOPT_POSTFIELDS, $http_data);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     if($auth_mode == 'keystone'){
+      curl_setopt($ch, CURLOPT_VERBOSE, 1);
       curl_setopt($ch, CURLOPT_HEADER, true);
       curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
     }
     
     $ret = curl_exec($ch);
-    debug_dump($ret, "get_token() curl return\n");
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $header = substr($response, 0, $header_size);
+
+    debug_dump($header, "get_token() header: \n");
     // sms_log_info(basename(__FILE__, '.php') . " polling $url with get_token() ret: $ret");
     if (curl_errno($ch))
     {
