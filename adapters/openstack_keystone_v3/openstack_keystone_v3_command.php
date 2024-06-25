@@ -41,60 +41,53 @@ class openstack_keystone_v3_command extends generic_command
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
+      return $ret;
+    }
+
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      $parser_list = array();
+
+      foreach ($this->parser_list as $parser)
       {
-        return $ret;
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+  	    $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
+        foreach ($path_list as $xpth) {
+          $cmd = 'GET#' . trim($op_eval) . '#' . trim($xpth);
+          $parser_list[$cmd][] = $parser;
+        }
       }
 
-      if (!empty($this->parser_list))
+      foreach ($parser_list as $op_eval => $sub_parsers)
       {
-        $objects = array();
-        $parser_list = array();
+        // Run evaluated operation
+        $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
 
-        foreach ($this->parser_list as $parser)
+        foreach ($op_list as $op)
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-    	    $path_list = preg_split('@##@', $xpath_eval, 0, PREG_SPLIT_NO_EMPTY);
-          foreach ($path_list as $xpth) {
-            $cmd = 'GET#' . trim($op_eval) . '#' . trim($xpth);
-            $parser_list[$cmd][] = $parser;
-          }
-        }
 
-        foreach ($parser_list as $op_eval => $sub_parsers)
-        {
-          // Run evaluated operation
-          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-
-          foreach ($op_list as $op)
+          $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+          //debug_dump($sms_sd_ctx->get_raw_xml());
+          // Apply concerned parsers
+          foreach ($sub_parsers as $parser)
           {
-
-            $running_conf = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-            //debug_dump($sms_sd_ctx->get_raw_xml());
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
-            }
+            $parser->parse($running_conf, $objects);
           }
         }
-
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }
@@ -188,7 +181,6 @@ class openstack_keystone_v3_command extends generic_command
 
     foreach ($this->update_list as $update)
     {
-
       $endpoint_str = trim($update->evaluate_operation());
       $endpoints = explode("##", $endpoint_str);
       $xpath_str = trim($update->evaluate_xpath());
@@ -197,11 +189,9 @@ class openstack_keystone_v3_command extends generic_command
 
       $xml_conf_str = trim($update->evaluate_xml());
       $xml_conf_str = str_replace("\n", '', $xml_conf_str);
-
       $xml_configs = explode("##", $xml_conf_str);
       if (!empty($endpoint_str))
       {
-
         if (count($xpaths) != count($endpoints))
         {
           throw new SmsException("End points are not as many as Xpaths");
@@ -211,8 +201,8 @@ class openstack_keystone_v3_command extends generic_command
           $i = 0;
           foreach ($xml_configs as $xml_conf)
           {
-            if (!empty($xml_conf))
-            {
+//            if (!empty($xml_conf))
+  //          {
               $conf = $endpoints[$i];
               $conf .= '#' . $xpaths[$i];
               // separate data with '#'
@@ -220,7 +210,7 @@ class openstack_keystone_v3_command extends generic_command
 
               $this->configuration .= "{$conf}\n";
               $SMS_RETURN_BUF .= "{$conf}\n";
-            }
+    //        }
             $i += 1;
           }
         }

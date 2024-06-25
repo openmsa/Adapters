@@ -368,6 +368,8 @@ function extract_to_router($src, $dst, $sdid)
 function send_file_to_router($src, $dst)
 {
   global $is_local_file_server;
+  global $sms_sd_ctx;
+  $protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
   init_local_file_server();
 
@@ -375,6 +377,9 @@ function send_file_to_router($src, $dst)
 
   if (!$is_local_file_server)
   {
+    if ($protocol === 'SSH'){
+      $ret = scp_to_router($src, $dst);
+    }
     // copy the file to the ftp server if needed
     if (strpos($src, "{$_SERVER['TFTP_BASE']}/") !== 0)
     {
