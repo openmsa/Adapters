@@ -111,8 +111,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
             $kube_port          = $sd->SD_CONFIGVAR_list['KUBE_PORT']->VAR_VALUE;
         }
 
-        $delay = EXPECT_DELAY / 1000;
-
         $action           = explode("#", $cmd);
         $cmd_list = preg_split('@#@', $cmd, 0, PREG_SPLIT_NO_EMPTY);
 		debug_dump ( $cmd_list, "CMD_LIST\n" );
@@ -125,14 +123,14 @@ class KubernetesGenericRESTConnection extends GenericConnection
         }
 
         if (($action[1] == "") && ($kube_auth_method != "KUBERNETES" && $kube_auth_method != "EKS")) {
-            $action[2] = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
+            $url = $http_protocol . '://' . $this->sd_ip_config . ':5000' . $action[2];
         } else {
-            $action[2] = $kube_http_protocol . '://' . $this->sd_ip_config . ':' . $kube_port . '' . $action[2];
+            $url = $kube_http_protocol . '://' . $this->sd_ip_config . ':' . $kube_port . $action[2];
         }
 
-        $token = "";
+        $token = '';
         if (isset($this->key)) {
-            $token = "-H \"X-Auth-Token: {$this->key}\"";
+            $token = $this->key;
         }
 
         if (!empty($kube_token)) {
@@ -162,61 +160,76 @@ class KubernetesGenericRESTConnection extends GenericConnection
         }
 
         // TODO TEST validation ACTION[] fields
-        $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} {$token} -H \"Content-Type: application/json\" -k '{$action[2]}'";
+
+        $delay = EXPECT_DELAY / 1000;
+        $http_header = array();
+        $http_header[] = 'Content-Type: application/json';
+        // $curl_cmd is used for logs
         if ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS") {
-            $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} --header \"Authorization: Bearer {$token}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
+            $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} --header \"Authorization: Bearer {$token}\" -H \"Content-Type: application/json\" -k '{$url}'";
+            $http_header[] = "Authorization: Bearer {$token}";
+        } else {
+            $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} --header \"X-Auth-Token: {$token}\" -H \"Content-Type: application/json\" -k '{$url}'";
+            $http_header[] = "X-Auth-Token: {$token}";
         }
 
         if (isset($action[3]) && ($kube_auth_method == "KUBERNETES" || $kube_auth_method == "EKS")) {
             $curl_cmd .= " -d '{$action[3]}'";
+            $post_fields = $action[3];
         }
 
-        echo "{$cmd} for endPoint {$action[1]}\n";
+        echo "{$cmd} for endPoint {$url}\n";
 
-        $curl_cmd .= " && echo";
-        $ret = exec_local($origin, $curl_cmd, $output_array);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        switch($action[0]) {
+          case 'POST':
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+            break;
 
-        if ($ret !== SMS_OK) {
-            throw new SmsException("Call to API Failed", $ret);
+          case 'PUT':
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+            break;
+
+          case 'DELETE':
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+            break;
+
+          default:
+            // GET
+            break;
+        }
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_TLSv1_2);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $delay);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $delay);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $http_header);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $ret = curl_exec($ch);
+        if ($ret === false) {
+          throw new SmsException("Call to API [$curl_cmd] Failed", curl_error($ch));
         }
 
-        $result = '';
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $header_size = curl_getinfo($ch , CURLINFO_HEADER_SIZE);
+        $headers = substr($ret, 0, $header_size);
+        $response_headers = http_parse_headers($headers);
+        $response_body = substr($ret, $header_size);
 
-        foreach ($output_array as $line) {
-            if ($line !== 'SMS_OK') {
-                if (strpos($line, 'HTTP_CODE') !== 0) {
-                    $result .= "{$line}\n";
-                } else {
-                    if (strpos($line, 'HTTP_CODE=20') !== 0) {
-                        $cmd_quote  = str_replace("\"", "'", $result);
-                        $cmd_return = str_replace("\n", "", $cmd_quote);
-                        throw new SmsException("$origin: Call to API Failed = $line, $cmd_quote error", ERR_SD_CMDFAILED);
-                    }
-                }
-            }
+        if ($http_code >= 300) {
+          throw new SmsException("$origin: Call to API Failed = $line, $response_headers\n$response_body error", ERR_SD_CMDFAILED);
         }
-    //    $result                     = preg_replace("/: {\s+}/", ": {}", $result);
-    //    $result                     = preg_replace("/\"fieldsType\": \"FieldsV1\",\s+\"fieldsV1\":(.*)\s+/", "\"fieldsType\": \"FieldsV1\"", $result);
-    //   
-    //    $result                     = preg_replace('/xmlns="[^"]+"/', '', $result);
-        $result                     = rtrim($result);
-        $headers_and_response       = explode("\n\n", $result);
-        $headers_and_response_count = count($headers_and_response);
-        if ($headers_and_response_count > 1) {
-            $raw_headers      = $headers_and_response[0];
-            $response_body    = $headers_and_response[1];
-            $response_headers = http_parse_headers($raw_headers);
-           // debug_dump($response_headers, "response_headers:\n");
-            if (array_key_exists('Content-Type', $response_headers)) {
-                $this->content_type = $response_headers['Content-Type'];
-                unset($headers_and_response[0]);
-                $response_body = join("\n\n", $headers_and_response);
-            }
-            if (array_key_exists('X-Subject-Token', $response_headers)) {
-                $this->key = $response_headers['X-Subject-Token'];
-            }
-        } else {
-            $response_body = "";
+
+        if (array_key_exists('Content-Type', $response_headers)) {
+          $this->content_type = $response_headers['Content-Type'];
+        }
+        if (array_key_exists('X-Subject-Token', $response_headers)) {
+          $this->key = $response_headers['X-Subject-Token'];
         }
 
         if ($this->content_type == 'application/json') {
@@ -247,7 +260,7 @@ class KubernetesGenericRESTConnection extends GenericConnection
             $response    = new SimpleXMLElement($result);
         } else {
             if ($this->rest_json) {
-                throw new SmsException("$origin: Repsonse to API {$curl_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED);
+                throw new SmsException("$origin: Response to {$curl_cmd} Failed, expected json received $result", ERR_SD_CMDFAILED);
             }
             if (empty(trim($result))) {
                 $response = new SimpleXMLElement('<root></root>');
@@ -257,7 +270,6 @@ class KubernetesGenericRESTConnection extends GenericConnection
 
         $this->response = $response;
 
-        // FIN AJOUT
         debug_dump(($this->rest_json) ? $this->response : $this->response->asXML(), "DEVICE RESPONSE\n");
     }
 
