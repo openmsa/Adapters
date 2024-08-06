@@ -282,8 +282,9 @@ function scp_from_router($src, $dst)
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
   $sd_ip_addr = $sd->SD_IP_CONFIG;
+  $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_por", $output);
 
   $ret = cisco_isr_connect();
   if ($ret !== SMS_OK)

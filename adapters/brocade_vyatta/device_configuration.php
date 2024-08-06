@@ -193,7 +193,9 @@ class device_configuration
       $login = $this->sd->SD_LOGIN_ENTRY;
       $passwd = $this->sd->SD_PASSWD_ENTRY;
       $ip_addr = $this->sd->SD_IP_CONFIG;
-      $cmd = "/opt/sms/bin/sms_scp_transfer -s $full_name -d /tmp/$file_name  -l '$login' -a $ip_addr -p '$passwd'";
+      $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
+
+      $cmd = "/opt/sms/bin/sms_scp_transfer -s $full_name -d /tmp/$file_name  -l '$login' -a $ip_addr -p '$passwd -P $sd_mgt_port'";
       exec_local(__FILE__ . ':' . __LINE__, $cmd, $output_array);
 
       if ($ret === SMS_OK)
