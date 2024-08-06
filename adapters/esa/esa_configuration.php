@@ -116,10 +116,13 @@ class esa_configuration
     $ipaddr = $sms_sd_ctx->getIpAddress();
     $login = $sms_sd_ctx->getLogin();
     $passwd = $sms_sd_ctx->getPassword();
+    
+    $SD = &$network->SD;
+    $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
 
     try
     {
-      $ret = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd -r", $output);
+      $ret = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd -P $sd_mgt_port -r", $output);
       if ($ret != SMS_OK)
       {
         return '';

@@ -33,7 +33,11 @@ function func_reboot($msg = '')
 }
 
 function send_file($source, $destination, $ip, $login, $password){
-	$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -s $source -d $destination -l $login -a $ip -p '$password' -P 22", $output);
+ 
+        $SD = &$network->SD;
+        $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;    
+
+	$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -s $source -d $destination -l $login -a $ip -p '$password' -P $sd_mgt_port", $output);
 	if ($ret_scp !== SMS_OK){
 			return $ret_scp;
 	}
