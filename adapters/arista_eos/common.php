@@ -171,9 +171,9 @@ function scp_to_router($src, $dst)
 	$sd_ip_addr = $sd->SD_IP_CONFIG;
 	$login = $sd->SD_LOGIN_ENTRY;
 	$passwd = $sd->SD_PASSWD_ENTRY;
-	$mgt_port=$sd->SD_MANAGEMENT_PORT;
+	$sd_mgt_port=$sd->SD_MANAGEMENT_PORT;
 
-	$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $mgt_port", $output);
+	$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
 
 	sd_connect();
 
@@ -368,6 +368,8 @@ function extract_to_router($src, $dst, $sdid)
 function send_file_to_router($src, $dst)
 {
   global $is_local_file_server;
+  global $sms_sd_ctx;
+  $protocol = $sms_sd_ctx->getParam('PROTOCOL');
 
   init_local_file_server();
 
@@ -375,6 +377,9 @@ function send_file_to_router($src, $dst)
 
   if (!$is_local_file_server)
   {
+    if ($protocol === 'SSH'){
+      $ret = scp_to_router($src, $dst);
+    }
     // copy the file to the ftp server if needed
     if (strpos($src, "{$_SERVER['TFTP_BASE']}/") !== 0)
     {

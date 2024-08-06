@@ -170,9 +170,15 @@ class DeviceConnection extends GenericConnection {
 			// call array to xml conversion function
 			$xml = arrayToXml ($array, '<root></root>');
 		} else {
-                       if (empty(trim($result))) {
+            if (empty(trim($result))) {
 		        $result="<root></root>";
 		    }
+		    $result = str_replace('localProxyArNoHwFlood', 'localProxyArpNoHwFlood', $result);
+            $result = str_replace('<eerstats-items', '<peerstats-items', $result);
+            $result = str_replace('localroxyArpNoHwFlood', 'localProxyArpNoHwFlood', $result);
+            $result = str_replace('peerTye', 'peerType', $result);
+            $result = str_replace('autoCoy', 'autoCopy', $result);
+            $result = str_replace('su1', 'sup1', $result);
 			$xml = new SimpleXMLElement($result);
 		}
 		$this->xml_response = $xml; // new SimpleXMLElement($result);
