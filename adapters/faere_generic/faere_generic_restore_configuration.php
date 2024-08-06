@@ -86,9 +86,10 @@ class faere_generic_restore_configuration
 	$login = $this->sd->SD_LOGIN_ENTRY;
 	$password = $this->sd->SD_PASSWD_ENTRY;
 	$device_ip = $this->sd->SD_IP_CONFIG;
+	$sd_mgt_port = $this->sd->SD_MANAGEMENT_PORT;
 	$source = $full_name;
 	$destination = '/etc/dreddA/tdsconfig.json';
-	$ret = send_file($source, $destination, $device_ip, $login, $password);
+	$ret = send_file($source, $destination, $device_ip, $login, $password, $sd_mgt_port);
     return $ret;
   }
 

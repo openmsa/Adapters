@@ -162,6 +162,7 @@ class wsa_configuration
     $login = $sms_sd_ctx->getLogin();
     $passwd = $sms_sd_ctx->getPassword();
 
+    $network = get_network_profile();
     $SD = &$network->SD;
     $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
 

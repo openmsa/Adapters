@@ -149,7 +149,7 @@ function scp_to_router($src, $dst)
   $passwd = $sd->SD_PASSWD_ENTRY;
   $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk/$dst -l $login -a $sd_ip_addr -p '$passwd -P $sd_mgt_port' ", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk/$dst -l $login -a $sd_ip_addr -p '$passwd' -P $sd_mgt_port", $output);
 
   $ret = me_connect();
 

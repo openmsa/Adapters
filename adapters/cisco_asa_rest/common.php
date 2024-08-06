@@ -335,7 +335,7 @@ function scp_to_router($src, $dst)
   $sd_ip_addr = $sd->SD_IP_CONFIG;
   $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwdi -P $sd_mgt_port", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
 
   $ret = cisco_asa_rest_connect();
 

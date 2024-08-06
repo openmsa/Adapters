@@ -284,7 +284,7 @@ function scp_from_router($src, $dst)
   $sd_ip_addr = $sd->SD_IP_CONFIG;
   $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_por", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
 
   $ret = veex_rtu_connect();
   if ($ret !== SMS_OK)
@@ -364,7 +364,7 @@ function scp_to_router($src, $dst)
   $sd_ip_addr = $sd->SD_IP_CONFIG;
   $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_por", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
 
   $ret = veex_rtu_connect();
 
