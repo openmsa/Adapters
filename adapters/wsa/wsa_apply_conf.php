@@ -97,7 +97,9 @@ function wsa_apply_conf($configuration)
   $src = $local_file_name;
   $dst = "/configuration/config.xml";
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd", $output);
+  $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
+
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd -P $sd_mgt_port", $output);
   unlink($local_file_name);
 
   if ($ret_scp !== SMS_OK)

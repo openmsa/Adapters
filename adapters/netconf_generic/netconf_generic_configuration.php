@@ -112,9 +112,10 @@ class netconf_generic_configuration {
 
 		$ipaddr = $sms_sd_ctx->getIpAddress ();
 		$login = $sms_sd_ctx->getLogin ();
+                $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
 
 		try {
-			$ret_scp = exec_local ( __FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -v 2 -s $src -d $dst -l $login -a $ipaddr -p $SD->SD_PASSWD_ENTRY", $output );
+			$ret_scp = exec_local ( __FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -v 2 -s $src -d $dst -l $login -a $ipaddr -p $SD->SD_PASSWD_ENTRY -P $sd_mgt_port", $output );
 		} catch ( Exception | Error $e ) {
 			return $e->getMessage ();
 		}
