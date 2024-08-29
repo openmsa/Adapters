@@ -39,7 +39,7 @@ function create_flash_dir($path)
   global $sendexpect_result;
 
   $root = dirname($path);
-  sms_log_error(" PROMPT=".$sms_sd_ctx->getPrompt."; create_flash_dir path=". $path." root=".$root.";" );
+  sms_log_error(" PROMPT=".$sms_sd_ctx->getPrompt()."; create_flash_dir path=". $path." root=".$root.";" );
   if (($root !== '.')&&($root != '\/')&&($root != '/'))
   {
     // Create the dest directory
@@ -147,7 +147,7 @@ function scp_to_router($src, $dst)
   $login = $sd->SD_LOGIN_ENTRY;
   $passwd = $sd->SD_PASSWD_ENTRY;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk/$dst -l $login -a $sd_ip_addr -p '$passwd' ", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p '$passwd' ", $output);
 
   $ret = linux_generic_connect();
 
@@ -195,14 +195,14 @@ function check_file_size($local_file, $remote_file, $remove_remote_file = false)
   $orig_size = filesize($local_file);
   $size = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "stat -c %s $remote_file");
   sms_log_error(" Check_file_size remote_size=$size;");
-  list($dummy,$size,$dummy) = preg_split("/\n/",$size,3);
+  list($size,$dummy) = preg_split("/\n/",$size,2);
   $size = trim($size);
 
   if (! empty($size) )
   {
     if ($size != $orig_size)
     {
-      unlink($local_file);
+      //unlink($local_file);
       sms_log_error("transfering $remote_file failed: size $size found $orig_size awaited");
       throw new SmsException("transfering $remote_file failed: size $size found $orig_size awaited", ERR_SD_FILE_TRANSFER);
     }

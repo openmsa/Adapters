@@ -248,7 +248,7 @@ function deactivate_scp($login)
   global $sms_sd_ctx;
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
-  sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no ip scp server enable", "(config)#");
+  #hgu sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "no ip scp server enable", "(config)#");
   unset($tab);
   $tab[0] = '(config)#';
   $tab[1] = '[confirm]';

@@ -49,6 +49,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 {
   if ($need_sd_connection)
   {
+echo "nav -- connecting as it is needed\n";
     $ret = sd_connect(null, null, null);
   }
   else
