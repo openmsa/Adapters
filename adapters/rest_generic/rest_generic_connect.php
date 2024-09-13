@@ -252,7 +252,7 @@ class TokenConnection extends DeviceConnection {
 						$password_key => $this->sd_passwd_entry
 				);
 			}
-			
+
 			elseif($this->auth_mode == "data_token")
                         {
                                 $data = array (
@@ -261,7 +261,7 @@ class TokenConnection extends DeviceConnection {
                                                 $password_key => $this->sd_passwd_entry)
                                 );
                         }
-			
+
 			else
 			{
 				$data = array (
@@ -277,10 +277,10 @@ class TokenConnection extends DeviceConnection {
 
 			// extract token
 			if ($this->rest_json) {
-				if($this->auth_mode == ""){
-                                        $this->key = $this->response['data']['access_token'];
-                                }
-                                else { 
+				if($this->auth_mode == "data_token"){
+					$this->key = $this->response['data']['access_token'];
+				}
+				else {
 					$this->key = (string)($this->json_path->find($result, $this->token_jsonpath)[0]);
 				}
 			} else {
@@ -345,10 +345,8 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
   		$sms_sd_ctx->token_jsonpath = $token_jsonpath;
     	}
 
-		
-
 	if ($sms_sd_ctx->auth_mode == "token"
-                || $sms_sd_ctx->auth_mode == "data_token"
+		|| $sms_sd_ctx->auth_mode == "data_token"
 		|| $sms_sd_ctx->auth_mode == "auth-key"
 		|| $sms_sd_ctx->auth_mode == "oauth_v2"
 		|| $sms_sd_ctx->auth_mode == "jns_api_v2") {
