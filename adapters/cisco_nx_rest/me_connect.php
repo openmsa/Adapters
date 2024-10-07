@@ -30,7 +30,8 @@ class DeviceConnection extends GenericConnection {
 
 		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
 		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
-
+		$this->sdid = $SD->SDID;
+		
 	}
 
 	public function do_connect() {
@@ -122,14 +123,26 @@ class DeviceConnection extends GenericConnection {
 		if (count($cmd_list) >2 ) {
 			$rest_payload = $cmd_list[2];
 			$curl_cmd .= " -d ";
+			
+			$payload_file=tempnam("/opt/sms/spool/tmp/","payload_".$this->sdid."_");
+			file_put_contents($payload_file, $rest_payload);
+			$curl_cmd .= ' @'.$payload_file;
+
+			
 			$curl_cmd .= "'{$rest_payload}'";
 		}
 		$curl_cmd .= " && echo";
 
-		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd  );
+		$this->execute_curl_command ( $origin, $rest_cmd, $curl_cmd, $payload_file );
 	}
 
-	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd) {
+	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd, $payload_file="" ) {
+		
+		       if ( $payload_file !== '')
+               {
+                       unlink($payload_file);
+               }
+
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
                 if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed", $ret );
