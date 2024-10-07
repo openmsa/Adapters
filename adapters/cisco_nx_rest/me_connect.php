@@ -127,9 +127,7 @@ class DeviceConnection extends GenericConnection {
 			$payload_file=tempnam("/opt/sms/spool/tmp/","payload_".$this->sdid."_");
 			file_put_contents($payload_file, $rest_payload);
 			$curl_cmd .= ' @'.$payload_file;
-
-			
-			$curl_cmd .= "'{$rest_payload}'";
+	
 		}
 		$curl_cmd .= " && echo";
 
@@ -138,12 +136,15 @@ class DeviceConnection extends GenericConnection {
 
 	protected function execute_curl_command($origin, $rest_cmd, $curl_cmd, $payload_file="" ) {
 		
-		       if ( $payload_file !== '')
-               {
-                       unlink($payload_file);
-               }
+		
 
 		$ret = exec_local ( $origin, $curl_cmd, $output_array );
+		
+		if ( $payload_file !== '' && file_exists($payload_file) )
+                {
+                       unlink($payload_file);
+                }
+		
                 if ($ret !== SMS_OK) {
 			throw new SmsException ( "Call to API Failed", $ret );
 		}
