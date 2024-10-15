@@ -81,9 +81,10 @@ function citrix_netscalar_apply_restore_conf($configuration)
     file_put_contents($src, $str);
     
     $dst = "/nsconfig/config-from-msa.cfg";
+    $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
     
     
-    $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd", $output);
+    $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd -P $sd_mgt_port", $output);
     unlink($local_file_name);
     
     
