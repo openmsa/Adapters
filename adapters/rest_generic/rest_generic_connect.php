@@ -38,10 +38,10 @@ class DeviceConnection extends GenericConnection {
 		{
                 	$this->signin_req_basic = trim($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']->VAR_VALUE);
 		}
+		else
+		{
 			$this->signin_req_basic = "false";
 		}
-        }
-
 	}
 
 	public function do_connect() {
