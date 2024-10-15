@@ -19,6 +19,7 @@ class DeviceConnection extends GenericConnection {
 	public $aws_sigv4;
 	public $rest_json;
 	public $json_path;
+	public $signin_req_basic;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -33,7 +34,14 @@ class DeviceConnection extends GenericConnection {
 
 		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
 		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
-
+	   	if (isset($SD->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']))
+		{
+                	$this->signin_req_basic = trim($SD->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']->VAR_VALUE);
+		}
+		else
+		{
+			$this->signin_req_basic = "false";
+		}
 	}
 
 	public function do_connect() {
@@ -114,8 +122,8 @@ class DeviceConnection extends GenericConnection {
 	                echo("key= ".$this->key."\n");
 		}
 
-		if ($this->auth_mode == "BASIC") {
-			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		if ( $this->auth_mode == "BASIC" || ($this->signin_req_basic == "true" && !isset($this->key)) ) {
+			$auth = " -u '" . $this->sd_login_entry . ":" . $this->sd_passwd_entry . "'";
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "data_token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H} {$this->key}'";
@@ -124,8 +132,8 @@ class DeviceConnection extends GenericConnection {
 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
                         $H = trim($this->auth_header);
                         $headers .= " -H '{$H} {$this->key}'";
-		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key)){
-                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key) ){
+			$auth = " -u '" . $this->sd_login_entry . ":" . $this->sd_passwd_entry . "'";
 
                 }
 
@@ -270,7 +278,16 @@ class TokenConnection extends DeviceConnection {
 				);
 			}
 
-			$data = json_encode ( $data );
+
+			if  (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']))
+			{
+				$data =  "";
+			}
+			else
+			{
+				$data = json_encode ( $data );
+			}
+
 			$cmd = "POST#{$this->sign_in_req_path}#{$data}";
 			$result = $this->sendexpectone ( __FILE__ . ':' . __LINE__, $cmd );
 			debug_dump($this->rest_json ? $this->json_path : $this->token_xpath, "do_connect result: \n");
@@ -326,6 +343,7 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
                 $port_to_use = trim($sd->SD_CONFIGVAR_list['MANAGEMENT_PORT']->VAR_VALUE);
                 echo "rest_generic_connect: using management port: " . $port_to_use . "\n";
 	}
+
 
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, "", $port_to_use );
