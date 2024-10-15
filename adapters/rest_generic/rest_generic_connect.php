@@ -122,7 +122,7 @@ class DeviceConnection extends GenericConnection {
 	                echo("key= ".$this->key."\n");
 		}
 
-		if ( ($this->auth_mode == "BASIC" ||  $this->signin_req_basic == "true") && !isset($this->key)) {
+		if ( $this->auth_mode == "BASIC" || ($this->signin_req_basic == "true" && !isset($this->key)) ) {
 			$auth = " -u '" . $this->sd_login_entry . ":" . $this->sd_passwd_entry . "'";
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "data_token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
