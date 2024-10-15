@@ -34,9 +34,9 @@ class DeviceConnection extends GenericConnection {
 
 		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
 		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
-	   	if (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']))
+	   	if (isset($SD->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']))
 		{
-                	$this->signin_req_basic = trim($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']->VAR_VALUE);
+                	$this->signin_req_basic = trim($SD->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']->VAR_VALUE);
 		}
 		else
 		{
@@ -122,8 +122,8 @@ class DeviceConnection extends GenericConnection {
 	                echo("key= ".$this->key."\n");
 		}
 
-		if ($this->auth_mode == "BASIC") {
-			$auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		if ($this->auth_mode == "BASIC" ||  $this->signin_req_basic == "true" && !isset($this->key)) {
+			$auth = " -u '" . $this->sd_login_entry . ":" . $this->sd_passwd_entry . "'";
 		} else if (($this->auth_mode == "token" || $this->auth_mode == "data_token" || $this->auth_mode == "auth-key") && isset($this->key)) {
 			$H = trim($this->auth_header);
 			$headers .= " -H '{$H} {$this->key}'";
@@ -132,8 +132,8 @@ class DeviceConnection extends GenericConnection {
 		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && isset($this->key)) {
                         $H = trim($this->auth_header);
                         $headers .= " -H '{$H} {$this->key}'";
-		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key) && $this->signin_req_basic == "true"){
-                        $auth = " -u " . $this->sd_login_entry . ":" . $this->sd_passwd_entry;
+		} else if (($this->auth_mode == "oauth_v2" || $this->auth_mode == "jns_api_v2") && !isset($this->key) ){
+			$auth = " -u '" . $this->sd_login_entry . ":" . $this->sd_passwd_entry . "'";
 
                 }
 
