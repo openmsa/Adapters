@@ -34,6 +34,13 @@ class DeviceConnection extends GenericConnection {
 
 		$this->sd_management_port_fallback = $SD->SD_MANAGEMENT_PORT_FALLBACK;
 		$this->sd_conf_isipv6 = empty($SD->SD_CONF_ISIPV6 ) ? '' : $SD->SD_CONF_ISIPV6 ; // SD use IPV6
+	   	if (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']))
+		{
+                	$this->signin_req_basic = trim($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']->VAR_VALUE);
+		}
+			$this->signin_req_basic = "false";
+		}
+        }
 
 	}
 
@@ -271,7 +278,6 @@ class TokenConnection extends DeviceConnection {
 				);
 			}
 
-			$data = json_encode ( $data );
 
 			if  (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']))
 			{
@@ -338,9 +344,6 @@ function rest_generic_connect($sd_ip_addr = null, $login = null, $passwd = null,
                 echo "rest_generic_connect: using management port: " . $port_to_use . "\n";
 	}
 
-	if (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC'])) {
-                $signin_req_basic = trim($sd->SD_CONFIGVAR_list['SIGNIN_REQ_BASIC']->VAR_VALUE);
-	}
 
 	echo "rest_generic_connect: using connection class: " . $class . "\n";
 	$sms_sd_ctx = new $class ( $sd_ip_addr, $login, $passwd, "", $port_to_use );
