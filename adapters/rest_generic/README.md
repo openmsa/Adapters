@@ -42,6 +42,11 @@ Use this to set the API sign in request path. This is specific to the API.
 It's a mandatory configuration when AUTH_MODE is set to token, it will be ignored for the other modes
 * values: API specific, check the API documentation
 
+## SIGNIN_REQ_BASIC
+Use this to request to perform the API signin request call (cf. SIGNIN_REQ_PATH above) using basic authentication. 
+If it's set to  "true", the username and password will be set inline with the POST command ( -u username:password)  of the signing request, if not the username and password will be passed in the request payload ( -d {..} ).
+* Values : true or false. Equivalent to false if not set.
+
 ## TOKEN_XPATH
 The XPath to get the token from the authentication response.
 The Generic REST adapter will handle JSON response by transforming the JSON string into an XML string to allows the use of XPath. The root element of the generated XML will be set to <root>.
