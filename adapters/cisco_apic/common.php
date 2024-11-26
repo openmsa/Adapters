@@ -112,6 +112,8 @@ function create_policy($url, &$configuration) {
 	curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	$response = curl_exec ($ch);
 
+	curl_close($ch);
+
 	return $response ;
 }
 
@@ -131,6 +133,8 @@ function delete_policy($url, $policyId) {
 			));
 	curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	$response = curl_exec($ch);
+
+	curl_close($ch);
 
 	return $response ;
 }

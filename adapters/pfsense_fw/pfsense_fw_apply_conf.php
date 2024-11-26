@@ -98,7 +98,9 @@ debug_dump($configuration, 'CONFIG TO APPLY');
 
   $src = $local_file_name;
   $dst = "/cf/conf/config.xml";
- $scp_cmd="/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l root -p '".$passwd."'  -a $ipaddr";
+  $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
+
+ $scp_cmd="/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l root -p '".$passwd."'  -a $ipaddr -P $sd_mgt_port";
   $ret_scp = exec_local(__FILE__ . ':' . __LINE__, $scp_cmd, $output);
   unlink($local_file_name);
 

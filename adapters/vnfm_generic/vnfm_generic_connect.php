@@ -21,6 +21,7 @@ class Nfvo_connection extends GenericConnection
         // ------------------------------------------------------------------------------------------------
         public function do_connect()
         {
+                global $sms_sd_ctx;
                 //$this->endPointsURL = $endPointsURL_table[0];
                 //Adding Oauth2.0 implementation
                 $data = "";
@@ -38,7 +39,7 @@ echo "auth mode is oauth\n";
                                 throw new SmsException ( __FILE__ . ':' . __LINE__." missing value for config var SIGNIN_REQ_PATH" , ERR_SD_CMDFAILED);
                         }
                         $this->sign_in_req_path = $sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE;
-                        echo  "vnfm_generic_connect: setting SIGNIN_REQ_PATH to: {$sms_sd_ctx->sign_in_req_path}\n";
+                        echo  "vnfm_generic_connect: setting SIGNIN_REQ_PATH to: {$this->sign_in_req_path}\n";
                 }
                 if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
                         $token_xpath = trim($sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE);
