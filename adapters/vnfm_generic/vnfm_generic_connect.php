@@ -209,8 +209,13 @@ echo "auth mode is oauth\n";
                 debug_dump($action, "ACTION:\n");
                 $fragments = explode("/", $action);
                 debug_dump($fragments, "FRAGMENT:\n");
-                $fragment = $fragments[0];
-                return $fragment;
+                $fragment = $fragments[1];
+                if ($fragment == "vnflcm") {
+                       if ($sol003_version == "3.3.1") {
+                               return "2.0.0";  
+                       }
+                }
+                return "2.0.0";
         }
 
         // ------------------------------------------------------------------------------------------------
