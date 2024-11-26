@@ -206,13 +206,21 @@ echo "auth mode is oauth\n";
         }
 
         private function get_fragment_versions($action, $sol003_version) {
-                debug_dump($action, "ACTION:\n");
+                //debug_dump($action, "ACTION:\n");
                 $fragments = explode("/", $action);
-                debug_dump($fragments, "FRAGMENT:\n");
+                //debug_dump($fragments, "FRAGMENT:\n");
                 $fragment = $fragments[1];
                 if ($fragment == "vnflcm") {
                        if ($sol003_version == "3.3.1") {
-                               return "2.0.0";  
+                               return "2.0.0";
+                       } else if ($sol003_version == "3.5.1") {
+                                return "2.1.0";
+                       } else if ($sol003_version == "2.6.1") {
+                                return "1.3.0";
+                       } else if ($sol003_version == "2.7.1") {
+                               return "1.4.0";
+                       } else if ($sol003_version == "2.8.1") {
+                               return "1.5.0";
                        }
                 }
                 return "2.0.0";
