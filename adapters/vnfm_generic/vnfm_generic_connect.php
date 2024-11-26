@@ -117,7 +117,7 @@ echo "auth mode is oauth\n";
                 if (empty($sol003_api_version)) {
                         $sol003_api_version = '2.6.1';
                 }
-
+                echo "VNFM Sol003 API version: ".$sol003_api_version."\n";
                 $delay = EXPECT_DELAY / 1000;
 
                 $action = explode("#", $cmd);
