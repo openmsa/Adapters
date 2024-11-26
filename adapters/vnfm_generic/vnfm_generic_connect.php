@@ -124,13 +124,13 @@ echo "auth mode is oauth\n";
 
                 //Add if oauth
                 if($this->auth_mode == "oauth_v2" && !isset($this->key)){
-                        $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -k '{$action[1]}'";
+                        $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: $sol003_api_version\" -k '{$action[1]}'";
                         if (isset($action[2])) {
                                 $curl_cmd .= " -d '{$action[2]}'";
                         }
                 }else if($this->auth_mode == "oauth_v2" && isset($this->key)){
                         $H = trim("Authorization: Bearer");
-                        $headers = " -H '{$H} {$this->key}'";
+                        $headers = " -H '{$H} {$this->key}' -H 'Version: {$sol003_api_version}'";
                         $action[2]=preg_replace('/\/\//', '/', $action[2]);
                         $curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
                         if (isset($action[3])) {
