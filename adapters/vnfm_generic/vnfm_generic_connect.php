@@ -131,7 +131,7 @@ echo "auth mode is oauth\n";
                 } else if ($this->auth_mode == "oauth_v2" && isset($this->key)) {
                         $H = trim("Authorization: Bearer");
                         $action[2]=preg_replace('/\/\//', '/', $action[2]);
-                        $version = get_fragment_versions($action[2], $sol003_api_version);
+                        $version = $this->get_fragment_versions($action[2], $sol003_api_version);
                         $headers = " -H '{$H} {$this->key}' -H 'Version: {$version}'";
                         $curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
                         if (isset($action[3])) {
