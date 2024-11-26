@@ -95,7 +95,8 @@ echo "auth mode is oauth\n";
                 return $sendexpect_result;
         }
 
-        // ------------------------------------------------------------------------------------------------
+
+
         public function send($origin, $cmd)
         {
                 unset($this->xml_response);
@@ -130,7 +131,6 @@ echo "auth mode is oauth\n";
                 } else if ($this->auth_mode == "oauth_v2" && isset($this->key)) {
                         $H = trim("Authorization: Bearer");
                         $action[2]=preg_replace('/\/\//', '/', $action[2]);
-                        debug_dump($action[2], "ACTION:\n");
                         $version = get_fragment_versions($action[2], $sol003_api_version);
                         $headers = " -H '{$H} {$this->key}' -H 'Version: {$version}'";
                         $curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
@@ -203,6 +203,14 @@ echo "auth mode is oauth\n";
                 // FIN AJOUT
                 $this->raw_xml = $this->xml_response->asXML();
                 debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
+        }
+
+        private function get_fragment_versions($action, $sol003_version) {
+                debug_dump($action, "ACTION:\n");
+                $fragments = explode("/", $action);
+                debug_dump($fragments, "FRAGMENT:\n");
+                $fragment = $fragments[0];
+                return $fragment;
         }
 
         // ------------------------------------------------------------------------------------------------
