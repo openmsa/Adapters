@@ -44,6 +44,7 @@ switch ($sd->SD_CONFIGVAR_list['cloudService']->VAR_VALUE) {
     if (!empty($sd->SD_CONFIGVAR_list['cluster_ip'])) {
       $end_point = $sd->SD_CONFIGVAR_list['cluster_ip']->VAR_VALUE;
     }
+    break;
   case 'openstack':
     return SMS_OK;
   case 'vmware':
