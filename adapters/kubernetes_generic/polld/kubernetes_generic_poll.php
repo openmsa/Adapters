@@ -29,17 +29,21 @@ switch ($sd->SD_CONFIGVAR_list['cloudService']->VAR_VALUE) {
     }
     break;
   case 'kubernetes':
- 	  $end_point='';
-	  if (!empty($sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL'])) {
-		  $end_point = $sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL']->VAR_VALUE.'://';
-	  }
-	  if (!empty($sd->SD_CONFIGVAR_list['KUBE_SERVER_IP'])) {
-		  $end_point .= $sd->SD_CONFIGVAR_list['KUBE_SERVER_IP']->VAR_VALUE;
-	  }
-	  if (!empty($sd->SD_CONFIGVAR_list['KUBE_PORT'])) {
-		  $end_point .= ':'.$sd->SD_CONFIGVAR_list['KUBE_PORT']->VAR_VALUE;
-	  }
+    $end_point='';
+    if (!empty($sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL'])) {
+      $end_point = $sd->SD_CONFIGVAR_list['KUBE_HTTP_PROTOCOL']->VAR_VALUE.'://';
+    }
+    if (!empty($sd->SD_CONFIGVAR_list['KUBE_SERVER_IP'])) {
+      $end_point .= $sd->SD_CONFIGVAR_list['KUBE_SERVER_IP']->VAR_VALUE;
+    }
+    if (!empty($sd->SD_CONFIGVAR_list['KUBE_PORT'])) {
+      $end_point .= ':'.$sd->SD_CONFIGVAR_list['KUBE_PORT']->VAR_VALUE;
+    }
     break;
+  case 'kapsule':
+    if (!empty($sd->SD_CONFIGVAR_list['cluster_ip'])) {
+      $end_point = $sd->SD_CONFIGVAR_list['cluster_ip']->VAR_VALUE;
+    }
   case 'openstack':
     return SMS_OK;
   case 'vmware':
