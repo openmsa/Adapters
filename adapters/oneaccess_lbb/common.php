@@ -270,6 +270,7 @@ function scp_to_router($src, $dst)
 	$sd_ip_addr = $sd->SD_IP_CONFIG;
 	$login = $sd->SD_LOGIN_ENTRY;
 	$passwd = $sd->SD_PASSWD_ENTRY;
+        $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
 	/* //rename filename with smaller size - to scp file name should be less than 40 characters.
 
@@ -281,7 +282,7 @@ function scp_to_router($src, $dst)
 		$ret_move = exec_local(__FILE__ . ':' . __LINE__, "mv $src_file ONEOS.ZZZ", $output);
 	} */
 
-	$ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d /$dst -l $login -a $sd_ip_addr -p '$passwd'", $output);
+	$ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d /$dst -l $login -a $sd_ip_addr -p '$passwd' -P $sd_mgt_port", $output);
 
 	if ($ret_scp !== SMS_OK)
 	{
