@@ -95,7 +95,8 @@ echo "auth mode is oauth\n";
                 return $sendexpect_result;
         }
 
-        // ------------------------------------------------------------------------------------------------
+
+
         public function send($origin, $cmd)
         {
                 unset($this->xml_response);
@@ -117,28 +118,27 @@ echo "auth mode is oauth\n";
                 if (empty($sol003_api_version)) {
                         $sol003_api_version = '2.6.1';
                 }
-
+                echo "VNFM Sol003 API version: ".$sol003_api_version."\n";
                 $delay = EXPECT_DELAY / 1000;
 
                 $action = explode("#", $cmd);
-
                 //Add if oauth
-                if($this->auth_mode == "oauth_v2" && !isset($this->key)){
-                        $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: 2.6.1\" -k '{$action[1]}'";
+                if($this->auth_mode == "oauth_v2" && !isset($this->key)) {
+                        $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: $sol003_api_version\" -k '{$action[1]}'";
                         if (isset($action[2])) {
                                 $curl_cmd .= " -d '{$action[2]}'";
                         }
-                }else if($this->auth_mode == "oauth_v2" && isset($this->key)){
+                } else if ($this->auth_mode == "oauth_v2" && isset($this->key)) {
                         $H = trim("Authorization: Bearer");
-                        $headers = " -H '{$H} {$this->key}'";
                         $action[2]=preg_replace('/\/\//', '/', $action[2]);
+                        $version = $this->get_fragment_versions($action[2], $sol003_api_version);
+                        $headers = " -H '{$H} {$this->key}' -H 'Version: {$version}'";
                         $curl_cmd = "curl --tlsv1.2 -i" . " -X {$action[0]} -sw '\nHTTP_CODE=%{http_code}' {$headers} --connect-timeout {$delay} --max-time {$delay} -k '{$this->protocol}://{$this->sd_ip_config}:{$http_port}{$action[2]}'";
                         if (isset($action[3])) {
                                 $curl_cmd .= " -d '{$action[3]}'";
                         }
 
-                }
-                else{
+                } else {
                         // SI pas de endpoints, on prend keystone par defaut.
                         // if ($action[1] == "")
                         // {
@@ -146,7 +146,7 @@ echo "auth mode is oauth\n";
                         $action[2] = $this->protocol.'://' . $this->sd_ip_config . ':' . $http_port . $action[2];
                         // }
 
-                        // TODO TEST validité champ ACTION[]
+                        // TODO TEST valid ACTION[]
                         $curl_cmd = "curl --tlsv1.2 -i -sw '\nHTTP_CODE=%{http_code}' -u {$this->sd_login_entry}:{$this->sd_passwd_entry} --connect-timeout {$delay} --max-time {$delay} -X {$action[0]} -H \"Version: {$sol003_api_version}\" -H \"Content-Type: application/json\" -k '{$action[2]}'";
                         if (isset($action[3])) {
                                 $curl_cmd .= " -d '{$action[3]}'";
@@ -203,6 +203,27 @@ echo "auth mode is oauth\n";
                 // FIN AJOUT
                 $this->raw_xml = $this->xml_response->asXML();
                 debug_dump($this->raw_xml, "DEVICE RESPONSE\n");
+        }
+
+        private function get_fragment_versions($action, $sol003_version) {
+                //debug_dump($action, "ACTION:\n");
+                $fragments = explode("/", $action);
+                //debug_dump($fragments, "FRAGMENT:\n");
+                $fragment = $fragments[1];
+                if ($fragment == "vnflcm") {
+                       if ($sol003_version == "3.3.1") {
+                               return "2.0.0";
+                       } else if ($sol003_version == "3.5.1") {
+                                return "2.1.0";
+                       } else if ($sol003_version == "2.6.1") {
+                                return "1.3.0";
+                       } else if ($sol003_version == "2.7.1") {
+                               return "1.4.0";
+                       } else if ($sol003_version == "2.8.1") {
+                               return "1.5.0";
+                       }
+                }
+                return "2.0.0";
         }
 
         // ------------------------------------------------------------------------------------------------
