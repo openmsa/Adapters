@@ -44,67 +44,60 @@ class fortinet_jsonapi_command extends generic_command
 
     $data ="";
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+      return $ret;
+    }
 
-      if (!empty($this->parser_list))
-      {
-        $objects = array();
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
 
-        foreach ($this->parser_list as $parser)
+      foreach ($this->parser_list as $parser)
+      {
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
+        echo "Xpath_eval: " . $xpath_eval . "\n";
+
+        $cmd = trim($op_eval);
+
+        echo "Operation: " . $cmd . "\n";
+        echo "Xpath_eval: " . $xpath_eval . "\n";
+
+        if ($cmd == 'FAKE')
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $xpath_eval = $parser->evaluate_internal('IMPORT', 'xpath');
-          echo "Xpath_eval: " . $xpath_eval . "\n";
+          $result = arrayToXml(json_decode($xpath_eval, true));
+          debug_dump($result, "FAKE RESPONSE\n");
 
-          $cmd = trim($op_eval);
+          $running_conf = $result;
+        }
+        else
+        {
+          $params_url  = " \"url\" : \"$xpath_eval\" ";
+          $method      = " \"method\" : \"$cmd\" ";
+          $session     = $sms_sd_ctx->getSession();
+          $id          = posix_getpid();
 
-          echo "Operation: " . $cmd . "\n";
-          echo "Xpath_eval: " . $xpath_eval . "\n";
+          $data  = "{ {$method} , \"params\" : [ { {$params_url} } ], ";
+          $data .= " \"session\" : \"{$session}\" , ";
+          $data .= " \"id\" : {$id} }";
 
-          if ($cmd == 'FAKE')
-          {
-            $result = arrayToXml(json_decode($xpath_eval, true));
-            debug_dump($result, "FAKE RESPONSE\n");
-
-            $running_conf = $result;
-          }
-          else
-          {
-            $params_url  = " \"url\" : \"$xpath_eval\" ";
-            $method      = " \"method\" : \"$cmd\" ";
-            $session     = $sms_sd_ctx->getSession();
-            $id          = posix_getpid();
-
-            $data  = "{ {$method} , \"params\" : [ { {$params_url} } ], ";
-            $data .= " \"session\" : \"{$session}\" , ";
-            $data .= " \"id\" : {$id} }";
-
-            //$running_conf = $sms_sd_ctx->curl($cmd, $xpath_eval, null);
-            $running_conf = $sms_sd_ctx->curl('POST', '/jsonrpc/', $data);
-          }
-
-          $buffer = arrayToXml(json_decode($running_conf,true), '<api></api>');
-          $parser->parse($buffer, $objects);
+          //$running_conf = $sms_sd_ctx->curl($cmd, $xpath_eval, null);
+          $running_conf = $sms_sd_ctx->curl('POST', '/jsonrpc/', $data);
         }
 
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+        $buffer = arrayToXml(json_decode($running_conf,true), '<api></api>');
+        $parser->parse($buffer, $objects);
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }

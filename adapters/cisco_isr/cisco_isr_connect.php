@@ -131,6 +131,8 @@ class CiscoIsrsshConnection extends SshConnection
 		$tab[1] = '$';
 		$tab[2] = '>';
 		$result_id = $this->expect(__FILE__.':'.__LINE__, $tab);
+		$this->sendCmd(__FILE__.':'.__LINE__, "");
+                $result_id = $this->expect(__FILE__.':'.__LINE__, $tab);
 		if($result_id === 2) {
 			$this->sendCmd(__FILE__.':'.__LINE__, "en ");
 			$this->sendCmd(__FILE__.':'.__LINE__, "{$this->sd_admin_passwd_entry}");
