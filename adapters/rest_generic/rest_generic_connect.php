@@ -20,6 +20,7 @@ class DeviceConnection extends GenericConnection {
 	public $rest_json;
 	public $json_path;
 	public $signin_req_basic;
+	public $has_json;
 
 	public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
 	{
@@ -42,6 +43,7 @@ class DeviceConnection extends GenericConnection {
 		{
 			$this->signin_req_basic = "false";
 		}
+		$this->has_json = false;
 	}
 
 	public function do_connect() {
@@ -69,9 +71,7 @@ class DeviceConnection extends GenericConnection {
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
 		global $$global_result_name;
 
-        if (!isset($this->response)) {
-            throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
-        }
+          if (isset($this->response)) {
 		$index = 0;
 		if (empty ( $tab )) {
 		    $$global_result_name = $this->response;
@@ -91,6 +91,13 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
+	  } else {
+            if ($this->rest_json) {
+		    $$global_result_name = json_decode ('{}', true );
+	    } else {
+		    throw new SmsException ( "Empty response", ERR_SD_FAILED, $origin );
+	    }
+	  }
 	}
 	public function do_store_prompt() {
 	}
@@ -140,6 +147,9 @@ class DeviceConnection extends GenericConnection {
 		foreach($this->http_header_list as $header) {
 			$H = trim($header);
 			$headers .= " -H '{$H}'";
+			if ( (strpos($H, 'Content-Type:') !== false) && (preg_match('#application/[^\s]*json[^\s]*#', $H) == 1) )  {
+				$this->has_json = true;
+			}
 		}
 
 		if(isset($this->fqdn))
@@ -189,17 +199,17 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
-		if (strpos($curl_cmd, "Content-Type: application/json")) {
-	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+		if ( $this->has_json ) {
+	                $result = preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
 			}
 			if ($this->rest_json) {
-                $response = $array;
+                                $response = $array;
 			} else {
-                // call array to xml conversion function
-                $response = arrayToXml ($array, '<root></root>');
+                                // call array to xml conversion function
+                                $response = arrayToXml ($array, '<root></root>');
 			}
 		} else {
 		    if ($this->rest_json) {
