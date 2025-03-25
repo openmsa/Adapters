@@ -150,6 +150,7 @@ class DeviceConnection extends GenericConnection {
 			if ( (strpos($H, 'Content-Type:') !== false) && (preg_match('#application/[^\s]*json[^\s]*#', $H) == 1) )  {
 				$this->has_json = true;
 			}
+		}
 
 		if(isset($this->fqdn))
 		{
