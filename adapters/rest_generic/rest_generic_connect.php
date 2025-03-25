@@ -69,9 +69,7 @@ class DeviceConnection extends GenericConnection {
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
 		global $$global_result_name;
 
-        if (!isset($this->response)) {
-            throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
-        }
+        if (isset($this->response)) {
 		$index = 0;
 		if (empty ( $tab )) {
 		    $$global_result_name = $this->response;
