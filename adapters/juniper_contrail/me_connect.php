@@ -58,8 +58,8 @@ class MeConnection extends GenericConnection {
       $auth_array['auth']['scope'] = array();
 //      $auth_array['auth']['scope']['project'] = array();
       if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_DOMAIN_NAME'])) {
-        $auth_array['auth']['scope']['domain'] = array();
-        $auth_array['auth']['scope']['domain']['name'] = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_DOMAIN_NAME']->VAR_VALUE);
+        $auth_array['auth']['scope']['project']['domain'] = array();
+        $auth_array['auth']['scope']['project']['domain']['name'] = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_DOMAIN_NAME']->VAR_VALUE);
       }
       if (isset($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_NAME'])) {
         $auth_array['auth']['scope']['project']['name'] = trim($sd->SD_CONFIGVAR_list['KEYSTONE_PROJECT_NAME']->VAR_VALUE);
@@ -70,8 +70,9 @@ class MeConnection extends GenericConnection {
 
     // WARNING : Do not call $this->send() because it uses credentials of the Contrail
     // while we have to use the ones of the Keystone
-	echo "nav: $payload\n";
-	echo "nav: $keystone_url\n";
+    echo "Keystone_url: ", $keystone_url;
+    echo "\nPayload: ", $payload;
+
     $this->execute_curl_command(__FILE__ . ':' . __LINE__, 'get_token', 'POST', $keystone_url, $payload);
 
     if (preg_match('/X-Subject-Token:\s+(.*)$/m', $this->header, $matches) != 1) {
