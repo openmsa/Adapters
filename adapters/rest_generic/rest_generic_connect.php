@@ -69,7 +69,7 @@ class DeviceConnection extends GenericConnection {
 	public function expect($origin, $tab, $delay = EXPECT_DELAY, $display_error = true, $global_result_name = 'sendexpect_result') {
 		global $$global_result_name;
 
-        if (isset($this->response)) {
+          if (isset($this->response)) {
 		$index = 0;
 		if (empty ( $tab )) {
 		    $$global_result_name = $this->response;
@@ -89,6 +89,7 @@ class DeviceConnection extends GenericConnection {
 		}
 
 		throw new SmsException ( "cmd timeout, $tab[0] not found", ERR_SD_CMDTMOUT, $origin );
+	  }
 	}
 	public function do_store_prompt() {
 	}
