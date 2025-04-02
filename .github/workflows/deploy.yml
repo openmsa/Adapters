@@ -9,7 +9,7 @@ on:
       - master
 
 env:
-  CONTAINER_NAME: ubiqube/cld-adapter-installer
+  CONTAINER_NAME: ubiqube/msa2-adapters
 
 jobs:
   build-and-publish:
