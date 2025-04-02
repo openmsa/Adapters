@@ -1,0 +1,74 @@
+name: 🚀 Deploy
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  CONTAINER_NAME: ubiqube/cld-adapter-installer
+
+jobs:
+  build-and-publish:
+    name: Build and Publish Docker Image
+    runs-on: ubuntu-latest #self-hosted
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: "${{ env.CONTAINER_NAME }}"
+          tags: |
+            type=sha,format=long
+            latest
+
+      - name: Build Docker image and publish to Docker Hub
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          provenance: mode=max
+          sbom: true
+          tags: "${{ steps.meta.outputs.tags }}"
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Notify msa-docker repo about updated ${{ env.CONTAINER_NAME }} Docker image
+        uses: benc-uk/workflow-dispatch@v1
+        if: github.event_name != 'pull_request'
+        with:
+          token: ${{ secrets.MSA_DOCKER_REPO_ACCESS_TOKEN }}
+          ref: ${{ github.ref_name || 'master' }}
+          repo: ubiqube/msa-docker
+          workflow: create-pr.yml
+          inputs: |-
+            {
+              "image_name": "${{ env.CONTAINER_NAME }}",
+              "image_tag": "sha-${{ github.sha }}",
+              "latest_commit_message": "${{ env.LATEST_COMMIT_MESSAGE }}",
+              "team_reviewers": "${{ env.REVIEWERS }}",
+              "branch_name": "${{ github.ref_name }}"
+            }
+
