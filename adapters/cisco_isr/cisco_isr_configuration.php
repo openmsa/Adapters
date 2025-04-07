@@ -22,6 +22,7 @@ class cisco_isr_configuration
   var $addon_list; // List of managed addon cards
   var $fmc_repo; // repository path without trailing /
   var $sd;
+  var $conf_pflid;
 
   // ------------------------------------------------------------------------------------------------
   /**
