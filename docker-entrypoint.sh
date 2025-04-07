@@ -20,7 +20,7 @@ then
 fi
 cd / || exit 1
 
-if [[ -f /opt/devops/OpenMSA_Adapters/.adapter-dev ]]; then
+if [[ -f /opt/devops/OpenMSA_Adapters/.devops ]]; then
 	log_info "👾 Skipping upgrade for fellow developer."
 	exit 0
 fi

@@ -27,6 +27,10 @@ Adapters provide the glue code to interface with managed devices.
 Details on how to get started with Adapters are available
 in the [doc](../master/doc/Getting_started_with_Adaptors.md).
 
+For DevOps
+----------
+
+Create `/opt/devops/OpenMSA_Adapters/.devops` This will disable the automatic update.
 
 Contributing
 ------------
