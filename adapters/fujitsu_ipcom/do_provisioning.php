@@ -19,7 +19,6 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('fujitsu_ipcom', 'adaptor.php');
-require_once load_once('fujitsu_ipcom', 'common.php');
 require_once load_once('fujitsu_ipcom', 'fujitsu_ipcom_configuration.php');
 require_once load_once('fujitsu_ipcom', 'provisioning_stages.php');
 require_once "$db_objects";

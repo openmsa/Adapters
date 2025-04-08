@@ -218,22 +218,11 @@ function create_flash_dir($path, $dst_disk)
   return SMS_OK;
 }
 
-function activate_scp($login, $passwd = "")
+function activate_scp($login)
 {
   global $sms_sd_ctx;
 
-  if(empty($passwd))
-  {
-  	$passwd = "Xy" . mt_rand(10000, 99999) . "Y";
-  }
-  else {
-  	$ret = exec_local(__FILE__ . ':' . __LINE__, "/opt/configurator/script/encp.sh -c '$passwd'", $output);
-  	if ($ret !== SMS_OK)
-  	{
-  		return false;
-  	}
-  	$passwd = substr(trim($output[0]), 0, 10);
-  }
+  $passwd = "Xy" . mt_rand(10000, 99999) . "Y";
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "aaa authorization exec default local", "(config)#");
@@ -266,16 +255,12 @@ function scp_from_router($src, $dst)
   global $status_message;
 
   $login = $_SERVER['SCP_USERNAME'];
-  $passwd = $_SERVER['SCP_PASSWORD'];
 
-  if (!empty($login) || !empty($passwd))
+  if (empty($login))
   {
-  	$passwd = activate_scp($login, $passwd);
-  }
-  else{
   	$login = "NCO-SCP";
-  	$passwd = activate_scp($login);
   }
+  $passwd = activate_scp($login);
 
   cisco_isr_disconnect(true);
 
@@ -346,16 +331,12 @@ function scp_to_router($src, $dst)
   }
 
   $login = $_SERVER['SCP_USERNAME'];
-  $passwd = $_SERVER['SCP_PASSWORD'];
 
-  if (!empty($login) || !empty($passwd))
+  if (empty($login))
   {
-  	$passwd = activate_scp($login, $passwd);
-  }
-  else{
   	$login = "NCO-SCP";
-  	$passwd = activate_scp($login);
   }
+  $passwd = activate_scp($login);
 
   cisco_isr_disconnect();
 
