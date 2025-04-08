@@ -136,9 +136,12 @@ function scp_to_router($src, $dst)
   $sd_ip_addr = $sd->SD_IP_CONFIG;
   $login = $sd->SD_LOGIN_ENTRY;
   $passwd = $sd->SD_PASSWD_ENTRY;
-  $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
+  $port_to_use = "22";
+  if (isset($sd->SD_CONFIGVAR_list['SSH_PORT'])) {
+     $port_to_use = $sd->SD_CONFIGVAR_list['SSH_PORT']->VAR_VALUE;
+  }
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $port_to_use", $output);
 
   $ret = me_cli_connect();
 
