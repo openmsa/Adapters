@@ -12,7 +12,6 @@
 // Transfer the configuration file on the router
 // First try to use SCP then TFTP
 require_once 'smsd/sms_common.php';
-require_once load_once('fujitsu_ipcom', 'common.php');
 require_once load_once('fujitsu_ipcom', 'apply_errors.php');
 require_once load_once('fujitsu_ipcom', 'fujitsu_ipcom_configuration.php');
 
