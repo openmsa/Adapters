@@ -36,65 +36,58 @@ class mikrotik_generic_command extends generic_command
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
-      {
-        return $ret;
-      }
+      return $ret;
+    }
 
-      if (!empty($this->parser_list))
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      // One operation groups several parsers
+      foreach ($this->parser_list as $operation => $parsers)
       {
-        $objects = array();
-        // One operation groups several parsers
-        foreach ($this->parser_list as $operation => $parsers)
+        $sub_list = array();
+        foreach ($parsers as $parser)
         {
-          $sub_list = array();
-          foreach ($parsers as $parser)
-          {
-            $op_eval = $parser->eval_operation();
-            // Group parsers into evaluated operations
-            $sub_list["$op_eval"][] = $parser;
-          }
-
-          foreach ($sub_list as $op_eval => $sub_parsers)
-          {
-            // Run evaluated operation
-            $running_conf = '';
-            $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
-            foreach ($op_list as $op)
-            {
-              if (strpos($op, 'echo ') === 0)
-              {
-                $running_conf .= str_replace('echo ', '', $op);
-              }
-              else
-              {
-                //$running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op, " # ");
-                $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
-              }
-            }
-            // Apply concerned parsers
-            foreach ($sub_parsers as $parser)
-            {
-              $parser->parse($running_conf, $objects);
-            }
-          }
+          $op_eval = $parser->eval_operation();
+          // Group parsers into evaluated operations
+          $sub_list["$op_eval"][] = $parser;
         }
 
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
+        foreach ($sub_list as $op_eval => $sub_parsers)
+        {
+          // Run evaluated operation
+          $running_conf = '';
+          $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
+          foreach ($op_list as $op)
+          {
+            if (strpos($op, 'echo ') === 0)
+            {
+              $running_conf .= str_replace('echo ', '', $op);
+            }
+            else
+            {
+              //$running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op, " # ");
+              $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+            }
+          }
+          // Apply concerned parsers
+          foreach ($sub_parsers as $parser)
+          {
+            $parser->parse($running_conf, $objects);
+          }
+        }
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }

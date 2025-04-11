@@ -479,7 +479,7 @@ class AristaEosConfiguration
     $firmware_size = filesize($firmware_file);
 
     // Check size
-    $line = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "show flash: | inc total");
+    $line = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "dir flash:");
     if ($line !== false)
     {
       if (preg_match('/(?<mem>\d+)( bytes)? free/', $line, $matches) > 0)
@@ -495,15 +495,7 @@ class AristaEosConfiguration
     }
 
     status_progress('Transfering firmware file (TFTP)', 'FIRMWARE');
-    // Transfer firmware with tftp
-    if ($is_local_file_server)
-    {
-      $src = $repo_file;
-    }
-    else
-    {
-      $src = $firmware_file;
-    }
+    $src = $firmware_file;
     $dst = basename($firmware_file);
     $ret = send_file_to_router($src, $dst);
     if ($ret !== SMS_OK)

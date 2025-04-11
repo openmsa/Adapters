@@ -149,10 +149,11 @@ class juniper_srx_configuration
 
     $ipaddr = $sms_sd_ctx->getIpAddress();
     $login = $sms_sd_ctx->getLogin();
+    $sd_mgt_port = $SD->SD_MANAGEMENT_PORT;
 
     try
     {
-      $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $SD->SD_PASSWD_ENTRY", $output);
+      $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $SD->SD_PASSWD_ENTRY -P $sd_mgt_port", $output);
     }
     catch (Exception | Error $e)
     {
@@ -408,10 +409,14 @@ class juniper_srx_configuration
     $ipaddr = $sms_sd_ctx->getIpAddress();
     $login = $sms_sd_ctx->getLogin();
     $passwd = $sms_sd_ctx->getPassword();
+    
+    $network= get_network_profile();
+    $SD = &$network->SD;
+    $sd_mgt_port = $SD->SD_MANAGEMENT_PORT; 
 
     try
     {
-      $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd", $output);
+      $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst -l $login -a $ipaddr -p $passwd -P $sd_mgt_port", $output);
     }
     catch (Exception | Error $e)
     {

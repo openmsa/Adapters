@@ -218,22 +218,11 @@ function create_flash_dir($path, $dst_disk)
   return SMS_OK;
 }
 
-function activate_scp($login, $passwd = "")
+function activate_scp($login)
 {
   global $sms_sd_ctx;
 
-  if(empty($passwd))
-  {
-  	$passwd = "Xy" . mt_rand(10000, 99999) . "Y";
-  }
-  else {
-  	$ret = exec_local(__FILE__ . ':' . __LINE__, "/opt/configurator/script/encp.sh '$passwd'", $output);
-  	if ($ret !== SMS_OK)
-  	{
-  		return false;
-  	}
-  	$passwd = trim($output[0]);
-  }
+  $passwd = "Xy" . mt_rand(10000, 99999) . "Y";
 
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "conf t", "(config)#");
   sendexpectnobuffer(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "aaa authorization exec default local", "(config)#");
@@ -266,24 +255,21 @@ function scp_from_router($src, $dst)
   global $status_message;
 
   $login = $_SERVER['SCP_USERNAME'];
-  $passwd = $_SERVER['SCP_PASSWORD'];
 
-  if (!empty($login) || !empty($passwd))
+  if (empty($login))
   {
-  	$passwd = activate_scp($login, $passwd);
-  }
-  else{
   	$login = "NCO-SCP";
-  	$passwd = activate_scp($login);
   }
+  $passwd = activate_scp($login);
 
   cisco_nexus9000_disconnect(true);
 
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
   $sd_ip_addr = $sd->SD_IP_CONFIG;
+  $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $src -d $dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
 
   $ret = cisco_nexus9000_connect();
   if ($ret !== SMS_OK)
@@ -345,24 +331,21 @@ function scp_to_router($src, $dst)
   }
 
   $login = $_SERVER['SCP_USERNAME'];
-  $passwd = $_SERVER['SCP_PASSWORD'];
 
-  if (!empty($login) || !empty($passwd))
+  if (empty($login))
   {
-  	$passwd = activate_scp($login, $passwd);
-  }
-  else{
   	$login = "NCO-SCP";
-  	$passwd = activate_scp($login);
   }
+  $passwd = activate_scp($login);
 
   cisco_nexus9000_disconnect();
 
   $net_profile = get_network_profile();
   $sd = &$net_profile->SD;
   $sd_ip_addr = $sd->SD_IP_CONFIG;
+  $sd_mgt_port = $sd->SD_MANAGEMENT_PORT;
 
-  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd", $output);
+  $ret_scp = exec_local(__FILE__ . ':' . __LINE__, "/opt/sms/bin/sms_scp_transfer -s $src -d $dst_disk:/$dst -l $login -a $sd_ip_addr -p $passwd -P $sd_mgt_port", $output);
 
   $ret = cisco_nexus9000_connect();
 

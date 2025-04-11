@@ -45,61 +45,54 @@ class netconf_generic_command extends generic_command
     global $SMS_RETURN_BUF;
     global $sdid;
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
+      return $ret;
+    }
+
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      $parser_list = array();
+
+      foreach ($this->parser_list as $parser)
       {
-        return $ret;
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $cmd = $op_eval;
+        // Group parsers into evaluated operations
+        $parser_list[$cmd][] = $parser;
       }
 
-      if (!empty($this->parser_list))
+      foreach ($parser_list as $sub_parsers)
       {
-        $objects = array();
-        $parser_list = array();
+        // Run evaluated operation
+        // Get the conf on the router
+		  $conf = new netconf_generic_configuration($sdid);
+		  $running_conf = $conf->get_running_conf();
 
-        foreach ($this->parser_list as $parser)
+		  //$running_conf = preg_replace('/(<rpc-reply+.*|<\/rpc-reply>)/', '', $running_conf);
+		  //$running_conf = preg_replace('/(<data>|<\/data>)/', '', $running_conf);
+		  //$running_conf = preg_replace('/<configuration+.*/', '<configuration>', $running_conf);
+		  //$running_conf = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $running_conf);
+		  $running_conf = preg_replace('/xmlns="[^"]+"/', '', $running_conf);
+
+		  $XMLConfig = new SimpleXMLElement($running_conf);
+
+        // Apply concerned parsers
+        foreach ($sub_parsers as $parser)
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $cmd = $op_eval;
-          // Group parsers into evaluated operations
-          $parser_list[$cmd][] = $parser;
+          $parser->parse($XMLConfig, $objects);
         }
-
-        foreach ($parser_list as $sub_parsers)
-        {
-          // Run evaluated operation
-          // Get the conf on the router
-  		  $conf = new netconf_generic_configuration($sdid);
-  		  $running_conf = $conf->get_running_conf();
-
-  		  //$running_conf = preg_replace('/(<rpc-reply+.*|<\/rpc-reply>)/', '', $running_conf);
-  		  //$running_conf = preg_replace('/(<data>|<\/data>)/', '', $running_conf);
-  		  //$running_conf = preg_replace('/<configuration+.*/', '<configuration>', $running_conf);
-  		  //$running_conf = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $running_conf);
-  		  $running_conf = preg_replace('/xmlns="[^"]+"/', '', $running_conf);
-
-  		  $XMLConfig = new SimpleXMLElement($running_conf);
-
-          // Apply concerned parsers
-          foreach ($sub_parsers as $parser)
-          {
-            $parser->parse($XMLConfig, $objects);
-          }
-        }
-
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }
