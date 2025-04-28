@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - release/*
 
 env:
   CONTAINER_NAME: ubiqube/msa2-adapters
