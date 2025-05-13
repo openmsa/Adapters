@@ -15,8 +15,8 @@
 // Enter Script description here
 
 require_once 'smsd/sms_common.php';
-require_once load_once('rest_generic', 'rest_generic_connect.php');
-require_once load_once('rest_generic', 'rest_generic_configuration.php');
+require_once load_once('paloalto_prisma', 'connect.php');
+require_once load_once('paloalto_prisma', 'configuration.php');
 
 try
 {
@@ -35,14 +35,7 @@ try
   sms_close_user_socket($sms_csp);
   // Asynchronous mode, the user socket is now closed, the results are written in database
 
-  $ret = rest_generic_connect();
-
-  if ($ret != SMS_OK)
-  {
-  	throw new SmsException("", ERR_SD_CONNREFUSED);
-  }
-
-  $conf = new rest_generic_configuration($sdid);
+  $conf = new configuration($sdid);
 
   $ret = $conf->update_conf();
   if ($ret !== SMS_OK)
@@ -52,13 +45,11 @@ try
 
   sms_set_update_status($sms_csp, $sdid, SMS_OK, $status_type, 'ENDED', '');
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  rest_generic_disconnect();
 }
 catch (Exception $e)
 {
   sms_set_update_status($sms_csp, $sdid, $e->getCode(), $status_type, 'FAILED', $e->getMessage());
   sms_sd_unlock($sms_csp, $sms_sd_info);
-  rest_generic_disconnect();
 }
 
 return SMS_OK;
