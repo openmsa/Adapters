@@ -1,15 +1,12 @@
 <?php
 
 require_once 'smsd/sms_common.php';
-require_once load_once('rest_generic', 'rest_generic_connect.php');
-
-require_once "$db_objects";
+require_once load_once('paloalto_prisma', 'connect.php');
 
 try
 {
-
-  rest_generic_connect();
-  rest_generic_disconnect();
+  connect();
+  disconnect();
   return SMS_OK;
 }
 catch (Exception | Error $e)
