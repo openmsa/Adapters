@@ -1,5 +1,7 @@
 <?php
 
+require_once load_once('paloalto_prisma', 'connect.php');
+
 // -------------------------------------------------------------------------------------
 // INITIAL CONNECTION
 // -------------------------------------------------------------------------------------
@@ -9,8 +11,8 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
   global $login;
   global $passwd;
 
-  rest_generic_connect($ipaddr, $login, $passwd);
-  rest_generic_disconnect();
+  connect($ipaddr, $login, $passwd);
+  disconnect();
 
   return SMS_OK;
 }

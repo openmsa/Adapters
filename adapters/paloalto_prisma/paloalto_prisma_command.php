@@ -10,9 +10,9 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/generic_command.php';
 
-require_once load_once ( 'rest_generic', 'adaptor.php' );
+require_once load_once ('paloalto_prisma', 'adaptor.php');
 
-class rest_generic_command extends generic_command {
+class paloalto_prisma_command extends generic_command {
 
 	function __construct() {
 	  parent::__construct ();
