@@ -294,11 +294,28 @@ class connect extends GenericConnection {
   }
 }
 
+class sdwan_connect extends connect {
+
+  public function do_connect() {
+
+    parent::do_connect();
+    $cmd = 'GET#/sdwan/v2.1/api/profile';
+    $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
+  }
+}
+
 // return false if error, true if ok
 function connect($sd_ip_addr = null, $login = null, $passwd = null, $port_to_use = null) {
   global $sms_sd_ctx;
+  global $model_data;
 
-  $sms_sd_ctx = new connect($sd_ip_addr, $login, $passwd, $port_to_use);
+  $specific_data = json_decode($model_data, true);
+  if (isset($specific_data['class'])) {
+    $class = $specific_data['class'];
+  } else {
+    $class = 'connect';
+  }
+  $sms_sd_ctx = new $class($sd_ip_addr, $login, $passwd, $port_to_use);
   try
   {
     $sms_sd_ctx->do_connect();
