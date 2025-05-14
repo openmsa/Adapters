@@ -218,14 +218,14 @@ class connect extends GenericConnection {
       }
     }
 
+    $curl_cmd = "curl -X {$http_op} -sw 'HTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$url}'";
+
     if (count($cmd_list) > 2) {
       $rest_payload = $cmd_list[2];
       $curl_cmd .= " -d '{$rest_payload}'";
     } else {
       $rest_payload = '';
     }
-
-    $curl_cmd = "curl -X {$http_op} -sw 'HTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$url}'";
 
     $this->execute_curl_command($origin, $http_op, $url, $rest_payload, $curl_cmd);
   }
