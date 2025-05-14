@@ -21,7 +21,6 @@ class connect extends GenericConnection {
   private $sd_hostname;
   private $sign_in_req_path;
   private $token_jsonpath;
-  private $token_xpath;
   private $tsg_id;
 
   public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
@@ -87,7 +86,6 @@ class connect extends GenericConnection {
     echo "connect: setting HTTP protocol to: {$this->protocol}\n";
 
     $this->response = null;
-    $this->sd_admin_passwd_entry = empty($admin_password) ? $sd->SD_PASSWD_ADM : $admin_password;
     $this->sd_hostname = empty($sd->SD_HOSTNAME) ? 'api.strata.paloaltonetworks.com' : $sd->SD_HOSTNAME;
     $this->sd_ip_config = empty($ip) ? $sd->SD_IP_CONFIG : $ip;
     $this->sd_login_entry = empty($login) ? $sd->SD_LOGIN_ENTRY : $login;
@@ -115,13 +113,6 @@ class connect extends GenericConnection {
     }
     echo "connect: setting TOKEN_JSONPATH to: {$this->token_jsonpath}\n";
 
-    if (isset($sd->SD_CONFIGVAR_list['TOKEN_XPATH'])) {
-      $this->token_xpath = trim($sd->SD_CONFIGVAR_list['TOKEN_XPATH']->VAR_VALUE);
-    } else {
-      $this->token_xpath = '//root/access_token';
-    }
-    echo "connect: setting TOKEN_XPATH to: {$this->token_xpath}\n";
-
     if (isset($sd->SD_CONFIGVAR_list['TSG_ID'])) {
       $this->tsg_id = trim($sd->SD_CONFIGVAR_list['TSG_ID']->VAR_VALUE);
     } else {
@@ -140,6 +131,12 @@ class connect extends GenericConnection {
     unset($this->key);
     $this->key = $this->response['access_token'];
     $this->http_header_type = 'DATA';
+    // Add the bearer token
+    $bearer_token_header = "{$this->auth_header} {$this->key}";
+    $this->http_header_list[$this->http_header_type]['GET'][] = $bearer_token_header;
+    $this->http_header_list[$this->http_header_type]['POST'][] = $bearer_token_header;
+    $this->http_header_list[$this->http_header_type]['PUT'][] = $bearer_token_header;
+    $this->http_header_list[$this->http_header_type]['DELETE'][] = $bearer_token_header;
   }
 
   public function sendexpectone($origin, $cmd, $prompt = 'lire dans sdctx', $delay = EXPECT_DELAY, $display_error = true) {
@@ -200,11 +197,6 @@ class connect extends GenericConnection {
       $ip_address = $this->sd_hostname;
     } else {
       $ip_address = $this->auth_fqdn;
-    }
-
-    if ($this->http_header_type == 'DATA') {
-      // Add the bearer token
-      $this->http_header_list[$this->http_header_type][$http_op][] = "{$this->auth_header} {$this->key}";
     }
 
     $url = "{$this->protocol}://{$ip_address}:{$this->sd_management_port}{$rest_path}";
