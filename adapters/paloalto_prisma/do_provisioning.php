@@ -18,8 +18,8 @@
 
 require_once 'smsd/sms_common.php';
 
-require_once load_once('rest_generic', 'adaptor.php');
-require_once load_once('rest_generic', 'provisioning_stages.php');
+require_once load_once('paloalto_prisma', 'adaptor.php');
+require_once load_once('paloalto_prisma', 'provisioning_stages.php');
 
 
 // -------------------------------------------------------------------------------------
