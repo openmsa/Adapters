@@ -29,8 +29,8 @@ An positive integer in seconds.
 
 ## HTTP_HEADER (optional)
 Use this to list the HTTP header to pass to the API HTTP requests.  
-This configuration should be specified as a | separated list of "key: value"  
-* example: 'Content-Type: application/json | Accept: application/json'
+This configuration should be specified as a comma separated list of "key: value"  
+* example: 'Content-Type: application/json', 'Accept: application/json'
 * default: 'Content-Type: application/x-www-form-urlencoded'
 
 ## PROTOCOL (optional)
@@ -44,11 +44,6 @@ Use this configuration to set a specific management port. It is recommanded to n
 ## SIGNIN_REQ_PATH (optional)
 Use this to set the API sign in request path.
 * default: /auth/v1/oauth2/access_token
-
-## TOKEN_XPATH (optional)
-The XPath to get an access token from the authentication response.
-The Generic REST adapter will handle JSON response by transforming the JSON string into an XML string to allows the use of XPath. The root element of the generated XML will be set to <root>.
-* default: //root/token
 
 ## TSG_ID (optional)
 The tenant service group id to get an access token.
