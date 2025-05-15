@@ -244,6 +244,7 @@ class connect extends GenericConnection {
     }
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, "MSA");
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->conn_timeout);
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->conn_timeout);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $this->http_header_list[$this->http_header_type][$http_op]);
