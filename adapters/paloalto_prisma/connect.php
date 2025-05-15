@@ -210,7 +210,7 @@ class connect extends GenericConnection {
       }
     }
 
-    $curl_cmd = "curl -X {$http_op} -sw 'HTTP_CODE=%{http_code}' {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$url}'";
+    $curl_cmd = "curl -X {$http_op} {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$url}'";
 
     if (count($cmd_list) > 2) {
       $rest_payload = $cmd_list[2];
@@ -219,7 +219,9 @@ class connect extends GenericConnection {
       $rest_payload = '';
     }
 
+    debug_dump($curl_cmd, "HTTP REQUEST:\n");
     $this->execute_curl_command($origin, $http_op, $url, $rest_payload, $curl_cmd);
+    debug_dump($this->response, "HTTP RESPONSE:\n");
   }
 
   private function execute_curl_command($origin, $http_op, $url, $rest_payload, $curl_cmd) {
@@ -250,10 +252,7 @@ class connect extends GenericConnection {
     if (!empty($rest_payload)) {
       curl_setopt($ch, CURLOPT_POSTFIELDS, $rest_payload);
     }
-    /*
-    $info = curl_getinfo($ch);
-    debug_dump($info, "CURL REQ:\n");
-    */
+
     $ret = curl_exec($ch);
 
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
