@@ -1,7 +1,7 @@
-Paloalto Prisma adapter
+Zscaler adapter
 =======================
 
-By default this Paloalto Prisma adapter is based Generic RESTuses HTTPS protocol, BASIC authentication and application/json header for both request and responses.
+By default this Zscaler adapter is based Generic RESTuses HTTPS protocol, BASIC authentication and application/json header for both request and responses.
 
 It can be customized to support other protocols, authentication or headers by using managed entity [configuration variables](https://ubiqube.com/wp-content/docs/latest/user-guide/manager-guide-single.html#me_conf_var).
 
@@ -11,7 +11,7 @@ The list of configuration that can we used is available below
 
 ## AUTH_FQDN (optional)
 Use this configuration variable to set the authentication fqdn.  
-* default: 'auth.apps.paloaltonetworks.com'
+* default: 'z-309320.zslogin.net'
 
 ## AUTH_HEADER (optional)
 Use this configuration variable to set the HTTP header to use for setting the authentication token.
@@ -43,8 +43,4 @@ Use this configuration to set a specific management port. It is recommanded to n
 
 ## SIGNIN_REQ_PATH (optional)
 Use this to set the API sign in request path.
-* default: /auth/v1/oauth2/access_token
-
-## TSG_ID (optional)
-The tenant service group id to get an access token.
-* default: 1844024960
+* default: /oauth2/v1/token

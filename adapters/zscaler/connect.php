@@ -21,7 +21,6 @@ class connect extends GenericConnection {
   private $sd_hostname;
   private $sign_in_req_path;
   private $token_jsonpath;
-  private $tsg_id;
 
   public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
   {
@@ -31,7 +30,7 @@ class connect extends GenericConnection {
     if (isset($sd->SD_CONFIGVAR_list['AUTH_FQDN'])) {
       $this->auth_fqdn = trim($sd->SD_CONFIGVAR_list['AUTH_FQDN']->VAR_VALUE);
     } else {
-      $this->auth_fqdn = 'auth.apps.paloaltonetworks.com';
+      $this->auth_fqdn = 'z-309320.zslogin.net';
     }
     echo "connect: setting AUTH_FQDN to: {$this->auth_fqdn}\n";
 
@@ -86,7 +85,7 @@ class connect extends GenericConnection {
     echo "connect: setting HTTP protocol to: {$this->protocol}\n";
 
     $this->response = null;
-    $this->sd_hostname = empty($sd->SD_HOSTNAME) ? 'api.strata.paloaltonetworks.com' : $sd->SD_HOSTNAME;
+    $this->sd_hostname = empty($sd->SD_HOSTNAME) ? 'api.zsapi.net' : $sd->SD_HOSTNAME;
     $this->sd_ip_config = empty($ip) ? $sd->SD_IP_CONFIG : $ip;
     $this->sd_login_entry = empty($login) ? $sd->SD_LOGIN_ENTRY : $login;
 
@@ -102,7 +101,7 @@ class connect extends GenericConnection {
     if (isset($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH'])) {
       $this->sign_in_req_path = trim($sd->SD_CONFIGVAR_list['SIGNIN_REQ_PATH']->VAR_VALUE);
     } else {
-      $this->sign_in_req_path = '/auth/v1/oauth2/access_token';
+      $this->sign_in_req_path = '/oauth2/v1/token';
     }
     echo "connect: setting SIGNIN_REQ_PATH to: {$this->sign_in_req_path}\n";
 
@@ -112,18 +111,11 @@ class connect extends GenericConnection {
       $this->token_jsonpath = '$.token';
     }
     echo "connect: setting TOKEN_JSONPATH to: {$this->token_jsonpath}\n";
-
-    if (isset($sd->SD_CONFIGVAR_list['TSG_ID'])) {
-      $this->tsg_id = trim($sd->SD_CONFIGVAR_list['TSG_ID']->VAR_VALUE);
-    } else {
-      $this->tsg_id = 1844024960;
-    }
-    echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
   }
 
   public function do_connect() {
 
-    $data = "grant_type=client_credentials&scope=tsg_id:{$this->tsg_id}&client_id=$this->sd_login_entry&client_secret=$this->sd_passwd_entry";
+    $data = "grant_type=client_credentials&client_id={$this->sd_login_entry}&client_secret={$this->sd_passwd_entry}&audience=https://api.zscaler.com";
     $cmd = "POST#{$this->sign_in_req_path}#{$data}";
     $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
 
@@ -282,16 +274,6 @@ class connect extends GenericConnection {
     {
       throw new SmsException ("$origin: Repsonse to API {$curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED );
     }
-  }
-}
-
-class sdwan_connect extends connect {
-
-  public function do_connect() {
-
-    parent::do_connect();
-    $cmd = 'GET#/sdwan/v2.1/api/profile';
-    $this->sendexpectone(__FILE__ . ':' . __LINE__, $cmd);
   }
 }
 
