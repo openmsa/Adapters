@@ -209,7 +209,7 @@ class MeConnection extends GenericConnection {
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->conn_timeout);
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->conn_timeout);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $this->http_header_list[$http_op]);
-   
+
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     if (!empty($payload)) {
@@ -249,9 +249,14 @@ class MeConnection extends GenericConnection {
     else
     {
       if ($this->rest_json) {
-        throw new SmsException ("$origin: Repsonse to API {$rest_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED );
+        if ($http_code == 204) {
+          $response = array();
+        } else {
+          throw new SmsException ("$origin: Repsonse to API {$rest_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED );
+        }
+      } else {
+        $response = new SimpleXMLElement('<root></root>');
       }
-      $response = new SimpleXMLElement('<root></root>');
     }
 
     $this->header = $header;

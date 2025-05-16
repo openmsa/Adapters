@@ -2,7 +2,7 @@
 
 require_once 'smsd/sms_common.php';
 
-sms_send_user_ok($sms_csp, $sdid, '');
+$SMS_RETURN_BUF = '';
 
 return SMS_OK;
 
