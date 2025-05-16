@@ -164,7 +164,7 @@ class connect extends GenericConnection {
         }
         $index++;
       }
-      throw new SmsException("cmd timeout, $tab[0] not found", ERR_LOCAL_NOT_FOUND, $origin);
+      throw new SmsException("cmd failed, $tab[0] not found", ERR_LOCAL_NOT_FOUND, $origin);
     } else {
       $$global_result_name = json_decode('{}', true);
     }
@@ -174,7 +174,7 @@ class connect extends GenericConnection {
   }
 
   public function send($origin, $rest_cmd) {
-    unset($this->response);
+    $this->response = null;
     echo "send(): rest_cmd = $rest_cmd\n";
     $cmd_list = preg_split('@#@', $rest_cmd, 0, PREG_SPLIT_NO_EMPTY);
     debug_dump($cmd_list, "CMD_LIST\n");
@@ -273,7 +273,9 @@ class connect extends GenericConnection {
     }
     else
     {
-      throw new SmsException ("$origin: Repsonse to API {$curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED );
+      if ($http_code != 204) {
+        throw new SmsException ("$origin: Repsonse to API {$curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED );
+      }
     }
   }
 }
