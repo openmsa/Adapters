@@ -17,7 +17,6 @@
 require_once 'smsd/sms_common.php';
 require_once load_once('veex_rtu', 'veex_rtu_connect.php');
 require_once load_once('veex_rtu', 'veex_rtu_configuration.php');
-require_once load_once('veex_rtu', 'common.php');
 
 try
 {
