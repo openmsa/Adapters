@@ -20,5 +20,5 @@ class MeRestoreConfiguration
   {
     $this->sdid = $sdid;
   }
-
+}
 ?>

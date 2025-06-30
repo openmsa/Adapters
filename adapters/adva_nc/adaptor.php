@@ -5,7 +5,7 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('adva_nc', 'adva_nc_connect.php');                                          
+require_once load_once('adva_nc', 'adva_nc_connect.php');
 require_once load_once('adva_nc', 'adva_nc_apply_conf.php');
 
 require_once "$db_objects";
@@ -18,7 +18,7 @@ require_once "$db_objects";
  */
 function sd_connect($login = null, $passwd = null, $adminpasswd = null)
 {
-	$ret = virtuora_nc_connect($login, $passwd);
+	$ret = adva_nc_connect($login, $passwd);
 
 	return $ret;
 }
@@ -29,7 +29,7 @@ function sd_connect($login = null, $passwd = null, $adminpasswd = null)
  */
 function sd_disconnect($clean_exit = false)
 {
-	$ret = virtuora_nc_disconnect();
+	$ret = adva_nc_disconnect();
 
 	return $ret;
 }
@@ -46,7 +46,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 		sd_connect();
 	}
 
-	$ret = virtuora_nc_apply_conf($configuration, false);
+	$ret = adva_nc_apply_conf($configuration, false);
 
 	if ($need_sd_connection)
 	{
@@ -55,32 +55,6 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 
 	return $ret;
 }
-
-
-
-/**
- * Apply a configuration buffer to a device
- * @param  $configuration
- * @param  $need_sd_connection
- */
-// function sd_apply_command_delete($configuration, $need_sd_connection = false)
-// {
-// 	if ($need_sd_connection)
-// 	{
-// 		sd_connect();
-// 	}
-
-// 	$ret = virtuora_nc_apply_command_delete($configuration, false);
-
-// 	if ($need_sd_connection)
-// 	{
-// 		sd_disconnect();
-// 	}
-
-// 	return $ret;
-// }
-
-
 
 /**
  * Execute a command on a device

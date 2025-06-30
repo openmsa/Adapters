@@ -27,16 +27,16 @@ try
   // Connection
   sd_connect();
 
-  $asset['serial'] = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "sudo dmidecode -s system-serial-number");
-
-  $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "lsb_release -a");
+  $buffer = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "sudo dmidecode");
+  $buffer .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "lsb_release -a");
   $buffer .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "cat /proc/meminfo");
 
   $show_ver_asset_patterns = array(
       'firmware' => '@Description:\s+(?<firmware>.*)@',
       'cpu' => '@LSB Version:\s+(?<cpu>\S+)@',
       'model' => '@Distributor ID:\s+(?<model>\S+)@',
-      'memory' => '@MemTotal:\s+(?<memory>.*)@'
+      'memory' => '@MemTotal:\s+(?<memory>.*)@',
+      'serial' => '@\s+Serial Number:\s+(?<serial>.*)@'
   );
 
   $line = get_one_line($buffer);

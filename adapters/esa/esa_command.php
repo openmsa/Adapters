@@ -40,58 +40,51 @@ class esa_command extends generic_command
    */
   function eval_IMPORT()
   {
-    global $sms_sd_ctx;
+    //global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
     global $sdid;
 
-    try
+    $ret = sd_connect();
+    if ($ret != SMS_OK)
     {
-      $ret = sd_connect();
-      if ($ret != SMS_OK)
+      return $ret;
+    }
+
+    if (!empty($this->parser_list))
+    {
+      $objects = array();
+      $parser_list = array();
+
+      foreach ($this->parser_list as $parser)
       {
-        return $ret;
+        $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
+        $cmd = $op_eval;
+        // Group parsers into evaluated operations
+        $parser_list[$cmd][] = $parser;
       }
 
-      if (!empty($this->parser_list))
+      foreach ($parser_list as $sub_parsers)
       {
-        $objects = array();
-        $parser_list = array();
-
-        foreach ($this->parser_list as $parser)
+        // Run evaluated operation
+        // Get the conf on the router
+        $conf = new esa_configuration($sdid);
+        $running_conf = $conf->get_running_conf();
+        $XMLConfig = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $running_conf));
+        //debug_dump($sms_sd_ctx->get_raw_xml());
+        // Apply concerned parsers
+        foreach ($sub_parsers as $parser)
         {
-          $op_eval = $parser->evaluate_internal('IMPORT', 'operation');
-          $cmd = $op_eval;
-          // Group parsers into evaluated operations
-          $parser_list[$cmd][] = $parser;
+          $parser->parse($XMLConfig, $objects);
         }
-
-        foreach ($parser_list as $sub_parsers)
-        {
-          // Run evaluated operation
-          // Get the conf on the router
-          $conf = new esa_configuration($sdid);
-          $running_conf = $conf->get_running_conf();
-          $XMLConfig = new SimpleXMLElement(preg_replace('/xmlns="[^"]+"/', '', $running_conf));
-          //debug_dump($sms_sd_ctx->get_raw_xml());
-          // Apply concerned parsers
-          foreach ($sub_parsers as $parser)
-          {
-            $parser->parse($XMLConfig, $objects);
-          }
-        }
-
-        $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
-
-        debug_object_conf($this->parsed_objects);
-        $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
       }
 
-      sd_disconnect();
+      $this->parsed_objects = array_replace_recursive($this->parsed_objects, $objects);
+
+      debug_object_conf($this->parsed_objects);
+      $SMS_RETURN_BUF = object_to_json($this->parsed_objects);
     }
-    catch (Exception | Error $e)
-    {
-      return $e->getCode();
-    }
+
+    sd_disconnect();
 
     return SMS_OK;
   }
