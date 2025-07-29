@@ -123,7 +123,7 @@ class connect extends GenericConnection {
     if (isset($sd->SD_CONFIGVAR_list['SITE_ID'])) {
       $this->site_id = trim($sd->SD_CONFIGVAR_list['SITE_ID']->VAR_VALUE);
     }
-    echo "connect: setting SITE_ID to: {$this->site_id}\n";
+    echo "connect: setting SITE_ID to: " . ($this->site_id !== null ? $this->site_id : "not configured") . "\n";
 
     if (isset($sd->SD_CONFIGVAR_list['ELEMENT_ID'])) {
       $this->element_id = trim($sd->SD_CONFIGVAR_list['ELEMENT_ID']->VAR_VALUE);
