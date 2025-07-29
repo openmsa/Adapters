@@ -117,11 +117,11 @@ class connect extends GenericConnection {
 
     if (isset($sd->SD_CONFIGVAR_list['TSG_ID'])) {
       $this->tsg_id = trim($sd->SD_CONFIGVAR_list['TSG_ID']->VAR_VALUE);
+      echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
     } 
     else {
      throw new SmsException("TSG_ID is not configured in the SD_CONFIGVAR list", ERR_LOCAL_NOT_CONFIGURED);
     }
-    echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
 
     if (isset($sd->SD_CONFIGVAR_list['SITE_ID'])) {
       echo "connect: setting SITE_ID to: " . ($this->site_id !== null ? $this->site_id : "undefined") . "\n";
