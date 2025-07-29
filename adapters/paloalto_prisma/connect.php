@@ -117,8 +117,6 @@ class connect extends GenericConnection {
 
     if (isset($sd->SD_CONFIGVAR_list['TSG_ID'])) {
       $this->tsg_id = trim($sd->SD_CONFIGVAR_list['TSG_ID']->VAR_VALUE);
-    } else {
-      $this->tsg_id = 1844024960;
     }
     echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
 
