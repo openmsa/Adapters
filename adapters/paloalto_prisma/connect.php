@@ -128,7 +128,7 @@ class connect extends GenericConnection {
     if (isset($sd->SD_CONFIGVAR_list['ELEMENT_ID'])) {
       $this->element_id = trim($sd->SD_CONFIGVAR_list['ELEMENT_ID']->VAR_VALUE);
     }
-    echo "connect: setting ELEMENT_ID to: {$this->element_id}\n";
+    echo "connect: setting ELEMENT_ID to: " . (isset($this->element_id) ? $this->element_id : "undefined") . "\n";
   }
 
   public function do_connect() {
