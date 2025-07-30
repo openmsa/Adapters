@@ -22,6 +22,8 @@ class connect extends GenericConnection {
   private $sign_in_req_path;
   private $token_jsonpath;
   private $tsg_id;
+  private $site_id;
+  private $element_id;
 
   public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
   {
@@ -115,10 +117,20 @@ class connect extends GenericConnection {
 
     if (isset($sd->SD_CONFIGVAR_list['TSG_ID'])) {
       $this->tsg_id = trim($sd->SD_CONFIGVAR_list['TSG_ID']->VAR_VALUE);
-    } else {
-      $this->tsg_id = 1844024960;
+      echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
+    } 
+    else {
+     throw new SmsException("TSG_ID is not configured in the SD_CONFIGVAR list", ERR_LOCAL_NOT_CONFIGURED);
     }
-    echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
+
+    if (isset($sd->SD_CONFIGVAR_list['SITE_ID'])) {
+      echo "connect: setting SITE_ID to: " . ($this->site_id !== null ? $this->site_id : "undefined") . "\n";
+    }
+
+    if (isset($sd->SD_CONFIGVAR_list['ELEMENT_ID'])) {
+      $this->element_id = trim($sd->SD_CONFIGVAR_list['ELEMENT_ID']->VAR_VALUE);
+      echo "connect: setting ELEMENT_ID to: {$this->element_id}\n";
+    }
   }
 
   public function do_connect() {

@@ -14,11 +14,6 @@ require_once load_once ('zscaler', 'adaptor.php');
 
 class zscaler_command extends generic_command {
 
-	function __construct() {
-	  parent::__construct ();
-	  $this->parsed_objects = array ();
-	}
-
 	function decode_IMPORT($object, $json_params, $element) {
 		$parser = new cmd_import ( $object, $element, $json_params );
 		$this->parser_list [] = &$parser;
