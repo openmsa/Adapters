@@ -165,24 +165,16 @@ class DeviceConnection extends GenericConnection {
 		}
 		$xml;
 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
-		if (strpos($curl_cmd, "Content-Type: application/json")) {
-                        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+		//test if result is a json content or not
+		json_decode(preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result));
+		if (json_last_error() === JSON_ERROR_NONE )) {
+            $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
 			}
-
 			// call array to xml conversion function
 			$xml = arrayToXml ( $array, '<root></root>' );
-		}
-		elseif (strpos($curl_cmd, "content-type:application/json-rpc")) {
-	        $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
-			$array = json_decode ( $result, true );
-			if (isset ( $array ['sid'] )) {
-				$this->key = $array ['sid'];
-			}
-			// call array to xml conversion function
-			$xml = arrayToXml ($array, '<root></root>');
 		} else {
             if (empty(trim($result))) {
 		        $result="<root></root>";
