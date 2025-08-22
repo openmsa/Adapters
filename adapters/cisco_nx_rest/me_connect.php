@@ -167,7 +167,7 @@ class DeviceConnection extends GenericConnection {
 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
 		//test if result is a json content or not
 		json_decode(preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result));
-		if (json_last_error() === JSON_ERROR_NONE )) {
+		if (json_last_error() === JSON_ERROR_NONE ) {
             $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
