@@ -57,7 +57,6 @@ class connect extends GenericConnection {
     } else {
       $http_header_str = 'Content-Type: application/x-www-form-urlencoded';
     }
-    echo "connect: setting HTTP header to: " . print_r($this->http_header_list, true) . "\n";
 
     $this->http_header_list = array(
         'AUTH' => array (
@@ -70,6 +69,8 @@ class connect extends GenericConnection {
             'DELETE' => array('Accept: application/json'),
         ),
     );
+    echo "connect: setting HTTP header to: " . print_r($this->http_header_list, true) . "\n";
+
     $this->http_header_type = 'AUTH';
     $this->json_path = new \JsonPath\JsonPath();
 
