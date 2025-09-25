@@ -166,9 +166,10 @@ class DeviceConnection extends GenericConnection {
 		$xml;
 		$result = preg_replace('/xmlns="[^"]+"/', '', $result);
 		//test if result is a json content or not
-		json_decode(preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result));
+		$json_candidate = preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+		json_decode($json_candidate);
 		if (json_last_error() === JSON_ERROR_NONE ) {
-            $result=preg_replace('/":([0-9]+)\.([0-9]+)/', '":"$1.$2"', $result);
+			$result = $json_candidate;
 			$array = json_decode ( $result, true );
 			if (isset ( $array ['sid'] )) {
 				$this->key = $array ['sid'];
