@@ -187,7 +187,7 @@ class connect extends GenericConnection {
     }
 
     // if in MS endpoint we have for instance /api/getdata/zscalertwo.net/all/cenr?site=config.zscaler.com
-    // config.zscaler.com is publicly accessible to retreive Pops
+    // config.zscaler.com is publicly accessible to retrieve Pops
     if (preg_match('/site=([^&]+)/', $rest_path, $matches)) {
       $ip_address = $matches[1];
     }
