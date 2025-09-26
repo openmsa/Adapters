@@ -186,17 +186,17 @@ class connect extends GenericConnection {
       $rest_path = $cmd_list[1];
     }
 
-    if (isset($this->key)) {
+    // if in MS endpoint we have for instance /api/getdata/zscalertwo.net/all/cenr?site=config.zscaler.com
+    // config.zscaler.com is publicly accessible to retreive Pops
+    if (preg_match('/site=([^&]+)/', $rest_path, $matches)) {
+      $ip_address = $matches[1];
+    }
+    else if (isset($this->key)) {
       $ip_address = $this->sd_hostname;
     } else {
       $ip_address = $this->auth_fqdn;
     }
-
-    // if in MS endpoint we have for instance /api/getdata/zscalertwo.net/all/cenr?site=config.zscaler.com
-    // config.zscaler.com is publicly accessible to retreive Pops
-    if (preg_match('/site=([^&]+)/', $rest_path, $matches)) {
-        $ip_address = $matches[1];
-    }
+    
     $url = "{$this->protocol}://{$ip_address}:{$this->sd_management_port}{$rest_path}";
 
     // $headers and $curl_cmd are used for error or debug
