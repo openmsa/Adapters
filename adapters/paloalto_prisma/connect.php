@@ -120,7 +120,7 @@ class connect extends GenericConnection {
       $this->tsg_id = trim($sd->SD_CONFIGVAR_list['TSG_ID']->VAR_VALUE);
     } 
     else {
-     throw new SmsException("TSG_ID is not configured in the SD_CONFIGVAR list", ERR_LOCAL_NOT_CONFIGURED);
+     throw new SmsException("TSG_ID is not configured in the SD_CONFIGVAR list", ERR_CONFIG_VAR_UNDEFINED);
     }
     echo "connect: setting TSG_ID to: {$this->tsg_id}\n";
 
