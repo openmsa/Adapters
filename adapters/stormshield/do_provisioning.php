@@ -32,5 +32,3 @@ if (empty($ipaddr) || empty($login) || empty($passwd))
 }
 
 return require_once 'smsd/do_provisioning.php';
-
-?>

@@ -31,5 +31,3 @@ function apply_conf($configuration)
 
     return SMS_OK;
 }
-
-?>

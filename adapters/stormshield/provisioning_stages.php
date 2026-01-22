@@ -5,5 +5,3 @@ $provisioning_stages = array(
   array('name' => 'Initial Connection',    'prog' => 'prov_init_conn'),
   array('name' => 'Unlock Provisioning',   'prog' => 'prov_unlock'),
 );
-
-?>

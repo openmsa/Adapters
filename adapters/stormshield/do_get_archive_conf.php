@@ -74,6 +74,3 @@ if (!file_exists($target_file))
 $SMS_RETURN_BUF = "{$date}: Backup saved in {$target_file}";
 
 return SMS_OK;
-
-?>
-?>

@@ -66,5 +66,3 @@ function disconnect()
   $sms_sd_ctx = null;
   return SMS_OK;
 }
-
-?>

@@ -81,5 +81,3 @@ function sd_execute_command($cmd, $need_sd_connection = false) {
 
   return $ret;
 }
-
-?>
