@@ -89,5 +89,3 @@ catch (Exception | Error $e)
 sms_sd_unlock($sms_csp, $sms_sd_info);
 
 return SMS_OK;
-
-?>

@@ -16,5 +16,3 @@ function prov_init_conn($sms_csp, $sdid, $sms_sd_info, &$err)
 
   return SMS_OK;
 }
-
-?>

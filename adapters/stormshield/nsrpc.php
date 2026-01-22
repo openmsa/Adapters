@@ -162,8 +162,3 @@ function is_reboot_needed(&$nsrpc_output, &$cmd, $nb_code)
   return true;
 }
 
-/**
- * @}
- */
-
-?>

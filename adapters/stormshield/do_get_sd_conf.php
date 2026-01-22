@@ -83,4 +83,3 @@ rename($temp_backup, $target);
 $SMS_RETURN_BUF = "{$date}: Backup saved in {$target}";
 
 return SMS_OK;
-?>
