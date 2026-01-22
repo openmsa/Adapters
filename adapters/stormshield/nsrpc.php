@@ -36,7 +36,7 @@ $ok_return_code = array (
   "111" => true,
 );
 
-// intermediate return code, it is normaly followed by another return code
+// intermediate return code, it is normally followed by another return code
 $not_a_return_code = array (
   "101" => true,
   "102" => true,
@@ -110,7 +110,7 @@ function is_error(&$nsrpc_output)
 }
 
 /*
- * Get return codes of SimpleXMLElement response from the ME
+ * Get return codes of a SimpleXMLElement response from the managed entity
  * and check if there is an error, stops at the first error
  * return an error message if any, false otherwise
  */
@@ -118,6 +118,11 @@ function is_error_xml($xml)
 {
   global $ok_return_code;
   global $not_a_return_code;
+
+  if (empty($xml))
+  {
+    return false;
+  }
 
   $return_list = array();
 
@@ -132,7 +137,7 @@ function is_error_xml($xml)
           if (isset($serverd['ret']))
           {
             $return_list[] = $serverd->attributes();
-            $rc = (int)$serverd['ret'];
+            $rc = (string)$serverd['ret'];
             if (empty($ok_return_code[$rc]) && empty($not_a_return_code[$rc]))
             {
               $err = '';
