@@ -8,231 +8,99 @@ require_once 'smsd/sms_common.php';
 
 /*
  * Return code
- Success
-  100 command successful
-  101 command successful, download follow
-  102 command successful, upload follow
-  103 command successful, you will be disconnected
-  104 command successful, but reboot needed
- Warning
-  110 command successful, but warning
-  111 command successful, but multiple warnings
- Error
-  200 command error
-  201 return error message on many lines
-  203 authentication failed
-  203 client is idle, disconnecting
-  204 maximum number of authentication user reached for that level
-  205 not enough privilege
-  206 licence restriction
-*/
+ Success (>= 100, < 110)
+   100 command successful
+   101 command successful, data follow
+   102 command successful, waiting for data
+   103 command successful, disconnecting
+   104 command successful, reboot needed
+ Warning (>= 110, < 200)
+   110 command successful, warning
+   111 command successful, multiple warnings
+ Error (>= 200)
+   200 command error
+   201 return error message on many lines
+   203 authentication failed
+   203 client is idle, disconnecting
+   204 maximum number of authentication user reached for that level
+   205 not enough privilege
+   206 licence restriction
+ */
 
-// code retour considere comme ok
-$ok_return_code = array (
-    "100" => true,
-    "103" => true,
-    "104" => true,
-    "110" => true,
-    "111" => true,
-);
-
-// code retour intermediaire, pas vraiment un code retour, mais pas une erreur
-$not_a_return_code = array (
-    "101" => true,
-    "102" => true,
-);
-
-// command exception must not be considered as an error, a workaround of not wanted behavior of the device (bug ?)
-$cmd_exception = array (
-	"ha reboot serial=passive" => "code=01700100",
-);
-
-define("RC_LEN", 3);
-
-
-
-/** nsrpc tool wrapper */
-class nsrpc
+function get_return_codes(&$nsrpc_output)
 {
-  // Liste ordonnée ...
-  private $actions_list;
-  private $sd;
-  private $thread_id;
+  define("RC_LEN", 3);
 
-  function __construct(&$sd)
+  $rc_list = array();
+
+  $pos = 0;
+  do
   {
-    $this->actions_list = array();
-    $this->sd = &$sd;
-    $this->thread_id = $_SERVER['THREAD_ID'];
-  }
-
-  function clean_pool()
-  {
-    unset($this->actions_list);
-  }
-
-  function add_action($action)
-  {
-    $this->actions_list[] = $action;
-    echo "action [" . $action . "] added.\n";
-  }
-
-  function execute_pool(&$output)
-  {
-    global $ok_return_code;
-    global $not_a_return_code;
-
-    echo "Entering execute_pool()\n";
-
-    // Create a backup script file
-    $nsrpc_script_file = "/opt/sms/spool/tmp/nsrpc_script_{$this->thread_id}";
-
-    echo "nsrpc script: " . $nsrpc_script_file . "\n";
-
-    if (is_file($nsrpc_script_file))
+    $end = true;
+    $pos = strpos($nsrpc_output, ' code=', $pos);
+    if ($pos !== false)
     {
-      // Remove any previous file
-      unlink($nsrpc_script_file);
-
-      // Assert no file of the name exist
-      if (is_file($nsrpc_script_file))
+      $pos = $pos - RC_LEN;
+      if ($pos < 0)
       {
-        $err_msg = "Can't delete the file {$nsrpc_script_file}";
-        sms_log_error(__FILE__.':'.__LINE__.": {$err_msg}\n");
-        return ERR_LOCAL_FILE;
+        return $rc_list;
       }
-    }
-
-    // Create the file
-    $handle = fopen($nsrpc_script_file, "w");
-
-    foreach ($this->actions_list as $action)
-    {
-      echo "Action [" . $action . "]\n";
-      $ret = fputs($handle, "$action\n");
-      if ($ret === false)
+      if (($pos === 0) || ($nsrpc_output[$pos-1] === "\n"))
       {
-        $err_msg = "Writing [$action] in file [$nsrpc_script_file] has failed!";
-        sms_log_error(__FILE__.':'.__LINE__.": {$err_msg}\n");
-        fclose($handle);
-        unlink($nsrpc_script_file);
-        return ERR_LOCAL_FILE;
+        // This line contains a return code
+        $rc = substr($nsrpc_output, $pos, RC_LEN);
+        $rc_list[$rc] = $rc;
       }
+      // Get next code if any
+      $pos += RC_LEN + 6; // 'xxx code='
+      $end = false;
     }
-    fclose($handle);
-
-    echo "Deploy now the config file ($nsrpc_script_file) into the router\n";
-
-    // date +\"%Y/%m/%d:%H:%M:%S\" >> /opt/sms/logs/nsrpc.log &&  -l /opt/sms/logs/nsrpc.log
-    if (isset($this->sd->SD_CONF_ISIPV6) && $this->sd->SD_CONF_ISIPV6 ){
-      //IPv6 we should add '-6' and add '[' and ']' arround the IPv6
-      $cmd = "cd /opt/sms/bin/netasq 2>&1 && ./nsrpc -6 -c $nsrpc_script_file '{$this->sd->SD_LOGIN_ENTRY}:{$this->sd->SD_PASSWD_ENTRY}@[".$this->sd->SD_IP_CONFIG."]' 2>&1";
-    }else{
-      //IPV4
-      $cmd = "cd /opt/sms/bin/netasq 2>&1 && ./nsrpc  -c $nsrpc_script_file '{$this->sd->SD_LOGIN_ENTRY}:{$this->sd->SD_PASSWD_ENTRY}@{$this->sd->SD_IP_CONFIG}' 2>&1";
-    }  
-    
-    $ret = exec_local(__FILE__.':'.__LINE__, $cmd, $output);
-    if ($ret !== SMS_OK)
-    {
-      $err_msg = "Command [$cmd] has failed!";
-      sms_log_error(__FILE__.':'.__LINE__.": {$err_msg}\n");
-      unlink($nsrpc_script_file);
-      return $ret;
-    }
-
-    unlink($nsrpc_script_file);
-
-    // for each action check the return code
-    // ouput contains the actions and their return
-    $index_action = 0;
-    $last_index_action = 0;
-    $nb_action = count($this->actions_list);
-    $error = false;
-    foreach ($output as $index => $line)
-    {
-      echo "nsrpc output ($index) : $line\n";
-
-      if (($index_action < $nb_action) && strpos($line, $this->actions_list[$index_action]))
-      {
-        $last_index_action = $index_action;
-        $index_action++;
-      }
-      else
-      {
-        if (is_error($line, $this->actions_list[$last_index_action]))
-        {
-          $err_msg = "Command [{$this->actions_list[$last_index_action]}] has failed : $line";
-          sms_log_error(__FILE__.':'.__LINE__.": {$err_msg}\n");
-          $error = true;
-        }
-      }
-    }
-
-    if ($error)
-    {
-      return ERR_SD_CMDFAILED;
-    }
-
-    return SMS_OK;
   }
+  while (!$end);
+
+  return $rc_list;
 }
 
 /*
- * $buffer to check looks like
+ * $nsrpc_output string to check looks like
  * 100 code=00a00100 msg="Ok"
  * or
  * 102 code=00a00300 msg="Waiting for data"
  * or
  * 200 code=00100800 msg="Error in format"
  *
- * $buffer can be something like below and should not be taken into account
- * level=warning type=cluster code=12 msg="Degraded mode: Can't synchronize connections" causedBy="V50XXA0L0000007"
+ * other format should not be taken into account
  */
-function is_error(&$buffer, &$command)
+function is_error(&$nsrpc_output)
 {
-  global $ok_return_code;
-  global $not_a_return_code;
-  global $cmd_exception;
+  // return code considered as ok
+  $ok_return_code = array (
+    "100" => true,
+    "103" => true,
+    "104" => true,
+    "110" => true,
+    "111" => true,
+  );
 
-  $pos = 0;
-  do
+  // intermediate return code, it is normaly followed by another return code
+  $not_a_return_code = array (
+    "101" => true,
+    "102" => true,
+  );
+
+  $rc_list = get_return_codes($nsrpc_output);
+
+  foreach ($rc_list as $rc)
   {
-    $end = true;
-    $pos = strpos($buffer, ' code=', $pos);
-    if ($pos !== false)
+    if (empty($ok_return_code[$rc]) && empty($not_a_return_code[$rc]))
     {
-      $pos = $pos - RC_LEN;
-      if ($pos < 0)
-      {
-        return false;
-      }
-      if (($pos === 0) || ($buffer[$pos-1] === "\n"))
-      {
-        // This line contains a return code
-        $code = substr($buffer, $pos, RC_LEN);
-        if (empty($ok_return_code[$code]) && empty($not_a_return_code[$code]))
-        {
-          foreach ($cmd_exception as $cmd => $rc)
-          {
-            if ((strpos($command, $cmd) !== false) && (strpos($buffer, $rc) !== false))
-            {
-              return false;
-            }
-          }
-          return true;
-        }
-        if (empty($not_a_return_code[$code]))
-        {
-          return false;
-        }
-      }
-      // Get second code after "Waiting for data"
-      $pos += RC_LEN + 6; // 'xxx code='
-      $end = false;
+      return true;
+    }
+    if (empty($not_a_return_code[$rc]))
+    {
+      return false;
     }
   }
-  while (!$end);
 
   return false;
 }
@@ -294,8 +162,3 @@ function is_reboot_needed(&$nsrpc_output, &$cmd, $nb_code)
   return true;
 }
 
-/**
- * @}
- */
-
-?>

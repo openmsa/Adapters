@@ -5,8 +5,8 @@
 require_once 'smserror/sms_error.php';
 require_once 'smsd/sms_common.php';
 
-require_once load_once('stormshield', 'netasq_connect.php');
-require_once load_once('stormshield', 'netasq_apply_conf.php');
+require_once load_once('stormshield', 'connect.php');
+require_once load_once('stormshield', 'apply_conf.php');
 
 require_once "$db_objects";
 
@@ -19,7 +19,7 @@ require_once "$db_objects";
  */
 function sd_connect($ip_addr = '', $login = '', $passwd = '')
 {
-	$ret = netasq_connect($ip_addr, $login, $passwd);
+	$ret = connect($ip_addr, $login, $passwd);
 
 	return $ret;
 }
@@ -30,7 +30,7 @@ function sd_connect($ip_addr = '', $login = '', $passwd = '')
  */
 function sd_disconnect($clean_exit = false)
 {
-	$ret = netasq_disconnect();
+	$ret = disconnect();
 
 	return $ret;
 }
@@ -47,7 +47,7 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 		sd_connect();
 	}
 
-	$ret = netasq_apply_conf($configuration);
+	$ret = apply_conf($configuration);
 
 	if ($need_sd_connection)
 	{
@@ -57,32 +57,27 @@ function sd_apply_conf($configuration, $need_sd_connection = false)
 	return $ret;
 }
 
+
 /**
  * Execute a command on a device
  * @param  $cmd
  * @param  $need_sd_connection
  */
-function sd_execute_command($cmd, $need_sd_connection = false)
-{
-	global $sms_sd_ctx;
+function sd_execute_command($cmd, $need_sd_connection = false) {
+  global $sms_sd_ctx;
 
-	if ($need_sd_connection)
-	{
-		$ret = sd_connect();
-		if ($ret !== SMS_OK)
-		{
-			return false;
-		}
-	}
+  if ($need_sd_connection) {
+    $ret = sd_connect ();
+    if ($ret !== SMS_OK) {
+      return false;
+    }
+  }
 
-	$ret = sendexpectone(__FILE__.':'.__LINE__, $sms_sd_ctx, $cmd);
+  $ret = sendexpectone ( __FILE__ . ':' . __LINE__, $sms_sd_ctx, $cmd );
 
-	if ($need_sd_connection)
-	{
-		sd_disconnect(true);
-	}
+  if ($need_sd_connection) {
+    sd_disconnect ( true );
+  }
 
-	return $ret;
+  return $ret;
 }
-
-?>
