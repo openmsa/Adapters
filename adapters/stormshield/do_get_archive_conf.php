@@ -24,8 +24,6 @@ $thread_id = $_SERVER['THREAD_ID'];
 // backup file on the ME
 $local_backup = "/tmp/{$sdid}_{$thread_id}_conf.na";
 
-$target_file = $folder;  // TODO to be removed when msa-sms done
-
 $date = date('c');
 $SMS_RETURN_BUF = "{$date}";
 
