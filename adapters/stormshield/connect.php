@@ -221,7 +221,7 @@ class connect extends GenericConnection {
     else
     {
       if ($http_code != 204) {
-        throw new SmsException ("$origin: Repsonse to API {$curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED );
+        throw new SmsException ("$origin: Response to API {$curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED);
       }
     }
   }
