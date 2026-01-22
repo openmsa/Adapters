@@ -8,7 +8,7 @@
  *  $sdid
  *  $sms_module    module name (for patterns)
  *  $sms_msg       message
- *  $config_type   type of configuration (CONF_FILE or CONF_TREE)
+ *  $config_type   type of configuration (CONF_FILE or CONF_BIN)
  */
 
 // Verb JSABACKUPCONF

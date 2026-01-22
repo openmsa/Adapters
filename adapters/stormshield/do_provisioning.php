@@ -19,7 +19,6 @@
 require_once 'smsd/sms_common.php';
 
 require_once load_once('stormshield', 'adaptor.php');
-require_once load_once('stormshield', 'netasq_configuration.php');
 require_once load_once('stormshield', 'provisioning_stages.php');
 
 

@@ -12,10 +12,11 @@
  *
  *  $revision_id     SVN rev id for restore
  *  $sms_msg         message
- *  $config_type     type of configuration (CONF_FILE or CONF_TREE)
+ *  $config_type     type of configuration (CONF_FILE or CONF_BIN)
  */
 
-// Enter Script description here
+// Restore configuration from archive file
+// TODO
 
 require_once 'smsd/sms_common.php';
 
