@@ -27,6 +27,22 @@ require_once 'smsd/sms_common.php';
    206 licence restriction
  */
 
+// return code considered as ok
+$ok_return_code = array (
+  "100" => true,
+  "103" => true,
+  "104" => true,
+  "110" => true,
+  "111" => true,
+);
+
+// intermediate return code, it is normally followed by another return code
+$not_a_return_code = array (
+  "101" => true,
+  "102" => true,
+);
+
+
 function get_return_codes(&$nsrpc_output)
 {
   define("RC_LEN", 3);
@@ -73,20 +89,8 @@ function get_return_codes(&$nsrpc_output)
  */
 function is_error(&$nsrpc_output)
 {
-  // return code considered as ok
-  $ok_return_code = array (
-    "100" => true,
-    "103" => true,
-    "104" => true,
-    "110" => true,
-    "111" => true,
-  );
-
-  // intermediate return code, it is normaly followed by another return code
-  $not_a_return_code = array (
-    "101" => true,
-    "102" => true,
-  );
+  global $ok_return_code;
+  global $not_a_return_code;
 
   $rc_list = get_return_codes($nsrpc_output);
 
@@ -99,6 +103,53 @@ function is_error(&$nsrpc_output)
     if (empty($not_a_return_code[$rc]))
     {
       return false;
+    }
+  }
+
+  return false;
+}
+
+/*
+ * Get return codes of a SimpleXMLElement response from the managed entity
+ * and check if there is an error, stops at the first error
+ * return an error message if any, false otherwise
+ */
+function is_error_xml($xml)
+{
+  global $ok_return_code;
+  global $not_a_return_code;
+
+  if (empty($xml))
+  {
+    return false;
+  }
+
+  $return_list = array();
+
+  if (isset($xml->command))
+  {
+    foreach ($xml->command as $command)
+    {
+      if (isset($command->serverd))
+      {
+        foreach ($command->serverd as $serverd)
+        {
+          if (isset($serverd['ret']))
+          {
+            $return_list[] = $serverd->attributes();
+            $rc = (string)$serverd['ret'];
+            if (empty($ok_return_code[$rc]) && empty($not_a_return_code[$rc]))
+            {
+              $err = '';
+              foreach ($return_list as $ret)
+              {
+                $err .= "ret={$ret['ret']}, code={$ret['code']}, msg={$ret['msg']} \n";
+              }
+              return $err;
+            }
+          }
+        }
+      }
     }
   }
 
