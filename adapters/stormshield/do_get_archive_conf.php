@@ -42,7 +42,7 @@ if (is_error($ret))
 
 disconnect();
 
-// At the stage the backup file is generated on the ME
+// At this stage the backup file is generated on the ME
 // copy it on MSA
 
 if (file_exists($target_file))

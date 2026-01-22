@@ -18,15 +18,15 @@ function apply_conf($configuration)
     $line = get_one_line($configuration);
     while ($line !== false)
     {
-    	$line = trim($line);
+      $line = trim($line);
 
-    	if (!empty($line))
-    	{
-    		$res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '');
+      if (!empty($line))
+      {
+        $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '');
 
-    		$SMS_RETURN_BUF = json_encode($res);
-    	}
-    	$line = get_one_line($configuration);
+        $SMS_RETURN_BUF = json_encode($res);
+      }
+      $line = get_one_line($configuration);
     }
 
     return SMS_OK;
