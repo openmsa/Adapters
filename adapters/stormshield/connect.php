@@ -5,6 +5,9 @@
 require_once 'smsd/sms_common.php';
 require_once 'smsd/expect.php';
 require_once 'smsd/generic_connection.php';
+
+require_once load_once('stormshield', 'nsrpc.php');
+
 require_once "$db_objects";
 
 class connect extends GenericConnection {
@@ -21,6 +24,7 @@ class connect extends GenericConnection {
   private $response;
   private $cookie;
   private $session_id;
+  private $curl_cmd;
 
   public function __construct($ip = null, $login = null, $passwd = null, $admin_password = null, $port = null)
   {
@@ -117,15 +121,6 @@ class connect extends GenericConnection {
 
     $url = "https://{$this->sd_ip_config}/{$rest_path}";
 
-    $headers = '';
-    foreach ($this->http_header_list as $header) {
-      $H = trim($header);
-      $headers .= " -H '{$H}'";
-    }
-
-    // for debug
-    $curl_cmd = "curl -X {$http_op} {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$url}'";
-
     if (count($cmd_list) > 2) {
       if (isset($this->session_id)) {
         $payload = $cmd_list[2];
@@ -157,14 +152,25 @@ class connect extends GenericConnection {
       $rest_payload = '';
     }
 
-    $curl_cmd .= " --data-raw '{$rest_payload}'";
+    $this->execute_curl_command($origin, $http_op, $url, $rest_payload);
 
-    debug_dump($curl_cmd, "HTTP REQUEST:\n");
-    $this->execute_curl_command($origin, $http_op, $url, $rest_payload, $curl_cmd);
-    debug_dump($this->response, "HTTP RESPONSE:\n");
+    $ret = is_error_xml($this->response);
+    if ($ret !== false)
+    {
+      throw new SmsException("Response to API {$this->curl_cmd} Failed: \n$ret", ERR_SD_CMDFAILED, $origin);
+    }
   }
 
-  private function execute_curl_command($origin, $http_op, $url, $rest_payload, $curl_cmd) {
+  private function execute_curl_command($origin, $http_op, $url, $rest_payload) {
+
+    // for debug
+    $headers = '';
+    foreach ($this->http_header_list as $h) {
+      $H = trim($h);
+      $headers .= " -H '{$H}'";
+    }
+    $this->curl_cmd = "curl -X {$http_op} {$headers} --connect-timeout {$this->conn_timeout} --max-time {$this->conn_timeout} -k '{$url}' --data-raw '{$rest_payload}'";
+    debug_dump($this->curl_cmd, "HTTP REQUEST:\n");
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -206,7 +212,7 @@ class connect extends GenericConnection {
     if ($http_code < 200 || $http_code > 209) {
       $cmd_quote = str_replace("\"", "'", $body);
       $cmd_return = str_replace("\n", "", $cmd_quote);
-      throw new SmsException("Call to API {$curl_cmd} Failed, header = $header, $cmd_return error", ERR_SD_CMDFAILED, $origin);
+      throw new SmsException("Call to API {$this->curl_cmd} Failed, header = $header, $cmd_return error", ERR_SD_CMDFAILED, $origin);
     }
 
     if (!isset($this->cookie)) {
@@ -221,9 +227,10 @@ class connect extends GenericConnection {
     else
     {
       if ($http_code != 204) {
-        throw new SmsException ("$origin: Response to API {$curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED);
+        throw new SmsException ("$origin: Response to API {$this->curl_cmd} Failed, expected json received empty response, header $header", ERR_SD_CMDFAILED);
       }
     }
+    debug_dump($this->response, "HTTP RESPONSE:\n");
   }
 }
 
