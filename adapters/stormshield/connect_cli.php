@@ -42,8 +42,8 @@ class connect_cli extends GenericConnection {
   }
 
   public function do_disconnect() {
-    $this->sendexpectone(__FILE__.':'.__LINE__, "quit", '>');
-    $this->sendCmd(__FILE__.':'.__LINE__, 'exit');
+    //$this->sendexpectone(__FILE__.':'.__LINE__, "quit", '>');
+    //$this->sendCmd(__FILE__.':'.__LINE__, 'exit');
     parent::disconnect();
   }
 

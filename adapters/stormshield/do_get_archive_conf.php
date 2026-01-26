@@ -55,7 +55,7 @@ $sd = &$network->SD;
 
 echo "/opt/sms/bin/sms_scp_transfer -r -s $local_backup -d $target_file -a $sd->SD_IP_CONFIG -l $sd->SD_LOGIN_ENTRY -p '$sd->SD_PASSWD_ENTRY' -P $sd->SD_MANAGEMENT_PORT\n";
 
-$ret_scp = exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $local_backup -d $target_file -a $sd->SD_IP_CONFIG -l $sd->SD_LOGIN_ENTRY -p '$sd->SD_PASSWD_ENTRY' -P $sd->SD_MANAGEMENT_PORT", $output);
+exec_local(__FILE__.':'.__LINE__, "/opt/sms/bin/sms_scp_transfer -r -s $local_backup -d $target_file -a $sd->SD_IP_CONFIG -l $sd->SD_LOGIN_ENTRY -p '$sd->SD_PASSWD_ENTRY' -P $sd->SD_MANAGEMENT_PORT", $output);
 
 // remove the backup on the ME
 connect();
