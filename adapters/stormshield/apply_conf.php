@@ -10,23 +10,20 @@ function apply_conf($configuration)
 {
     global $sms_sd_ctx;
     global $SMS_RETURN_BUF;
+    global $SMS_OUTPUT_BUF;
 
     // Save the configuration applied on the router
     save_result_file($configuration, 'conf.applied');
     $SMS_OUTPUT_BUF = '';
 
-    $line = get_one_line($configuration);
-    while ($line !== false)
+    if (empty($configuration))
     {
-      $line = trim($line);
-
-      if (!empty($line))
-      {
-        $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $line, '');
-
-        $SMS_RETURN_BUF = json_encode($res);
-      }
-      $line = get_one_line($configuration);
+      $SMS_RETURN_BUF = '{}';
+    }
+    else
+    {
+      $res = sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $configuration, '');
+      $SMS_RETURN_BUF = json_encode($res);
     }
 
     return SMS_OK;
