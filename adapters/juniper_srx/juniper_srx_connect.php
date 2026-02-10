@@ -61,10 +61,11 @@ class JuniperSRXsshConnection extends SshConnection
         unset($tab);
         $tab[0] = '%';
         $tab[1] = '>';
+        $tab[2] = '#';
         
         $index = sendexpect(__FILE__ . ':' . __LINE__, $sms_sd_ctx, "$passwd", $tab);
         
-        if ($index == 0)
+        if ($index == 0 or index == 2)
         {
             
             unset($tab);
