@@ -43,6 +43,8 @@ class juniper_srx_command extends generic_command
     }
     if (!empty($this->parser_list))
     {
+      sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx,"configure private", "#");
+      
       $objects = array();
       // One operation groups several parsers
       foreach ($this->parser_list as $operation => $parsers)
@@ -62,7 +64,7 @@ class juniper_srx_command extends generic_command
           $op_list = preg_split('@##@', $op_eval, 0, PREG_SPLIT_NO_EMPTY);
           foreach ($op_list as $op)
           {
-            $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op);
+            $running_conf .= sendexpectone(__FILE__ . ':' . __LINE__, $sms_sd_ctx, $op, "#");
           }
           // Apply concerned parsers
           foreach ($sub_parsers as $parser)
